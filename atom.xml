@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Unmotivated snnipets]]></title>
+  <link href="http://lciel.github.io/atom.xml" rel="self"/>
+  <link href="http://lciel.github.io/"/>
+  <updated>2013-08-06T20:51:37+09:00</updated>
+  <id>http://lciel.github.io/</id>
+  <author>
+    <name><![CDATA[lciel]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+</feed>
