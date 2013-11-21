@@ -1,12 +1,20 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
+        <loc>http://lciel.github.io/blog/2013/11/21/about/</loc>
+        <lastmod>2013-11-21T20:41:08+09:00</lastmod>
+    </url>
+    <url>
+        <loc>http://lciel.github.io/blog/2013/11/21/remove-fading-edge/</loc>
+        <lastmod>2013-11-21T20:40:13+09:00</lastmod>
+    </url>
+    <url>
         <loc>http://lciel.github.io/blog/archives/</loc>
-        <lastmod>2013-08-06T20:38:23+09:00</lastmod>
+        <lastmod>2013-11-21T20:41:08+09:00</lastmod>
     </url>
     <url>
         <loc>http://lciel.github.io/</loc>
-        <lastmod>2013-08-06T20:38:23+09:00</lastmod>
+        <lastmod>2013-11-21T20:41:08+09:00</lastmod>
     </url>
     <url>
         <loc>http://lciel.github.io/robots.txt</loc>
