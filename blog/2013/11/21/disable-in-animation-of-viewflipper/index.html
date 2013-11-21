@@ -5,12 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>ブログ(また)はじめました - Unmotivated</title>
+  <title>ViewFlipper の InAnimation を1つ目には適用しない - Unmotivated</title>
   <meta name="author" content="lciel">
 
   
-  <meta name="description" content="投稿の敷居を極限まで下げてみたので、久しぶりにブログを書き始めてみます。 基本的に、普段書いているメモを切り取って投げるだけなので、スニペットやら調査の結果やらばかりになるかと思います。 3日坊主にならないように、適当にがんばります。
-">
+  <meta name="description" content="ViewFlipper に InAnimation を設定した状態で startFlipping() をコールした際に、1つ目の View にも InAnimation が適用されてしまうのを回避したい。 AutoStart を指定せずに明示的に startFlipping() をコールした後に &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -19,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://lciel.github.io/blog/2013/11/21/about">
+  <link rel="canonical" href="http://lciel.github.io/blog/2013/11/21/disable-in-animation-of-viewflipper">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Unmotivated" type="application/atom+xml">
@@ -69,7 +68,7 @@
   
   <header>
     
-      <h1 class="entry-title">ブログ(また)はじめました</h1>
+      <h1 class="entry-title">ViewFlipper の InAnimation を1つ目には適用しない</h1>
     
     
       <p class="meta">
@@ -85,18 +84,31 @@
   
 
 
-<time datetime="2013-11-21T20:14:00+09:00" pubdate data-updated="true">Nov 21<span>st</span>, 2013</time>
+<time datetime="2013-11-21T20:58:00+09:00" pubdate data-updated="true">Nov 21<span>st</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>投稿の敷居を極限まで下げてみたので、久しぶりにブログを書き始めてみます。</p>
+<div class="entry-content"><p>ViewFlipper に InAnimation を設定した状態で startFlipping() をコールした際に、1つ目の View にも InAnimation が適用されてしまうのを回避したい。</p>
 
-<p>基本的に、普段書いているメモを切り取って投げるだけなので、スニペットやら調査の結果やらばかりになるかと思います。</p>
+<p>AutoStart を指定せずに明示的に startFlipping() をコールした後に setInAnimation() してやれば OK</p>
 
-<p>3日坊主にならないように、適当にがんばります。</p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">ViewFlipper</span> <span class="n">viewFlipper</span> <span class="o">=</span> <span class="o">(</span><span class="n">ViewFlipper</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">viewFlipper</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// viewFlipper.setAutoStart(true);</span>
+</span><span class='line'><span class="n">viewFlipper</span><span class="o">.</span><span class="na">startFlipping</span><span class="o">();</span>
+</span><span class='line'><span class="n">viewFlipper</span><span class="o">.</span><span class="na">setInAnimation</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">anim</span><span class="o">.</span><span class="na">fadein</span><span class="o">);</span>
+</span><span class='line'><span class="n">viewFlipper</span><span class="o">.</span><span class="na">setOutAnimation</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">anim</span><span class="o">.</span><span class="na">fadeout</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
 </div>
 
 
@@ -119,15 +131,21 @@
   
 
 
-<time datetime="2013-11-21T20:14:00+09:00" pubdate data-updated="true">Nov 21<span>st</span>, 2013</time>
+<time datetime="2013-11-21T20:58:00+09:00" pubdate data-updated="true">Nov 21<span>st</span>, 2013</time>
       
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android/'>Android</a>
+  
+</span>
 
 
     </p>
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://lciel.github.io/blog/2013/11/21/about/" data-via="lciel" data-counturl="http://lciel.github.io/blog/2013/11/21/about/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://lciel.github.io/blog/2013/11/21/disable-in-animation-of-viewflipper/" data-via="lciel" data-counturl="http://lciel.github.io/blog/2013/11/21/disable-in-animation-of-viewflipper/" >Tweet</a>
   
   
   
@@ -136,8 +154,8 @@
     
     <p class="meta">
       
+        <a class="basic-alignment left" href="/blog/2013/11/21/android-fragmentation-visualized/" title="Previous Post: Android 端末のシェアを視覚的に見る">&laquo; Android 端末のシェアを視覚的に見る</a>
       
-        <a class="basic-alignment right" href="/blog/2013/11/21/remove-fading-edge/" title="Next Post: Android 2.x で表示される ScrollView の端のフェード(Fading Edge)を消す">Android 2.x で表示される ScrollView の端のフェード(Fading Edge)を消す &raquo;</a>
       
     </p>
   </footer>
