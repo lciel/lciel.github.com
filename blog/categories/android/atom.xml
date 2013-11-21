@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Android | Unmotivated]]></title>
   <link href="http://lciel.github.io/blog/categories/android/atom.xml" rel="self"/>
   <link href="http://lciel.github.io/"/>
-  <updated>2013-11-21T20:43:32+09:00</updated>
+  <updated>2013-11-21T20:51:22+09:00</updated>
   <id>http://lciel.github.io/</id>
   <author>
     <name><![CDATA[lciel]]></name>
@@ -12,6 +12,22 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Android 端末のシェアを視覚的に見る]]></title>
+    <link href="http://lciel.github.io/blog/2013/11/21/android-fragmentation-visualized/"/>
+    <updated>2013-11-21T20:46:00+09:00</updated>
+    <id>http://lciel.github.io/blog/2013/11/21/android-fragmentation-visualized</id>
+    <content type="html"><![CDATA[<p>OpenSignal が公開してくれている、 Android 端末毎のシェアを視覚的に表示してくれるサービス。</p>
+
+<ul>
+<li><a href="http://opensignal.com/reports/fragmentation-2013/">Android Fragmentation Visualized</a></li>
+</ul>
+
+
+<p>こうみると SAMSUNG 一強だな。。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Android 2.x で表示される ScrollView の端のフェード(Fading Edge)を消す]]></title>
