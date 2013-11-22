@@ -4,7 +4,7 @@
   <title><![CDATA[Unmotivated]]></title>
   <link href="http://lciel.github.io/atom.xml" rel="self"/>
   <link href="http://lciel.github.io/"/>
-  <updated>2013-11-22T18:56:46+09:00</updated>
+  <updated>2013-11-22T19:08:31+09:00</updated>
   <id>http://lciel.github.io/</id>
   <author>
     <name><![CDATA[lciel]]></name>
@@ -20,7 +20,7 @@
     <id>http://lciel.github.io/blog/2013/11/22/onitemclick-vs-onitemlongclick</id>
     <content type="html"><![CDATA[<p>ListView で onItemClick() と onItemLongClick() を同時に仕掛けた際に、指を離すタイミングによっては onItemLongClick() に続けて onItemClick() が呼ばれてしまう。</p>
 
-<p>Touch Event の例に漏れず、 onItemLongClick() で true を返しておけば、その後のイベントはキャンセルされる。</p>
+<p>一般的な Touch Event の例に漏れず、 onItemLongClick() で true を返しておけば、その後のイベントはキャンセルされる。</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
