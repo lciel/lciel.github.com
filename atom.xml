@@ -4,7 +4,7 @@
   <title><![CDATA[Unmotivated]]></title>
   <link href="http://lciel.github.io/atom.xml" rel="self"/>
   <link href="http://lciel.github.io/"/>
-  <updated>2013-11-22T19:08:31+09:00</updated>
+  <updated>2013-11-26T10:29:37+09:00</updated>
   <id>http://lciel.github.io/</id>
   <author>
     <name><![CDATA[lciel]]></name>
@@ -12,6 +12,86 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Android 4.3 で ImageView#getImageMatrix() の挙動が変わっている]]></title>
+    <link href="http://lciel.github.io/blog/2013/11/25/imageview-getimagematrix/"/>
+    <updated>2013-11-25T11:19:00+09:00</updated>
+    <id>http://lciel.github.io/blog/2013/11/25/imageview-getimagematrix</id>
+    <content type="html"><![CDATA[<p>今まで ImageView#getImageMatrix() で取得した Matrix のインスタンスに対して、直接 post*() のメソッドを呼んだりして操作すれば表示に反映されていたが、どうやら 4.3 で挙動が変わったご様子。</p>
+
+<p>結論から言うと、横着せずにちゃんと毎回 setImageMatrix() をしてやるか、はじめに setImageMatrix() してから getImageMatrix() を使うようにすれば想定通りに動作する。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">ImageView</span> <span class="n">imageView</span> <span class="o">=</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">imageView</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">float</span> <span class="n">ratio</span> <span class="o">=</span> <span class="mf">2.0f</span><span class="o">;</span>
+</span><span class='line'><span class="n">Matrix</span> <span class="n">matrix</span> <span class="o">=</span> <span class="n">imageView</span><span class="o">.</span><span class="na">getImageMatrix</span><span class="o">();</span>
+</span><span class='line'><span class="n">matrix</span><span class="o">.</span><span class="na">postScale</span><span class="o">(</span><span class="n">ratio</span><span class="o">,</span> <span class="n">ratio</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">matrix</span><span class="o">.</span><span class="na">setImageMatrix</span><span class="o">(</span><span class="n">matrix</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">ImageView</span> <span class="n">imageView</span> <span class="o">=</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">imageView</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">Matrix</span> <span class="n">matrix</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Matrix</span><span class="o">();</span>
+</span><span class='line'><span class="n">imageView</span><span class="o">.</span><span class="na">setImageMatrix</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">float</span> <span class="n">ratio</span> <span class="o">=</span> <span class="mf">2.0f</span><span class="o">;</span>
+</span><span class='line'><span class="n">matrix</span> <span class="o">=</span> <span class="n">imageView</span><span class="o">.</span><span class="na">getImageMatrix</span><span class="o">();</span>
+</span><span class='line'><span class="n">matrix</span><span class="o">.</span><span class="na">postScale</span><span class="o">(</span><span class="n">ratio</span><span class="o">,</span> <span class="n">ratio</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>どう変わってるのか確認</h3>
+
+<p>4.2 以前では mMatrix (initImageView()で初期化されてる)がそのまま返っているのに対して、 4.3 以降では mDrawMatrix が返るようになっている。
+(mDrawMatrix は configureBounds() でセットされている)</p>
+
+<p>mDrawMatrix がセットされていない状態だと、その場で Matrix のインスタンスが作られているため、このインスタンスに対して直接操作を行っても反映されないというわけでした。</p>
+
+<figure class='code'><figcaption><span>4.2_r1 android.widget.ImageView#getImageMatrix()</span><a href='http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/4.2_r1/android/widget/ImageView.java#ImageView.getImageMatrix%28%29'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Matrix</span> <span class="nf">getImageMatrix</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">mMatrix</span><span class="o">;</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<figure class='code'><figcaption><span>4.3_r1 android.widget.ImageView#getImageMatrix()</span><a href='http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/4.3_r1/android/widget/ImageView.java#ImageView.getImageMatrix%28%29'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Matrix</span> <span class="nf">getImageMatrix</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">mDrawMatrix</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="k">new</span> <span class="nf">Matrix</span><span class="o">(</span><span class="n">Matrix</span><span class="o">.</span><span class="na">IDENTITY_MATRIX</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">mDrawMatrix</span><span class="o">;</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Android はマイナーバージョンアップでも、結構こういう細かい挙動変更が入ってくるので、以前動いていたものが突然動かなくなることが良くあるのだけれど、Android のコードを直接見に行けば答えが書いてあるので安心感がありますね。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[ListView で onItemClick() と onItemLongClick() を両立]]></title>

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Android | Unmotivated]]></title>
   <link href="http://lciel.github.io/blog/categories/android/atom.xml" rel="self"/>
   <link href="http://lciel.github.io/"/>
-  <updated>2013-11-22T19:08:31+09:00</updated>
+  <updated>2013-11-26T10:29:37+09:00</updated>
   <id>http://lciel.github.io/</id>
   <author>
     <name><![CDATA[lciel]]></name>
@@ -12,6 +12,65 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Android 4.3 で ImageView#getImageMatrix() の挙動が変わっている]]></title>
+    <link href="http://lciel.github.io/blog/2013/11/25/imageview-getimagematrix/"/>
+    <updated>2013-11-25T11:19:00+09:00</updated>
+    <id>http://lciel.github.io/blog/2013/11/25/imageview-getimagematrix</id>
+    <content type="html"><![CDATA[<p>今まで ImageView#getImageMatrix() で取得した Matrix のインスタンスに対して、直接 post*() のメソッドを呼んだりして操作すれば表示に反映されていたが、どうやら 4.3 で挙動が変わったご様子。</p>
+
+<p>結論から言うと、横着せずにちゃんと毎回 setImageMatrix() をしてやるか、はじめに setImageMatrix() してから getImageMatrix() を使うようにすれば想定通りに動作する。
+``` java
+ImageView imageView = findViewById(R.id.imageView);</p>
+
+<p>float ratio = 2.0f;
+Matrix matrix = imageView.getImageMatrix();
+matrix.postScale(ratio, ratio);</p>
+
+<p>matrix.setImageMatrix(matrix);
+<code>
+</code> java
+ImageView imageView = findViewById(R.id.imageView);</p>
+
+<p>Matrix matrix = new Matrix();
+imageView.setImageMatrix();</p>
+
+<p>float ratio = 2.0f;
+matrix = imageView.getImageMatrix();
+matrix.postScale(ratio, ratio);
+```</p>
+
+<h3>どう変わってるのか確認</h3>
+
+<p>4.2 以前では mMatrix (initImageView()で初期化されてる)がそのまま返っているのに対して、 4.3 以降では mDrawMatrix が返るようになっている。
+(mDrawMatrix は configureBounds() でセットされている)</p>
+
+<p>mDrawMatrix がセットされていない状態だと、その場で Matrix のインスタンスが作られているため、このインスタンスに対して直接操作を行っても反映されないというわけでした。</p>
+
+<p>``` java 4.2_r1 android.widget.ImageView#getImageMatrix() <a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/4.2_r1/android/widget/ImageView.java#ImageView.getImageMatrix%28%29">http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/4.2_r1/android/widget/ImageView.java#ImageView.getImageMatrix%28%29</a>
+public Matrix getImageMatrix() {</p>
+
+<pre><code>return mMatrix;
+</code></pre>
+
+<p>}
+<code>
+</code> java 4.3_r1 android.widget.ImageView#getImageMatrix() <a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/4.3_r1/android/widget/ImageView.java#ImageView.getImageMatrix%28%29">http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/4.3_r1/android/widget/ImageView.java#ImageView.getImageMatrix%28%29</a>
+public Matrix getImageMatrix() {</p>
+
+<pre><code>if (mDrawMatrix == null) {
+    return new Matrix(Matrix.IDENTITY_MATRIX);
+}
+return mDrawMatrix;
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Android はマイナーバージョンアップでも、結構こういう細かい挙動変更が入ってくるので、以前動いていたものが突然動かなくなることが良くあるのだけれど、Android のコードを直接見に行けば答えが書いてあるので安心感がありますね。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[ListView で onItemClick() と onItemLongClick() を両立]]></title>
