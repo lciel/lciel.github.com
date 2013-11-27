@@ -5,16 +5,18 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Android 2.x で表示される ScrollView の端のフェード(Fading Edge)を消す - Unmotivated</title>
+  <title>Octopress の preview は generate を兼ねる - Unmotivated</title>
   <meta name="author" content="lciel">
 
   
-  <meta name="description" content="Android 2.x 系ではスクロール可能な方向に Fading Edge が表示されるが、それを消したい。 fadingEdge を指定する方法 xml で指定 1
+  <meta name="description" content="今まで気がつかなかったけれど、わざわざ generate してから preview しなくても、 preview 中に source ファイルを書き換えれば勝手にそれを検知して regenerate してくれるっぽい。 1
 2
 3
 4
 5
-&lt;ScrollView ... android:fadingEdge=&quot;none&quot &hellip;">
+$ rake preview
+...
+&gt;&gt;& &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -23,7 +25,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.lciel.jp/blog/2013/11/21/remove-fading-edge">
+  <link rel="canonical" href="http://blog.lciel.jp/blog/2013/11/26/octopress-preview-include-generate">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Unmotivated" type="application/atom+xml">
@@ -85,7 +87,7 @@
   
   <header>
     
-      <h1 class="entry-title">Android 2.x で表示される ScrollView の端のフェード(Fading Edge)を消す</h1>
+      <h1 class="entry-title">Octopress の Preview は Generate を兼ねる</h1>
     
     
       <p class="meta">
@@ -101,71 +103,31 @@
   
 
 
-<time datetime="2013-11-21T20:30:00+09:00" pubdate data-updated="true">Nov 21<span>st</span>, 2013</time>
+<time datetime="2013-11-26T19:20:00+09:00" pubdate data-updated="true">Nov 26<span>th</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>Android 2.x 系ではスクロール可能な方向に Fading Edge が表示されるが、それを消したい。</p>
-
-<h3>fadingEdge を指定する方法</h3>
-
-<ul>
-<li>xml で指定</li>
-</ul>
-
+<div class="entry-content"><p>今まで気がつかなかったけれど、わざわざ generate してから preview しなくても、 preview 中に source ファイルを書き換えれば勝手にそれを検知して regenerate してくれるっぽい。</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;ScrollView</span>
-</span><span class='line'>    <span class="err">...</span>
-</span><span class='line'>    <span class="na">android:fadingEdge=</span><span class="s">&quot;none&quot;</span>
-</span><span class='line'>    <span class="err">...</span>
-</span><span class='line'>    <span class="nt">/&gt;</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>$ rake preview
+</span><span class='line'>...
+</span><span class='line'>&gt;&gt;&gt; compass is watching for changes. press ctrl-c to stop.
+</span><span class='line'>&lt;ここでファイルを編集&gt;
+</span><span class='line'>[2013-11-25 22:35:05] regeneration: 1 files changed
 </span></code></pre></td></tr></table></div></figure>
 
 
-<ul>
-<li>ICS 以上では android:requiresFadingEdge が代わりに適用される</li>
-</ul>
-
-
-<h3>fadingEdgeLength を 0dp に指定する方法</h3>
-
-<ul>
-<li>xml</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;ScrollView</span>
-</span><span class='line'>    <span class="err">...</span>
-</span><span class='line'>    <span class="na">android:fadingEdgeLength=</span><span class="s">&quot;0dp&quot;</span>
-</span><span class='line'>    <span class="err">...</span>
-</span><span class='line'>    <span class="nt">/&gt;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>直接コードで指定する場合はこう</li>
-</ul>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">ListView</span> <span class="n">listView</span> <span class="o">=</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">listView</span><span class="o">);</span>
-</span><span class='line'><span class="n">listView</span><span class="o">.</span><span class="na">setFadingEdgeLength</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
+<p>これは便利！
+ちなみに新規ファイルを保存してもきちんと捕足して regenerate してくれるみたい。
+普段から preview を立てっぱなしにしておいたら捗りそう。</p>
 </div>
 
 
@@ -188,12 +150,12 @@
   
 
 
-<time datetime="2013-11-21T20:30:00+09:00" pubdate data-updated="true">Nov 21<span>st</span>, 2013</time>
+<time datetime="2013-11-26T19:20:00+09:00" pubdate data-updated="true">Nov 26<span>th</span>, 2013</time>
       
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/android/'>Android</a>
+    <a class='category' href='/blog/categories/octopress/'>Octopress</a>
   
 </span>
 
@@ -202,7 +164,7 @@
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://blog.lciel.jp/blog/2013/11/21/remove-fading-edge/" data-via="lciel" data-counturl="http://blog.lciel.jp/blog/2013/11/21/remove-fading-edge/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://blog.lciel.jp/blog/2013/11/26/octopress-preview-include-generate/" data-via="lciel" data-counturl="http://blog.lciel.jp/blog/2013/11/26/octopress-preview-include-generate/" >Tweet</a>
   
   
   
@@ -213,10 +175,8 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2013/11/21/about/" title="Previous Post: ブログ(また)はじめました">&laquo; ブログ(また)はじめました</a>
+        <a class="basic-alignment left" href="/blog/2013/11/25/imageview-getimagematrix/" title="Previous Post: Android 4.3 で ImageView#getImageMatrix() の挙動が変わっている">&laquo; Android 4.3 で ImageView#getImageMatrix() の挙動が変わっている</a>
       
-      
-        <a class="basic-alignment right" href="/blog/2013/11/21/android-fragmentation-visualized/" title="Next Post: Android 端末のシェアを視覚的に見る">Android 端末のシェアを視覚的に見る &raquo;</a>
       
     </p>
   </footer>
@@ -283,8 +243,8 @@
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.lciel.jp/blog/2013/11/21/remove-fading-edge/';
-        var disqus_url = 'http://blog.lciel.jp/blog/2013/11/21/remove-fading-edge/';
+        var disqus_identifier = 'http://blog.lciel.jp/blog/2013/11/26/octopress-preview-include-generate/';
+        var disqus_url = 'http://blog.lciel.jp/blog/2013/11/26/octopress-preview-include-generate/';
         var disqus_script = 'embed.js';
       
     (function () {

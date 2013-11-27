@@ -1,39 +1,43 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
-        <loc>http://lciel.github.io/blog/2013/11/21/about/</loc>
+        <loc>http://blog.lciel.jp/blog/2013/11/21/about/</loc>
         <lastmod>2013-11-21T20:41:08+09:00</lastmod>
     </url>
     <url>
-        <loc>http://lciel.github.io/blog/2013/11/21/remove-fading-edge/</loc>
+        <loc>http://blog.lciel.jp/blog/2013/11/21/remove-fading-edge/</loc>
         <lastmod>2013-11-21T20:40:13+09:00</lastmod>
     </url>
     <url>
-        <loc>http://lciel.github.io/blog/2013/11/21/android-fragmentation-visualized/</loc>
+        <loc>http://blog.lciel.jp/blog/2013/11/21/android-fragmentation-visualized/</loc>
         <lastmod>2013-11-21T20:50:57+09:00</lastmod>
     </url>
     <url>
-        <loc>http://lciel.github.io/blog/2013/11/21/disable-in-animation-of-viewflipper/</loc>
+        <loc>http://blog.lciel.jp/blog/2013/11/21/disable-in-animation-of-viewflipper/</loc>
         <lastmod>2013-11-22T10:18:15+09:00</lastmod>
     </url>
     <url>
-        <loc>http://lciel.github.io/blog/2013/11/22/onitemclick-vs-onitemlongclick/</loc>
+        <loc>http://blog.lciel.jp/blog/2013/11/22/onitemclick-vs-onitemlongclick/</loc>
         <lastmod>2013-11-22T19:06:36+09:00</lastmod>
     </url>
     <url>
-        <loc>http://lciel.github.io/blog/2013/11/25/imageview-getimagematrix/</loc>
+        <loc>http://blog.lciel.jp/blog/2013/11/25/imageview-getimagematrix/</loc>
         <lastmod>2013-11-25T11:42:49+09:00</lastmod>
     </url>
     <url>
-        <loc>http://lciel.github.io/blog/archives/</loc>
-        <lastmod>2013-11-25T11:42:49+09:00</lastmod>
+        <loc>http://blog.lciel.jp/blog/2013/11/26/octopress-preview-include-generate/</loc>
+        <lastmod>2013-11-26T19:09:44+09:00</lastmod>
     </url>
     <url>
-        <loc>http://lciel.github.io/</loc>
-        <lastmod>2013-11-25T11:42:49+09:00</lastmod>
+        <loc>http://blog.lciel.jp/blog/archives/</loc>
+        <lastmod>2013-11-26T19:09:44+09:00</lastmod>
     </url>
     <url>
-        <loc>http://lciel.github.io/robots.txt</loc>
+        <loc>http://blog.lciel.jp/</loc>
+        <lastmod>2013-11-26T19:09:44+09:00</lastmod>
+    </url>
+    <url>
+        <loc>http://blog.lciel.jp/robots.txt</loc>
         <lastmod>2013-08-06T20:38:23+09:00</lastmod>
     </url>
 </urlset>

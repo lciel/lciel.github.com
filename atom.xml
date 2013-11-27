@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Unmotivated]]></title>
-  <link href="http://lciel.github.io/atom.xml" rel="self"/>
-  <link href="http://lciel.github.io/"/>
-  <updated>2013-11-26T10:29:37+09:00</updated>
-  <id>http://lciel.github.io/</id>
+  <link href="http://blog.lciel.jp/atom.xml" rel="self"/>
+  <link href="http://blog.lciel.jp/"/>
+  <updated>2013-11-26T19:09:48+09:00</updated>
+  <id>http://blog.lciel.jp/</id>
   <author>
     <name><![CDATA[lciel]]></name>
     
@@ -14,10 +14,36 @@
 
   
   <entry>
+    <title type="html"><![CDATA[Octopress の preview は generate を兼ねる]]></title>
+    <link href="http://blog.lciel.jp/blog/2013/11/26/octopress-preview-include-generate/"/>
+    <updated>2013-11-26T19:20:00+09:00</updated>
+    <id>http://blog.lciel.jp/blog/2013/11/26/octopress-preview-include-generate</id>
+    <content type="html"><![CDATA[<p>今まで気がつかなかったけれど、わざわざ generate してから preview しなくても、 preview 中に source ファイルを書き換えれば勝手にそれを検知して regenerate してくれるっぽい。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>$ rake preview
+</span><span class='line'>...
+</span><span class='line'>&gt;&gt;&gt; compass is watching for changes. press ctrl-c to stop.
+</span><span class='line'>&lt;ここでファイルを編集&gt;
+</span><span class='line'>[2013-11-25 22:35:05] regeneration: 1 files changed
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これは便利！
+ちなみに新規ファイルを保存してもきちんと捕足して regenerate してくれるみたい。
+普段から preview を立てっぱなしにしておいたら捗りそう。</p>
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[Android 4.3 で ImageView#getImageMatrix() の挙動が変わっている]]></title>
-    <link href="http://lciel.github.io/blog/2013/11/25/imageview-getimagematrix/"/>
+    <link href="http://blog.lciel.jp/blog/2013/11/25/imageview-getimagematrix/"/>
     <updated>2013-11-25T11:19:00+09:00</updated>
-    <id>http://lciel.github.io/blog/2013/11/25/imageview-getimagematrix</id>
+    <id>http://blog.lciel.jp/blog/2013/11/25/imageview-getimagematrix</id>
     <content type="html"><![CDATA[<p>今まで ImageView#getImageMatrix() で取得した Matrix のインスタンスに対して、直接 post*() のメソッドを呼んだりして操作すれば表示に反映されていたが、どうやら 4.3 で挙動が変わったご様子。</p>
 
 <p>結論から言うと、横着せずにちゃんと毎回 setImageMatrix() をしてやるか、はじめに setImageMatrix() してから getImageMatrix() を使うようにすれば想定通りに動作する。</p>
@@ -95,9 +121,9 @@
   
   <entry>
     <title type="html"><![CDATA[ListView で onItemClick() と onItemLongClick() を両立]]></title>
-    <link href="http://lciel.github.io/blog/2013/11/22/onitemclick-vs-onitemlongclick/"/>
+    <link href="http://blog.lciel.jp/blog/2013/11/22/onitemclick-vs-onitemlongclick/"/>
     <updated>2013-11-22T18:50:00+09:00</updated>
-    <id>http://lciel.github.io/blog/2013/11/22/onitemclick-vs-onitemlongclick</id>
+    <id>http://blog.lciel.jp/blog/2013/11/22/onitemclick-vs-onitemlongclick</id>
     <content type="html"><![CDATA[<p>ListView で onItemClick() と onItemLongClick() を同時に仕掛けた際に、指を離すタイミングによっては onItemLongClick() に続けて onItemClick() が呼ばれてしまう。</p>
 
 <p>一般的な Touch Event の例に漏れず、 onItemLongClick() で true を返しておけば、その後のイベントはキャンセルされる。</p>
@@ -137,9 +163,9 @@
   
   <entry>
     <title type="html"><![CDATA[ViewFlipper の InAnimation を1つ目には適用しない]]></title>
-    <link href="http://lciel.github.io/blog/2013/11/21/disable-in-animation-of-viewflipper/"/>
+    <link href="http://blog.lciel.jp/blog/2013/11/21/disable-in-animation-of-viewflipper/"/>
     <updated>2013-11-21T20:58:00+09:00</updated>
-    <id>http://lciel.github.io/blog/2013/11/21/disable-in-animation-of-viewflipper</id>
+    <id>http://blog.lciel.jp/blog/2013/11/21/disable-in-animation-of-viewflipper</id>
     <content type="html"><![CDATA[<p>ViewFlipper に InAnimation を設定した状態で startFlipping() をコールした際に、1つ目の View にも InAnimation が適用されてしまうのを回避したい。</p>
 
 <p>AutoStart を指定せずに明示的に startFlipping() をコールした後に setInAnimation() してやれば OK</p>
@@ -163,9 +189,9 @@
   
   <entry>
     <title type="html"><![CDATA[Android 端末のシェアを視覚的に見る]]></title>
-    <link href="http://lciel.github.io/blog/2013/11/21/android-fragmentation-visualized/"/>
+    <link href="http://blog.lciel.jp/blog/2013/11/21/android-fragmentation-visualized/"/>
     <updated>2013-11-21T20:46:00+09:00</updated>
-    <id>http://lciel.github.io/blog/2013/11/21/android-fragmentation-visualized</id>
+    <id>http://blog.lciel.jp/blog/2013/11/21/android-fragmentation-visualized</id>
     <content type="html"><![CDATA[<p>OpenSignal が公開してくれている、 Android 端末毎のシェアを視覚的に表示してくれるサービス。</p>
 
 <ul>
@@ -179,9 +205,9 @@
   
   <entry>
     <title type="html"><![CDATA[Android 2.x で表示される ScrollView の端のフェード(Fading Edge)を消す]]></title>
-    <link href="http://lciel.github.io/blog/2013/11/21/remove-fading-edge/"/>
+    <link href="http://blog.lciel.jp/blog/2013/11/21/remove-fading-edge/"/>
     <updated>2013-11-21T20:30:00+09:00</updated>
-    <id>http://lciel.github.io/blog/2013/11/21/remove-fading-edge</id>
+    <id>http://blog.lciel.jp/blog/2013/11/21/remove-fading-edge</id>
     <content type="html"><![CDATA[<p>Android 2.x 系ではスクロール可能な方向に Fading Edge が表示されるが、それを消したい。</p>
 
 <h3>fadingEdge を指定する方法</h3>
@@ -245,9 +271,9 @@
   
   <entry>
     <title type="html"><![CDATA[ブログ(また)はじめました]]></title>
-    <link href="http://lciel.github.io/blog/2013/11/21/about/"/>
+    <link href="http://blog.lciel.jp/blog/2013/11/21/about/"/>
     <updated>2013-11-21T20:14:00+09:00</updated>
-    <id>http://lciel.github.io/blog/2013/11/21/about</id>
+    <id>http://blog.lciel.jp/blog/2013/11/21/about</id>
     <content type="html"><![CDATA[<p>投稿の敷居を極限まで下げてみたので、久しぶりにブログを書き始めてみます。</p>
 
 <p>基本的に、普段書いているメモを切り取って投げるだけなので、スニペットやら調査の結果やらばかりになるかと思います。</p>
