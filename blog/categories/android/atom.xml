@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Android | Unmotivated]]></title>
   <link href="http://blog.lciel.jp/blog/categories/android/atom.xml" rel="self"/>
   <link href="http://blog.lciel.jp/"/>
-  <updated>2013-11-26T19:09:48+09:00</updated>
+  <updated>2013-11-27T19:34:37+09:00</updated>
   <id>http://blog.lciel.jp/</id>
   <author>
     <name><![CDATA[lciel]]></name>
@@ -12,6 +12,32 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[ViewGroup では onDraw() の代わりに dispatchDraw() が呼ばれる]]></title>
+    <link href="http://blog.lciel.jp/blog/2013/11/27/viewgroup-dispatchdraw/"/>
+    <updated>2013-11-27T20:18:00+09:00</updated>
+    <id>http://blog.lciel.jp/blog/2013/11/27/viewgroup-dispatchdraw</id>
+    <content type="html"><![CDATA[<p>FrameLayout で onDraw() のタイミングで処理をしたいが、 onDraw() が呼ばれなかった。</p>
+
+<p>表題の通り、 ViewGroup を継承したクラスは onDraw() の代わり dispatchDraw() が呼ばれる。<br/>
+(その名の通り子の View に対して draw() をコールしたりしなかったりするメソッド)</p>
+
+<p>ViewGroup を継承したクラスに対して onDraw() のタイミングで実行したい処理は、 dispatchDraw() に書けば問題なさそう。
+``` java
+@Override
+protected void dispatchDraw(Canvas canvas) {</p>
+
+<pre><code>/*
+    canvas に対して処理をしたりなんだり...
+*/
+super.dispatchDraw(canvas);
+</code></pre>
+
+<p>}
+```</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Android 4.3 で ImageView#getImageMatrix() の挙動が変わっている]]></title>
@@ -137,49 +163,6 @@ viewFlipper.setOutAnimation(this, R.anim.fadeout);
 
 
 <p>こうみると SAMSUNG 一強だな。。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Android 2.x で表示される ScrollView の端のフェード(Fading Edge)を消す]]></title>
-    <link href="http://blog.lciel.jp/blog/2013/11/21/remove-fading-edge/"/>
-    <updated>2013-11-21T20:30:00+09:00</updated>
-    <id>http://blog.lciel.jp/blog/2013/11/21/remove-fading-edge</id>
-    <content type="html"><![CDATA[<p>Android 2.x 系ではスクロール可能な方向に Fading Edge が表示されるが、それを消したい。</p>
-
-<h3>fadingEdge を指定する方法</h3>
-
-<ul>
-<li>xml で指定
-<code>xml
-&lt;ScrollView
-  ...
-  android:fadingEdge="none"
-  ...
-  /&gt;
-</code></li>
-<li>ICS 以上では android:requiresFadingEdge が代わりに適用される</li>
-</ul>
-
-
-<h3>fadingEdgeLength を 0dp に指定する方法</h3>
-
-<ul>
-<li>xml
-<code>xml
-&lt;ScrollView
-  ...
-  android:fadingEdgeLength="0dp"
-  ...
-  /&gt;
-</code></li>
-<li>直接コードで指定する場合はこう
-<code>java
-ListView listView = findViewById(R.id.listView);
-listView.setFadingEdgeLength(0);
-</code></li>
-</ul>
-
 ]]></content>
   </entry>
   

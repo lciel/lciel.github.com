@@ -5,18 +5,12 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>Octopress の preview は generate を兼ねる - Unmotivated</title>
+  <title>ViewGroup では onDraw() の代わりに dispatchDraw() が呼ばれる - Unmotivated</title>
   <meta name="author" content="lciel">
 
   
-  <meta name="description" content="今まで気がつかなかったけれど、わざわざ generate してから preview しなくても、 preview 中に source ファイルを書き換えれば勝手にそれを検知して regenerate してくれるっぽい。 1
-2
-3
-4
-5
-$ rake preview
-...
-&gt;&gt;& &hellip;">
+  <meta name="description" content="FrameLayout で onDraw() のタイミングで処理をしたいが、 onDraw() が呼ばれなかった。 表題の通り、 ViewGroup を継承したクラスは onDraw() の代わり dispatchDraw() が呼ばれる。
+(その名の通り子の View に対して draw() &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -25,7 +19,7 @@ $ rake preview
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.lciel.jp/blog/2013/11/26/octopress-preview-include-generate">
+  <link rel="canonical" href="http://blog.lciel.jp/blog/2013/11/27/viewgroup-dispatchdraw">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Unmotivated" type="application/atom+xml">
@@ -87,7 +81,7 @@ $ rake preview
   
   <header>
     
-      <h1 class="entry-title">Octopress の Preview は Generate を兼ねる</h1>
+      <h1 class="entry-title">ViewGroup では onDraw() の代わりに dispatchDraw() が呼ばれる</h1>
     
     
       <p class="meta">
@@ -103,31 +97,36 @@ $ rake preview
   
 
 
-<time datetime="2013-11-26T21:10:00+09:00" pubdate data-updated="true">Nov 26<span>th</span>, 2013</time>
+<time datetime="2013-11-27T20:18:00+09:00" pubdate data-updated="true">Nov 27<span>th</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>今まで気がつかなかったけれど、わざわざ generate してから preview しなくても、 preview 中に source ファイルを書き換えれば勝手にそれを検知して regenerate してくれるっぽい。</p>
+<div class="entry-content"><p>FrameLayout で onDraw() のタイミングで処理をしたいが、 onDraw() が呼ばれなかった。</p>
+
+<p>表題の通り、 ViewGroup を継承したクラスは onDraw() の代わり dispatchDraw() が呼ばれる。<br/>
+(その名の通り子の View に対して draw() をコールしたりしなかったりするメソッド)</p>
+
+<p>ViewGroup を継承したクラスに対して onDraw() のタイミングで実行したい処理は、 dispatchDraw() に書けば問題なさそう。</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='text'><span class='line'>$ rake preview
-</span><span class='line'>...
-</span><span class='line'>&gt;&gt;&gt; compass is watching for changes. press ctrl-c to stop.
-</span><span class='line'>&lt;ここでファイルを編集&gt;
-</span><span class='line'>[2013-11-25 22:35:05] regeneration: 1 files changed
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span>
+</span><span class='line'><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">dispatchDraw</span><span class="o">(</span><span class="n">Canvas</span> <span class="n">canvas</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="cm">/*</span>
+</span><span class='line'><span class="cm">        canvas に対して処理をしたりなんだり...</span>
+</span><span class='line'><span class="cm">    */</span>
+</span><span class='line'>    <span class="kd">super</span><span class="o">.</span><span class="na">dispatchDraw</span><span class="o">(</span><span class="n">canvas</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
 </span></code></pre></td></tr></table></div></figure>
 
-
-<p>これは便利！
-ちなみに新規ファイルを保存してもきちんと捕足して regenerate してくれるみたい。<br/>
-投稿のハードルを限りなく低くしたいと思っている身からは、preview を立てっぱなしに出来るのは捗りそう。</p>
 </div>
 
 
@@ -150,12 +149,12 @@ $ rake preview
   
 
 
-<time datetime="2013-11-26T21:10:00+09:00" pubdate data-updated="true">Nov 26<span>th</span>, 2013</time>
+<time datetime="2013-11-27T20:18:00+09:00" pubdate data-updated="true">Nov 27<span>th</span>, 2013</time>
       
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/octopress/'>Octopress</a>
+    <a class='category' href='/blog/categories/android/'>Android</a>
   
 </span>
 
@@ -164,7 +163,7 @@ $ rake preview
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://blog.lciel.jp/blog/2013/11/26/octopress-preview-include-generate/" data-via="lciel" data-counturl="http://blog.lciel.jp/blog/2013/11/26/octopress-preview-include-generate/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://blog.lciel.jp/blog/2013/11/27/viewgroup-dispatchdraw/" data-via="lciel" data-counturl="http://blog.lciel.jp/blog/2013/11/27/viewgroup-dispatchdraw/" >Tweet</a>
   
   
   
@@ -175,10 +174,8 @@ $ rake preview
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2013/11/25/imageview-getimagematrix/" title="Previous Post: Android 4.3 で ImageView#getImageMatrix() の挙動が変わっている">&laquo; Android 4.3 で ImageView#getImageMatrix() の挙動が変わっている</a>
+        <a class="basic-alignment left" href="/blog/2013/11/26/octopress-preview-include-generate/" title="Previous Post: Octopress の preview は generate を兼ねる">&laquo; Octopress の preview は generate を兼ねる</a>
       
-      
-        <a class="basic-alignment right" href="/blog/2013/11/27/viewgroup-dispatchdraw/" title="Next Post: ViewGroup では onDraw() の代わりに dispatchDraw() が呼ばれる">ViewGroup では onDraw() の代わりに dispatchDraw() が呼ばれる &raquo;</a>
       
     </p>
   </footer>
@@ -245,8 +242,8 @@ $ rake preview
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.lciel.jp/blog/2013/11/26/octopress-preview-include-generate/';
-        var disqus_url = 'http://blog.lciel.jp/blog/2013/11/26/octopress-preview-include-generate/';
+        var disqus_identifier = 'http://blog.lciel.jp/blog/2013/11/27/viewgroup-dispatchdraw/';
+        var disqus_url = 'http://blog.lciel.jp/blog/2013/11/27/viewgroup-dispatchdraw/';
         var disqus_script = 'embed.js';
       
     (function () {
