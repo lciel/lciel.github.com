@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Java | Unmotivated]]></title>
+  <link href="http://blog.lciel.jp/blog/categories/java/atom.xml" rel="self"/>
+  <link href="http://blog.lciel.jp/"/>
+  <updated>2013-11-29T20:48:22+09:00</updated>
+  <id>http://blog.lciel.jp/</id>
+  <author>
+    <name><![CDATA[lciel]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[StackTrace を文字列として取得する]]></title>
+    <link href="http://blog.lciel.jp/blog/2013/11/29/get-stacktrace-strings/"/>
+    <updated>2013-11-29T20:45:00+09:00</updated>
+    <id>http://blog.lciel.jp/blog/2013/11/29/get-stacktrace-strings</id>
+    <content type="html"><![CDATA[<p>Java において StackTrace を取得する。<br/>
+どこかに仕込んでおくとデバッグ時に何かと便利。
+``` java
+public static String getStackTrace() {</p>
+
+<pre><code>StackTraceElement[] stacks = new Throwable().getStackTrace();
+StringBuilder sb = new StringBuilder();
+for(StackTraceElement e : stacks) {
+    if(e == stacks[0]) continue;
+    sb.append(String.format("\tat %s(%s:%s)", e.getMethodName(), e.getFileName(), e.getLineNumber()));
+}
+return sb.toString();
+</code></pre>
+
+<p>}
+```</p>
+]]></content>
+  </entry>
+  
+</feed>

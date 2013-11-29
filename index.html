@@ -9,8 +9,17 @@
   <meta name="author" content="lciel">
 
   
-  <meta name="description" content="FrameLayout で onDraw() のタイミングで処理をしたいが、 onDraw() が呼ばれなかった。 表題の通り、 ViewGroup を継承したクラスは onDraw() の代わり dispatchDraw() が呼ばれる。
-(その名の通り子の View に対して draw() &hellip;">
+  <meta name="description" content="Java において StackTrace を取得する。
+どこかに仕込んでおくとデバッグ時に何かと便利。 1
+2
+3
+4
+5
+6
+7
+8
+9
+public static String getStackTrace() { StackTraceElement[] stacks = new &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -78,6 +87,64 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/11/29/get-stacktrace-strings/">StackTrace を文字列として取得する</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-29T20:45:00+09:00" pubdate data-updated="true">Nov 29<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Java において StackTrace を取得する。<br/>
+どこかに仕込んでおくとデバッグ時に何かと便利。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">static</span> <span class="n">String</span> <span class="nf">getStackTrace</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">StackTraceElement</span><span class="o">[]</span> <span class="n">stacks</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Throwable</span><span class="o">().</span><span class="na">getStackTrace</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">StringBuilder</span> <span class="n">sb</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StringBuilder</span><span class="o">();</span>
+</span><span class='line'>    <span class="k">for</span><span class="o">(</span><span class="n">StackTraceElement</span> <span class="n">e</span> <span class="o">:</span> <span class="n">stacks</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">if</span><span class="o">(</span><span class="n">e</span> <span class="o">==</span> <span class="n">stacks</span><span class="o">[</span><span class="mi">0</span><span class="o">])</span> <span class="k">continue</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">sb</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="n">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">&quot;\tat %s(%s:%s)&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">.</span><span class="na">getMethodName</span><span class="o">(),</span> <span class="n">e</span><span class="o">.</span><span class="na">getFileName</span><span class="o">(),</span> <span class="n">e</span><span class="o">.</span><span class="na">getLineNumber</span><span class="o">()));</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">sb</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -608,6 +675,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/11/29/get-stacktrace-strings/">StackTrace を文字列として取得する</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/11/27/viewgroup-dispatchdraw/">ViewGroup では onDraw() の代わりに dispatchDraw() が呼ばれる</a>
       </li>
     
@@ -621,10 +692,6 @@
     
       <li class="post">
         <a href="/blog/2013/11/22/onitemclick-vs-onitemlongclick/">ListView で onItemClick() と onItemLongClick() を両立</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/11/21/disable-in-animation-of-viewflipper/">ViewFlipper の InAnimation を1つ目には適用しない</a>
       </li>
     
   </ul>
