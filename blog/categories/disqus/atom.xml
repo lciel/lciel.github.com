@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Octopress | Unmotivated]]></title>
-  <link href="http://blog.lciel.jp/blog/categories/octopress/atom.xml" rel="self"/>
+  <title><![CDATA[Category: Disqus | Unmotivated]]></title>
+  <link href="http://blog.lciel.jp/blog/categories/disqus/atom.xml" rel="self"/>
   <link href="http://blog.lciel.jp/"/>
   <updated>2013-11-30T22:19:29+09:00</updated>
   <id>http://blog.lciel.jp/</id>
@@ -34,28 +34,6 @@ We were unable to load Disqus. If you are a moderator please see our troubleshoo
 
 <p>Disqus では、コメントを投稿する単位としてまず Site を登録する必要があり、この Site の識別子として使われるのが short_name だった。
 Disqus にログインした状態で<a href="http://disqus.com/register">ここ</a>にアクセスして Site を登録したところ、無事に short_name が生成された。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Octopress の preview は generate を兼ねる]]></title>
-    <link href="http://blog.lciel.jp/blog/2013/11/26/octopress-preview-include-generate/"/>
-    <updated>2013-11-26T21:10:00+09:00</updated>
-    <id>http://blog.lciel.jp/blog/2013/11/26/octopress-preview-include-generate</id>
-    <content type="html"><![CDATA[<p>今まで気がつかなかったけれど、わざわざ generate してから preview しなくても、 preview 中に source ファイルを書き換えれば勝手にそれを検知して regenerate してくれるっぽい。</p>
-
-<p>``` text
-$ rake preview
-&hellip;</p>
-
-<blockquote><blockquote><blockquote><p>compass is watching for changes. press ctrl-c to stop.
-&lt;ここでファイルを編集>
-[2013-11-25 22:35:05] regeneration: 1 files changed
-```</p></blockquote></blockquote></blockquote>
-
-<p>これは便利！
-ちなみに新規ファイルを保存してもきちんと捕足して regenerate してくれるみたい。<br/>
-投稿のハードルを限りなく低くしたいと思っている身からは、preview を立てっぱなしに出来るのは捗りそう。</p>
 ]]></content>
   </entry>
   
