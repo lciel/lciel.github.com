@@ -9,8 +9,8 @@
   <meta name="author" content="lciel">
 
   
-  <meta name="description" content="FrameLayout で onDraw() のタイミングで処理をしたいが、 onDraw() が呼ばれなかった。 表題の通り、 ViewGroup を継承したクラスは onDraw() の代わり dispatchDraw() が呼ばれる。
-(その名の通り子の View に対して draw() &hellip;">
+  <meta name="description" content="FrameLayout で onDraw() のタイミングで処理をしたいが、どうも onDraw() が呼ばれないように見える。 確認したところ、 ViewGroup を継承したクラスは onDraw() の代わり dispatchDraw() が呼ばれるようだった。
+(その名の通り子の View &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -104,9 +104,9 @@
   </header>
 
 
-<div class="entry-content"><p>FrameLayout で onDraw() のタイミングで処理をしたいが、 onDraw() が呼ばれなかった。</p>
+<div class="entry-content"><p>FrameLayout で onDraw() のタイミングで処理をしたいが、どうも onDraw() が呼ばれないように見える。</p>
 
-<p>表題の通り、 ViewGroup を継承したクラスは onDraw() の代わり dispatchDraw() が呼ばれる。<br/>
+<p>確認したところ、 ViewGroup を継承したクラスは onDraw() の代わり dispatchDraw() が呼ばれるようだった。<br/>
 (その名の通り子の View に対して draw() をコールしたりしなかったりするメソッド)</p>
 
 <p>ViewGroup を継承したクラスに対して onDraw() のタイミングで実行したい処理は、 dispatchDraw() に書けば問題なさそう。</p>
