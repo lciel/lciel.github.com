@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Android | Unmotivated]]></title>
   <link href="http://blog.lciel.jp/blog/categories/android/atom.xml" rel="self"/>
   <link href="http://blog.lciel.jp/"/>
-  <updated>2013-11-30T22:25:33+09:00</updated>
+  <updated>2013-12-03T20:12:35+09:00</updated>
   <id>http://blog.lciel.jp/</id>
   <author>
     <name><![CDATA[lciel]]></name>
@@ -12,6 +12,184 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Android のタッチイベントを理解する(その1)]]></title>
+    <link href="http://blog.lciel.jp/blog/2013/12/03/android-touch-event/"/>
+    <updated>2013-12-03T20:31:00+09:00</updated>
+    <id>http://blog.lciel.jp/blog/2013/12/03/android-touch-event</id>
+    <content type="html"><![CDATA[<p>タッチイベントがうまく流れてこなくて困ったり、地力でイベントをルーティングしたりするときに困ったりと、ちょこちょことタッチイベントについて勉強したのでまとめておきます。<br/>
+主にタッチイベントがどう流れてどう止まるかなどについて調べています。</p>
+
+<p>イベントの流れを理解するには以下の資料がかなり参考になりました。</p>
+
+<ul>
+<li><a href="http://devsbuild.it/files/PRE_andevcon_mastering-the-android-touch-system.pdf">Mastering the Android Touch System (PDF)</a></li>
+</ul>
+
+
+<p>毎度のことながら、間違いがありましたらご指摘頂ければ幸いです。</p>
+
+<h2>タッチイベントを処理する主要なメソッド</h2>
+
+<p>実際の流れを理解する前に、主要なメソッドを三つ紹介しておきます。</p>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th align="left"> <strong>メソッド名</strong> </th>
+<th align="left"> <strong>概要</strong> </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td align="left"> onTouchEvent() (<a href="http://developer.android.com/reference/android/view/View.html#onTouchEvent(android.view.MotionEvent">View</a>) </td>
+<td align="left"> タッチイベントに対して何かを処理するメソッド。setOnTouchListener() で登録した listener はこのタイミングで呼び出される。</td>
+</tr>
+<tr>
+<td></td>
+<td align="left"> onInterceptTouchEvent() (<a href="http://developer.android.com/reference/android/view/ViewGroup.html#onInterceptTouchEvent(android.view.MotionEvent">ViewGroup</a>) </td>
+<td align="left"> タッチイベントが子供へと伝搬することを阻止できるメソッド。</td>
+</tr>
+<tr>
+<td></td>
+<td align="left"> dispatchTouchEvent() (<a href="http://developer.android.com/reference/android/app/Activity.html#dispatchTouchEvent(android.view.MotionEvent">Activity</a>, <a href="http://developer.android.com/reference/android/view/View.html#dispatchTouchEvent(android.view.MotionEvent">View</a>, <a href="http://developer.android.com/reference/android/view/ViewGroup.html#dispatchTouchEvent(android.view.MotionEvent">ViewGroup</a>) </td>
+<td align="left"> タッチイベントを受け取り、子に伝搬させるかどうか、自分が処理するかどうかなどを管理する。onInterceptTouchEvent() や onTouchEvent() を呼ぶ人。</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>　</p>
+
+<h2>基本的なタッチイベントの流れ</h2>
+
+<p>タッチイベントは Activity を経由して PhoneWindow 直下の DecorView から伝搬が始まり、親の View からその子 View へと dispatchTouchEvent() なるメソッドを通じて伝搬していきます。</p>
+
+<p>dispatchTouchEvent() は 自身が ViewGroup だった場合、まず自身の onInterceptTouchEvent() を呼び出します。
+onInterceptTouchEvent() では子にイベントを渡すかどうかなどを判断します(後で詳しく説明します)。</p>
+
+<p>次に、子の dispatchTouchEvent() を呼び出してイベントを渡していきます。
+このとき、親が子の dispatchTouchEvent() を呼び出す順番は、一番新しく追加した子から古い子へと逆順に渡していきます。</p>
+
+<p>そして、最後に一般的にタッチイベントを処理するメソッドである onTouchEvent() が dispatchTouchEvent() によって呼ばれます。
+この onTouchEvent() は、子から親へと逆順(ユーザから見ると手前に表示されている順)に流れていくようになっています。</p>
+
+<p>文章だけだと分かりづらいので、たとえば以下のような構成の View の場合を考えてみます。</p>
+
+<p><img src="/images/android_touch_event_sample_view.png" alt="Sample View" />
+<code>`` text
+FrameLayout1(白)
+|-- FrameLayout2(赤)
+</code>&mdash; FrameLayout3(緑)</p>
+
+<pre><code>`- Button
+</code></pre>
+
+<p>```</p>
+
+<p>この構成の場合、いずれの View もタッチイベントを処理しない、最もシンプルなイベントの流れは以下のようになります。</p>
+
+<p><img src="/images/android_touch_event_flow_01.png" alt="TouchEvent Flow" /></p>
+
+<p>(1) から (13) の順番で処理が流れ、 onInterceptTouchEvent() が呼び出される順番は (I) から (III) となり、肝心の onTouchEvent() が呼び出される順番は (i) から (iv) となります。</p>
+
+<p>画面と照らし合わせてみると、ユーザから見て手前側の View から onTouchEvent() が呼び出されていることを確認できるかと思います。</p>
+
+<h2>タッチイベントを処理した場合の流れ</h2>
+
+<p>タッチイベントは以上の流れで伝搬していきますが、いずれかのメソッドで true が返された場合、そこで連鎖がとまり、以降の処理は実行されなくなります。</p>
+
+<p>例として、以下のように Button で onTouchEvent() を処理して true を返してみます。
+``` java
+public class TouchTestActivity implements OnTouchListener {</p>
+
+<pre><code>@Override
+protected void onCreate(Bundle savedInstanceState) {
+    // ...
+    findViewById(R.id.button).setOnTouchListener(this);
+}
+
+@Override
+protected void onTouch(View v, MotionEvent event) {
+    int id = v.getId();
+    switch(id) {
+    case R.id.button:
+        Log.d(TAG, "Touched!");
+        return true;
+    }
+    return false;
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>この場合、 Button の onTouchEvent() でイベントの伝搬が停止するため、 FrameLayout3 の onTouchEvent() はコールされず、 FrameLayout2 は onDispatchTouchEvent() すら呼ばれません。
+つまり、ユーザから見て「触ってイベントが発生した View より後ろにある View」には onTouchEvent() が一切発生しないことになります。</p>
+
+<p><img src="/images/android_touch_event_flow_02.png" alt="TouchEvent Flow" /></p>
+
+<p>OnTouchListener を登録したり onTouchEvent() を直接処理したりする以外にも、良くある例だと View#setOnClickListener() で OnClickListener を登録した場合なども、 onTouchEvent() で true が返るようになり、それ以降の View の onTouchEvent() はキャンセルされることになります。</p>
+
+<p>子の OnClickListener などに影響されずにタッチイベントを処理したい場合は、子を呼びだすより前に呼ばれる onInterceptTouchEvent() で必要な処理を行うという方法があります。
+例えば <a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/4.2.2_r1/android/widget/ScrollView.java#ScrollView.onInterceptTouchEvent%28android.view.MotionEvent%29">ScrollView</a> は子に影響されずにスクロール可能でなければならないため、 onInterceptTouchEvent() でスクロールの開始フラグを立てたりしています。</p>
+
+<h2>onInterceptTouchEvent() で伝搬を止めた場合</h2>
+
+<p>ViewGroup に実装されている onInterceptTouchEvent() で true を返すと、子供の View にイベントを伝搬しないようになります。</p>
+
+<p>たとえば、以下のように onInterceptTouchEvent() で true を返すようにした CustomFrameLayout で FrameLayout3 を置き換えてみます。
+``` java
+public class CustomFrameLayout extends FrameLayout {</p>
+
+<pre><code>// ...
+@Override
+public boolean onInterceptTouchEvent() {
+    return true;
+}
+// ...
+</code></pre>
+
+<p>}
+```</p>
+
+<p>この場合、 FrameLayout3 が子供(Button)にイベントを伝搬しなくなるため、以下のようなイベントの発生順序になります。</p>
+
+<p><img src="/images/android_touch_event_flow_03.png" alt="TouchEvent Flow" /></p>
+
+<p>また <a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/4.2.2_r1/android/widget/ScrollView.java#ScrollView.onInterceptTouchEvent%28android.view.MotionEvent%29">ScrollView</a> を例にあげると、スクロール中は子供のタッチイベントを発生させないようにする必要があるため、 onInterceptTouchEvent() が活用されている様子を見る事ができます。(イベントのアクションが MotionEvent.ACTION_MOVE かつドラッグ中フラグが立っていたら子へ伝搬させないなど)</p>
+
+<p>また、この onInterceptTouchEvent() を使って親側から子へのイベントの伝搬が止められることがある場合、子供側から止めないようにお願いする事ができます。
+イベントの伝搬を親側から止めないようにする場合は、親の <a href="http://developer.android.com/reference/android/view/ViewParent.html#requestDisallowInterceptTouchEvent%28boolean%29">requestDisallowInterceptTouchEvent()</a> を呼びます。</p>
+
+<p>```
+public class TouchTestActivity {</p>
+
+<pre><code>@Override
+protected void onCreate(Bundle savedInstanceState) {
+    // ...
+    findViewById(R.id.button).getParent().requestDisqllowInterceptTouchEvent(true);
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p><img src="/images/android_touch_event_flow_04.png" alt="TouchEvent Flow" /></p>
+
+<p>requestDisallowInterceptTouchEvent(true) で onInterceptTouchEvent() を抑制した場合、親の onInterceptTouchEvent() が呼ばれないことになるので、子にイベントを流すようにするだけでなく、副産物的に onInterceptTouchEvent() で行っている処理を無視させることができます。</p>
+
+<p>たとえば、 requestDisallowInterceptTouchEvent() と加えて、子の onTouchEvent() で true を返すなどしてイベントの伝搬を子で止めてしまえば ScrollView のスクロールを無効化できたりします。
+このあたりを組み合わせると、入れ子状の ScrollView を実現できたりします。</p>
+
+<h2>次回予告？</h2>
+
+<p>自力でイベントをルーティングする場合の話や、 Action の話なども書こうと思いましたが、思ったより長くなってしまったので、気が向いたらまた次回書きます。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[ViewGroup では onDraw() の代わりに dispatchDraw() が呼ばれる]]></title>
@@ -147,22 +325,6 @@ viewFlipper.startFlipping();
 viewFlipper.setInAnimation(this, R.anim.fadein);
 viewFlipper.setOutAnimation(this, R.anim.fadeout);
 ```</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Android 端末のシェアを視覚的に見る]]></title>
-    <link href="http://blog.lciel.jp/blog/2013/11/21/android-fragmentation-visualized/"/>
-    <updated>2013-11-21T20:46:00+09:00</updated>
-    <id>http://blog.lciel.jp/blog/2013/11/21/android-fragmentation-visualized</id>
-    <content type="html"><![CDATA[<p>OpenSignal が公開してくれている、 Android 端末毎のシェアを視覚的に表示してくれるサービス。</p>
-
-<ul>
-<li><a href="http://opensignal.com/reports/fragmentation-2013/">Android Fragmentation Visualized</a></li>
-</ul>
-
-
-<p>こうみると SAMSUNG 一強だな。。</p>
 ]]></content>
   </entry>
   
