@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Android | Unmotivated]]></title>
   <link href="http://blog.lciel.jp/blog/categories/android/atom.xml" rel="self"/>
   <link href="http://blog.lciel.jp/"/>
-  <updated>2013-12-03T20:12:35+09:00</updated>
+  <updated>2013-12-03T20:15:29+09:00</updated>
   <id>http://blog.lciel.jp/</id>
   <author>
     <name><![CDATA[lciel]]></name>
@@ -18,7 +18,7 @@
     <link href="http://blog.lciel.jp/blog/2013/12/03/android-touch-event/"/>
     <updated>2013-12-03T20:31:00+09:00</updated>
     <id>http://blog.lciel.jp/blog/2013/12/03/android-touch-event</id>
-    <content type="html"><![CDATA[<p>タッチイベントがうまく流れてこなくて困ったり、地力でイベントをルーティングしたりするときに困ったりと、ちょこちょことタッチイベントについて勉強したのでまとめておきます。<br/>
+    <content type="html"><![CDATA[<p>タッチイベントがうまく流れてこなくて困ったり、自力でイベントをルーティングしたりするときに困ったりと、ちょこちょことタッチイベントについて勉強したのでまとめておきます。<br/>
 主にタッチイベントがどう流れてどう止まるかなどについて調べています。</p>
 
 <p>イベントの流れを理解するには以下の資料がかなり参考になりました。</p>
