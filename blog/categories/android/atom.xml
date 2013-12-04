@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Android | Unmotivated]]></title>
   <link href="http://blog.lciel.jp/blog/categories/android/atom.xml" rel="self"/>
   <link href="http://blog.lciel.jp/"/>
-  <updated>2013-12-03T20:29:34+09:00</updated>
+  <updated>2013-12-04T20:19:56+09:00</updated>
   <id>http://blog.lciel.jp/</id>
   <author>
     <name><![CDATA[lciel]]></name>
@@ -12,6 +12,73 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[ListView#setEmptyView() について]]></title>
+    <link href="http://blog.lciel.jp/blog/2013/12/04/listview-setemptyview/"/>
+    <updated>2013-12-04T21:10:00+09:00</updated>
+    <id>http://blog.lciel.jp/blog/2013/12/04/listview-setemptyview</id>
+    <content type="html"><![CDATA[<p>ListView の要素が無い場合に表示する View を指定できる setEmptyView() だが、その名前から想像できるのとは少し違う動きをする。</p>
+
+<ul>
+<li>違 : 「要素が無い場合に ListView の子供として表示させる View が設定できる」</li>
+<li>正 : 「要素が無い場合に ListView の代わりに表示する View が設定できる」</li>
+</ul>
+
+
+<p>実際の動作は setEmptyView() で指定した View と ListView の Visibility を View.GONE と View.VISIBLE で入れ替えるだけとなっている。</p>
+
+<p>そのため、 inflate() しただけでどこにも addView() していない View などを setEmptyView() で指定しても表示されないし、 ListView の子として表示される Header や Footer も表示されないこととなる。</p>
+
+<p>通常は ListView と同階層に兄弟 View として xml に定義しておくのがよさそう。<br/>
+EmptyView として設定する View の Visibility は特に指定しなくても ListView 側でやってくれるので問題ないです。
+```xml
+&lt;ListView</p>
+
+<pre><code>android:id="@+id/listView"
+... /&gt;
+</code></pre>
+
+<p>&lt;View</p>
+
+<pre><code>android:id="@+id/emptyView"
+... /&gt;
+</code></pre>
+
+<p><code>
+</code>java
+ListView listView = (ListView) findViewById(R.id.listView);
+listView.setEmptyView(findViewById(R.id.emptyView));
+```</p>
+
+<p>以下は実装箇所の確認。
+```java android.widget.AdapterView(1.6_r2)
+private void More &hellip;updateEmptyStatus(boolean empty) {</p>
+
+<pre><code>if (isInFilterMode()) {
+    empty = false;
+}
+
+if (empty) {
+    // EmptyView が設定されていた場合は自身を消して、 EmptyView を表示させている
+    if (mEmptyView != null) {
+        mEmptyView.setVisibility(View.VISIBLE);
+        setVisibility(View.GONE);
+    } else {
+        // If the caller just removed our empty view, make sure the list view is visible
+        setVisibility(View.VISIBLE);
+    }
+    // ...
+
+} else {
+    // ...
+}
+</code></pre>
+
+<p>}
+```</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Android のタッチイベントを理解する(その1)]]></title>
@@ -308,25 +375,6 @@ return true;    // これで onItemLongClick() のあとに onItemClick() が呼
 </code></pre>
 
 <p>}
-```</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[ViewFlipper の InAnimation を1つ目には適用しない]]></title>
-    <link href="http://blog.lciel.jp/blog/2013/11/21/disable-in-animation-of-viewflipper/"/>
-    <updated>2013-11-21T20:58:00+09:00</updated>
-    <id>http://blog.lciel.jp/blog/2013/11/21/disable-in-animation-of-viewflipper</id>
-    <content type="html"><![CDATA[<p>ViewFlipper に InAnimation を設定した状態で startFlipping() をコールした際に、1つ目の View にも InAnimation が適用されてしまうのを回避したい。</p>
-
-<p>AutoStart を指定せずに明示的に startFlipping() をコールした後に setInAnimation() してやれば OK
-``` java
-ViewFlipper viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);</p>
-
-<p>// viewFlipper.setAutoStart(true);
-viewFlipper.startFlipping();
-viewFlipper.setInAnimation(this, R.anim.fadein);
-viewFlipper.setOutAnimation(this, R.anim.fadeout);
 ```</p>
 ]]></content>
   </entry>

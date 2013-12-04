@@ -4,7 +4,7 @@
   <title><![CDATA[Unmotivated]]></title>
   <link href="http://blog.lciel.jp/atom.xml" rel="self"/>
   <link href="http://blog.lciel.jp/"/>
-  <updated>2013-12-03T20:29:34+09:00</updated>
+  <updated>2013-12-04T20:19:56+09:00</updated>
   <id>http://blog.lciel.jp/</id>
   <author>
     <name><![CDATA[lciel]]></name>
@@ -12,6 +12,97 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[ListView#setEmptyView() について]]></title>
+    <link href="http://blog.lciel.jp/blog/2013/12/04/listview-setemptyview/"/>
+    <updated>2013-12-04T21:10:00+09:00</updated>
+    <id>http://blog.lciel.jp/blog/2013/12/04/listview-setemptyview</id>
+    <content type="html"><![CDATA[<p>ListView の要素が無い場合に表示する View を指定できる setEmptyView() だが、その名前から想像できるのとは少し違う動きをする。</p>
+
+<ul>
+<li>違 : 「要素が無い場合に ListView の子供として表示させる View が設定できる」</li>
+<li>正 : 「要素が無い場合に ListView の代わりに表示する View が設定できる」</li>
+</ul>
+
+
+<p>実際の動作は setEmptyView() で指定した View と ListView の Visibility を View.GONE と View.VISIBLE で入れ替えるだけとなっている。</p>
+
+<p>そのため、 inflate() しただけでどこにも addView() していない View などを setEmptyView() で指定しても表示されないし、 ListView の子として表示される Header や Footer も表示されないこととなる。</p>
+
+<p>通常は ListView と同階層に兄弟 View として xml に定義しておくのがよさそう。<br/>
+EmptyView として設定する View の Visibility は特に指定しなくても ListView 側でやってくれるので問題ないです。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;ListView</span>
+</span><span class='line'>    <span class="na">android:id=</span><span class="s">&quot;@+id/listView&quot;</span>
+</span><span class='line'>    <span class="err">...</span> <span class="nt">/&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;View</span>
+</span><span class='line'>    <span class="na">android:id=</span><span class="s">&quot;@+id/emptyView&quot;</span>
+</span><span class='line'>    <span class="err">...</span> <span class="nt">/&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">ListView</span> <span class="n">listView</span> <span class="o">=</span> <span class="o">(</span><span class="n">ListView</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">listView</span><span class="o">);</span>
+</span><span class='line'><span class="n">listView</span><span class="o">.</span><span class="na">setEmptyView</span><span class="o">(</span><span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">emptyView</span><span class="o">));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>以下は実装箇所の確認。</p>
+
+<figure class='code'><figcaption><span>android.widget.AdapterView(1.6_r2)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">private</span> <span class="kt">void</span> <span class="n">More</span> <span class="o">...</span><span class="na">updateEmptyStatus</span><span class="o">(</span><span class="kt">boolean</span> <span class="n">empty</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">isInFilterMode</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">empty</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">empty</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// EmptyView が設定されていた場合は自身を消して、 EmptyView を表示させている</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">mEmptyView</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">mEmptyView</span><span class="o">.</span><span class="na">setVisibility</span><span class="o">(</span><span class="n">View</span><span class="o">.</span><span class="na">VISIBLE</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">setVisibility</span><span class="o">(</span><span class="n">View</span><span class="o">.</span><span class="na">GONE</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>            <span class="c1">// If the caller just removed our empty view, make sure the list view is visible</span>
+</span><span class='line'>            <span class="n">setVisibility</span><span class="o">(</span><span class="n">View</span><span class="o">.</span><span class="na">VISIBLE</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="c1">// ...</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// ...</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Android のタッチイベントを理解する(その1)]]></title>
