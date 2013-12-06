@@ -5,12 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>ViewGroup では onDraw() の代わりに dispatchDraw() が呼ばれる - Unmotivated</title>
+  <title>ファイル名に特定の記号が使用できる場合とできない場合がある - Unmotivated</title>
   <meta name="author" content="lciel">
 
   
-  <meta name="description" content="FrameLayout で onDraw() のタイミングで処理をしたいが、どうも onDraw() が呼ばれないように見える。 確認したところ、 ViewGroup を継承したクラスは onDraw() の代わり dispatchDraw() が呼ばれるようだった。
-(その名の通り子の View &hellip;">
+  <meta name="description" content="Android のバージョンは同じなのに、端末によってファイルの移動(renameTo())に失敗してしまうことがあって悩まされたが、オチは移動先のファイル名にクエスチョンマーク(&ldquo;?&rdquo;)が含まれていたことが原因だった。 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -19,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://blog.lciel.jp/blog/2013/11/27/viewgroup-dispatchdraw">
+  <link rel="canonical" href="http://blog.lciel.jp/blog/2013/12/06/android-sdcard-vfat">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Unmotivated" type="application/atom+xml">
@@ -82,7 +81,7 @@
   
   <header>
     
-      <h1 class="entry-title">ViewGroup では onDraw() の代わりに dispatchDraw() が呼ばれる</h1>
+      <h1 class="entry-title">ファイル名に特定の記号が使用できる場合とできない場合がある</h1>
     
     
       <p class="meta">
@@ -98,35 +97,56 @@
   
 
 
-<time datetime="2013-11-27T20:18:00+09:00" pubdate data-updated="true">Nov 27<span>th</span>, 2013</time>
+<time datetime="2013-12-06T21:11:00+09:00" pubdate data-updated="true">Dec 6<span>th</span>, 2013</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>FrameLayout で onDraw() のタイミングで処理をしたいが、どうも onDraw() が呼ばれないように見える。</p>
+<div class="entry-content"><p>Android のバージョンは同じなのに、端末によってファイルの移動(renameTo())に失敗してしまうことがあって悩まされたが、オチは移動先のファイル名にクエスチョンマーク(&ldquo;?&rdquo;)が含まれていたことが原因だった。</p>
 
-<p>確認したところ、 ViewGroup を継承したクラスは onDraw() の代わり dispatchDraw() が呼ばれるようだった。<br/>
-(その名の通り子の View に対して draw() をコールしたりしなかったりするメソッド)</p>
+<p>クエスチョンマークが入ってしまっていたこと自体がバグだったのだけれど、そもそも何で端末によってこのようなことが起きるのかを軽く追ってみた。</p>
 
-<p>ViewGroup を継承したクラスに対して onDraw() のタイミングで実行したい処理は、 dispatchDraw() に書けば問題なさそう。</p>
+<h3>原因はファイルシステム(っぽい)</h3>
 
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<p>成功する端末では内部ストレージに書き込みを行っており、失敗する端末では外部ストレージに書き込みを行っていた。</p>
+
+<p>ファイルシステムを見てみると、内部ストレージは FUSE でマウントされているのに対し、外部ストレージは VFAT でマウントされていた。</p>
+
+<figure class='code'><figcaption><span>mount の状態</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span>
-</span><span class='line'><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">dispatchDraw</span><span class="o">(</span><span class="n">Canvas</span> <span class="n">canvas</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="cm">/*</span>
-</span><span class='line'><span class="cm">        canvas に対して処理をしたりなんだり...</span>
-</span><span class='line'><span class="cm">    */</span>
-</span><span class='line'>    <span class="kd">super</span><span class="o">.</span><span class="na">dispatchDraw</span><span class="o">(</span><span class="n">canvas</span><span class="o">);</span>
-</span><span class='line'><span class="o">}</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'># 内部ストレージとして認識されているディレクトリ
+</span><span class='line'>/dev/fuse /storage/sdcard0 fuse rw,nosuid,nodev,relatime,user_id=1023,group_id=1023,default_permissions,allow_other 0 0
+</span><span class='line'>
+</span><span class='line'># 外部ストレージとして認識されているディレクトリ
+</span><span class='line'>/dev/block/vold/179:33 /storage/sdcard0/external_sd vfat rw,dirsync,nosuid,nodev,noexec,relatime,uid=1000,gid=1015,fmask=0602,dmask=0602,allow_utime=0020,codepage=cp437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 0
 </span></code></pre></td></tr></table></div></figure>
+
+
+<p>正式な出典が見つからなかったけれど、 VFAT ではファイル名に以下の文字の使用を禁止しているようなので、恐らくこれが原因っぽい。<br/>
+試しにその他の記号を含めたファイル名を作成してみたところ、全て失敗した。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>\ : * ? &lt; &gt; | / ;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>参考 : (ファイル名とフォルダ名で使用できない文字)[<a href="http://www2s.biglobe.ne.jp/~system/doc/winfile2.htm">http://www2s.biglobe.ne.jp/~system/doc/winfile2.htm</a>]</p>
+
+<p>というわけで、環境によって(サンプル数は少ないが、恐らく外部SDカードでは)一部の記号がファイル名に使えなくなることがある、ということが分かった。</p>
+
+<h3>メモ</h3>
+
+<p>Android のファイルシステム周りについては全く調べられていないが、いくつか気になることがあったのでメモ。</p>
+
+<ul>
+<li>エミュレータでは FUSE ではなく YAFFS2 でマウントされていた(どこのレイヤーで変わってるのか不明)</li>
+<li><a href="http://source.android.com/devices/tech/storage/">ここ</a>を見ると、 Android 4.4 からは外部ストレージも FUSE 経由でマウントするようになるっぽい？が、4.4 のエミュレータが起動せず、実機も外部メモリがマウントできない端末しかなく確認できず (raw storage をラップしているとあるので、今回の件は実体の方でこけそうな感じがしますが)</li>
+</ul>
 
 </div>
 
@@ -150,7 +170,7 @@
   
 
 
-<time datetime="2013-11-27T20:18:00+09:00" pubdate data-updated="true">Nov 27<span>th</span>, 2013</time>
+<time datetime="2013-12-06T21:11:00+09:00" pubdate data-updated="true">Dec 6<span>th</span>, 2013</time>
       
 
 <span class="categories">
@@ -164,7 +184,7 @@
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://blog.lciel.jp/blog/2013/11/27/viewgroup-dispatchdraw/" data-via="lciel" data-counturl="http://blog.lciel.jp/blog/2013/11/27/viewgroup-dispatchdraw/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://blog.lciel.jp/blog/2013/12/06/android-sdcard-vfat/" data-via="lciel" data-counturl="http://blog.lciel.jp/blog/2013/12/06/android-sdcard-vfat/" >Tweet</a>
   
   
   
@@ -175,10 +195,8 @@
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2013/11/26/octopress-preview-include-generate/" title="Previous Post: Octopress の preview は generate を兼ねる">&laquo; Octopress の preview は generate を兼ねる</a>
+        <a class="basic-alignment left" href="/blog/2013/12/04/listview-setemptyview/" title="Previous Post: ListView#setEmptyView() について">&laquo; ListView#setEmptyView() について</a>
       
-      
-        <a class="basic-alignment right" href="/blog/2013/11/29/get-stacktrace-strings/" title="Next Post: StackTrace を文字列として取得する">StackTrace を文字列として取得する &raquo;</a>
       
     </p>
   </footer>
@@ -245,8 +263,8 @@
       
         
         // var disqus_developer = 1;
-        var disqus_identifier = 'http://blog.lciel.jp/blog/2013/11/27/viewgroup-dispatchdraw/';
-        var disqus_url = 'http://blog.lciel.jp/blog/2013/11/27/viewgroup-dispatchdraw/';
+        var disqus_identifier = 'http://blog.lciel.jp/blog/2013/12/06/android-sdcard-vfat/';
+        var disqus_url = 'http://blog.lciel.jp/blog/2013/12/06/android-sdcard-vfat/';
         var disqus_script = 'embed.js';
       
     (function () {

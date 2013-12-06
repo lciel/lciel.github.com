@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Android | Unmotivated]]></title>
   <link href="http://blog.lciel.jp/blog/categories/android/atom.xml" rel="self"/>
   <link href="http://blog.lciel.jp/"/>
-  <updated>2013-12-04T20:23:10+09:00</updated>
+  <updated>2013-12-06T20:17:25+09:00</updated>
   <id>http://blog.lciel.jp/</id>
   <author>
     <name><![CDATA[lciel]]></name>
@@ -12,6 +12,55 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[ファイル名に特定の記号が使用できる場合とできない場合がある]]></title>
+    <link href="http://blog.lciel.jp/blog/2013/12/06/android-sdcard-vfat/"/>
+    <updated>2013-12-06T21:11:00+09:00</updated>
+    <id>http://blog.lciel.jp/blog/2013/12/06/android-sdcard-vfat</id>
+    <content type="html"><![CDATA[<p>Android のバージョンは同じなのに、端末によってファイルの移動(renameTo())に失敗してしまうことがあって悩まされたが、オチは移動先のファイル名にクエスチョンマーク(&ldquo;?&rdquo;)が含まれていたことが原因だった。</p>
+
+<p>クエスチョンマークが入ってしまっていたこと自体がバグだったのだけれど、そもそも何で端末によってこのようなことが起きるのかを軽く追ってみた。</p>
+
+<h3>原因はファイルシステム(っぽい)</h3>
+
+<p>成功する端末では内部ストレージに書き込みを行っており、失敗する端末では外部ストレージに書き込みを行っていた。</p>
+
+<p>ファイルシステムを見てみると、内部ストレージは FUSE でマウントされているのに対し、外部ストレージは VFAT でマウントされていた。</p>
+
+<p>``` text mount の状態</p>
+
+<h1>内部ストレージとして認識されているディレクトリ</h1>
+
+<p>/dev/fuse /storage/sdcard0 fuse rw,nosuid,nodev,relatime,user_id=1023,group_id=1023,default_permissions,allow_other 0 0</p>
+
+<h1>外部ストレージとして認識されているディレクトリ</h1>
+
+<p>/dev/block/vold/179:33 /storage/sdcard0/external_sd vfat rw,dirsync,nosuid,nodev,noexec,relatime,uid=1000,gid=1015,fmask=0602,dmask=0602,allow_utime=0020,codepage=cp437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 0
+```</p>
+
+<p>正式な出典が見つからなかったけれど、 VFAT ではファイル名に以下の文字の使用を禁止しているようなので、恐らくこれが原因っぽい。<br/>
+試しにその他の記号を含めたファイル名を作成してみたところ、全て失敗した。</p>
+
+<p><code>text
+\ : * ? &lt; &gt; | / ;
+</code></p>
+
+<p>参考 : (ファイル名とフォルダ名で使用できない文字)[<a href="http://www2s.biglobe.ne.jp/~system/doc/winfile2.htm">http://www2s.biglobe.ne.jp/~system/doc/winfile2.htm</a>]</p>
+
+<p>というわけで、環境によって(サンプル数は少ないが、恐らく外部SDカードでは)一部の記号がファイル名に使えなくなることがある、ということが分かった。</p>
+
+<h3>メモ</h3>
+
+<p>Android のファイルシステム周りについては全く調べられていないが、いくつか気になることがあったのでメモ。</p>
+
+<ul>
+<li>エミュレータでは FUSE ではなく YAFFS2 でマウントされていた(どこのレイヤーで変わってるのか不明)</li>
+<li><a href="http://source.android.com/devices/tech/storage/">ここ</a>を見ると、 Android 4.4 からは外部ストレージも FUSE 経由でマウントするようになるっぽい？が、4.4 のエミュレータが起動せず、実機も外部メモリがマウントできない端末しかなく確認できず (raw storage をラップしているとあるので、今回の件は実体の方でこけそうな感じがしますが)</li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[ListView#setEmptyView() について]]></title>
@@ -343,39 +392,6 @@ return mDrawMatrix;
 ```</p>
 
 <p>Android はマイナーバージョンアップでも、結構こういう細かい挙動変更が入ってくるので、以前動いていたものが突然動かなくなることが良くあるのだけれど、Android のコードを直接見に行けば答えが書いてあるので安心感がありますね。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[ListView で onItemClick() と onItemLongClick() を両立]]></title>
-    <link href="http://blog.lciel.jp/blog/2013/11/22/onitemclick-vs-onitemlongclick/"/>
-    <updated>2013-11-22T18:50:00+09:00</updated>
-    <id>http://blog.lciel.jp/blog/2013/11/22/onitemclick-vs-onitemlongclick</id>
-    <content type="html"><![CDATA[<p>ListView で onItemClick() と onItemLongClick() を同時に仕掛けた際に、指を離すタイミングによっては onItemLongClick() に続けて onItemClick() が呼ばれてしまう。</p>
-
-<p>一般的な Touch Event の例に漏れず、 onItemLongClick() で true を返しておけば、その後のイベントはキャンセルされる。
-``` java
-@Override
-public void onItemClick(AdapterView&lt;?> parent, View view, int position, long id) {</p>
-
-<pre><code>/*
-    なんやかんや
-*/
-</code></pre>
-
-<p>}</p>
-
-<p>@Override
-public boolean onItemLongClick(AdapterView&lt;?> parent, View view, int position, long id) {</p>
-
-<pre><code>/*
-    なんやかんや
-*/
-return true;    // これで onItemLongClick() のあとに onItemClick() が呼ばれなくなる
-</code></pre>
-
-<p>}
-```</p>
 ]]></content>
   </entry>
   

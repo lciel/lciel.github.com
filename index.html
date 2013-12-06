@@ -9,8 +9,7 @@
   <meta name="author" content="lciel">
 
   
-  <meta name="description" content="ListView の要素が無い場合に表示する View を指定できる setEmptyView() だが、その名前から想像できるのとは少し違う動きをする。 違 : 「要素が無い場合に ListView の子供として表示させる View が設定できる」
-正 : 「要素が無い場合に ListView &hellip;">
+  <meta name="description" content="Android のバージョンは同じなのに、端末によってファイルの移動(renameTo())に失敗してしまうことがあって悩まされたが、オチは移動先のファイル名にクエスチョンマーク(&ldquo;?&rdquo;)が含まれていたことが原因だった。 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -51,7 +50,7 @@
   <header role="banner"><hgroup>
   <h1><a href="/">Unmotivated</a></h1>
   
-    <h2>溜まったチリを積もらせたい</h2>
+    <h2>やる気はない</h2>
   
 </hgroup>
 
@@ -79,6 +78,85 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/12/06/android-sdcard-vfat/">ファイル名に特定の記号が使用できる場合とできない場合がある</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-06T21:11:00+09:00" pubdate data-updated="true">Dec 6<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Android のバージョンは同じなのに、端末によってファイルの移動(renameTo())に失敗してしまうことがあって悩まされたが、オチは移動先のファイル名にクエスチョンマーク(&ldquo;?&rdquo;)が含まれていたことが原因だった。</p>
+
+<p>クエスチョンマークが入ってしまっていたこと自体がバグだったのだけれど、そもそも何で端末によってこのようなことが起きるのかを軽く追ってみた。</p>
+
+<h3>原因はファイルシステム(っぽい)</h3>
+
+<p>成功する端末では内部ストレージに書き込みを行っており、失敗する端末では外部ストレージに書き込みを行っていた。</p>
+
+<p>ファイルシステムを見てみると、内部ストレージは FUSE でマウントされているのに対し、外部ストレージは VFAT でマウントされていた。</p>
+
+<figure class='code'><figcaption><span>mount の状態</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'># 内部ストレージとして認識されているディレクトリ
+</span><span class='line'>/dev/fuse /storage/sdcard0 fuse rw,nosuid,nodev,relatime,user_id=1023,group_id=1023,default_permissions,allow_other 0 0
+</span><span class='line'>
+</span><span class='line'># 外部ストレージとして認識されているディレクトリ
+</span><span class='line'>/dev/block/vold/179:33 /storage/sdcard0/external_sd vfat rw,dirsync,nosuid,nodev,noexec,relatime,uid=1000,gid=1015,fmask=0602,dmask=0602,allow_utime=0020,codepage=cp437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 0
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>正式な出典が見つからなかったけれど、 VFAT ではファイル名に以下の文字の使用を禁止しているようなので、恐らくこれが原因っぽい。<br/>
+試しにその他の記号を含めたファイル名を作成してみたところ、全て失敗した。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>\ : * ? &lt; &gt; | / ;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>参考 : (ファイル名とフォルダ名で使用できない文字)[<a href="http://www2s.biglobe.ne.jp/~system/doc/winfile2.htm">http://www2s.biglobe.ne.jp/~system/doc/winfile2.htm</a>]</p>
+
+<p>というわけで、環境によって(サンプル数は少ないが、恐らく外部SDカードでは)一部の記号がファイル名に使えなくなることがある、ということが分かった。</p>
+
+<h3>メモ</h3>
+
+<p>Android のファイルシステム周りについては全く調べられていないが、いくつか気になることがあったのでメモ。</p>
+
+<ul>
+<li>エミュレータでは FUSE ではなく YAFFS2 でマウントされていた(どこのレイヤーで変わってるのか不明)</li>
+<li><a href="http://source.android.com/devices/tech/storage/">ここ</a>を見ると、 Android 4.4 からは外部ストレージも FUSE 経由でマウントするようになるっぽい？が、4.4 のエミュレータが起動せず、実機も外部メモリがマウントできない端末しかなく確認できず (raw storage をラップしているとあるので、今回の件は実体の方でこけそうな感じがしますが)</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -698,49 +776,6 @@ Disqus にログインした状態で<a href="http://disqus.com/register">ここ
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/11/21/android-fragmentation-visualized/">Android 端末のシェアを視覚的に見る</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-11-21T20:46:00+09:00" pubdate data-updated="true">Nov 21<span>st</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>OpenSignal が公開してくれている、 Android 端末毎のシェアを視覚的に表示してくれるサービス。</p>
-
-<ul>
-<li><a href="http://opensignal.com/reports/fragmentation-2013/">Android Fragmentation Visualized</a></li>
-</ul>
-
-
-<p>こうみると SAMSUNG 一強だな。。</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -756,6 +791,10 @@ Disqus にログインした状態で<a href="http://disqus.com/register">ここ
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/12/06/android-sdcard-vfat/">ファイル名に特定の記号が使用できる場合とできない場合がある</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/12/04/listview-setemptyview/">ListView#setEmptyView() について</a>
       </li>
     
@@ -769,10 +808,6 @@ Disqus にログインした状態で<a href="http://disqus.com/register">ここ
     
       <li class="post">
         <a href="/blog/2013/11/29/get-stacktrace-strings/">StackTrace を文字列として取得する</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/11/27/viewgroup-dispatchdraw/">ViewGroup では onDraw() の代わりに dispatchDraw() が呼ばれる</a>
       </li>
     
   </ul>
