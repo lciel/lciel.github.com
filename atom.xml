@@ -4,7 +4,7 @@
   <title><![CDATA[Unmotivated]]></title>
   <link href="http://blog.lciel.jp/atom.xml" rel="self"/>
   <link href="http://blog.lciel.jp/"/>
-  <updated>2013-12-06T20:17:25+09:00</updated>
+  <updated>2013-12-11T19:51:54+09:00</updated>
   <id>http://blog.lciel.jp/</id>
   <author>
     <name><![CDATA[lciel]]></name>
@@ -12,6 +12,335 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Android のアニメーションを自作する]]></title>
+    <link href="http://blog.lciel.jp/blog/2013/12/11/android-custom-animation/"/>
+    <updated>2013-12-11T20:15:00+09:00</updated>
+    <id>http://blog.lciel.jp/blog/2013/12/11/android-custom-animation</id>
+    <content type="html"><![CDATA[<p>Android で独自定義のカスタムアニメーションを作りたかったので試してみたところ、 Animation クラスを継承して割と簡単に作れたのでメモ。</p>
+
+<p>ここでは例として、 View を円周に沿って動かすようなアニメーションを作ってみました。<br/>
+アニメーションさせたい View に対して中心点を指定して、開始角度と終了角度を与えてアニメーションさせてみます。</p>
+
+<p><img src="http://blog.lciel.jp/images/android-arc-translate-animation.png" alt="円弧上を動かすアニメーション" /></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * 円弧上に沿うように移動させるアニメーション</span>
+</span><span class='line'><span class="cm"> * @param startDegrees  開始角度</span>
+</span><span class='line'><span class="cm"> * @param endDegrees    終了角度</span>
+</span><span class='line'><span class="cm"> * @param centerXType   中心点のX座標のタイプ</span>
+</span><span class='line'><span class="cm"> * @param centerXValue  中心点のX座標を表す値</span>
+</span><span class='line'><span class="cm"> * @param centerYType   中心点のY座標のタイプ</span>
+</span><span class='line'><span class="cm"> * @param centerYValue  中心点のY座標を表す値</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kd">public</span> <span class="nf">ArcTranslateAnimation</span><span class="o">(</span><span class="kt">int</span> <span class="n">startDegrees</span><span class="o">,</span> <span class="kt">int</span> <span class="n">endDegrees</span><span class="o">,</span>
+</span><span class='line'>        <span class="kt">int</span> <span class="n">centerXType</span><span class="o">,</span> <span class="kt">float</span> <span class="n">centerXValue</span><span class="o">,</span> <span class="kt">int</span> <span class="n">centerYType</span><span class="o">,</span> <span class="kt">float</span> <span class="n">centerYValue</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!-- more -->
+
+
+<h3>コンストラクタ</h3>
+
+<p>今回はパラメータを受け取るだけ。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="nf">ArcTranslateAnimation</span><span class="o">(</span><span class="kt">int</span> <span class="n">startDegrees</span><span class="o">,</span> <span class="kt">int</span> <span class="n">endDegrees</span><span class="o">,</span>
+</span><span class='line'>        <span class="kt">int</span> <span class="n">centerXType</span><span class="o">,</span> <span class="kt">float</span> <span class="n">centerXValue</span><span class="o">,</span> <span class="kt">int</span> <span class="n">centerYType</span><span class="o">,</span> <span class="kt">float</span> <span class="n">centerYValue</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">mStartRad</span> <span class="o">=</span> <span class="o">(</span><span class="kt">float</span><span class="o">)(</span><span class="n">startDegrees</span> <span class="o">*</span> <span class="n">Math</span><span class="o">.</span><span class="na">PI</span> <span class="o">/</span> <span class="mf">180.0f</span><span class="o">);</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">mEndRad</span>   <span class="o">=</span> <span class="o">(</span><span class="kt">float</span><span class="o">)(</span><span class="n">endDegrees</span>   <span class="o">*</span> <span class="n">Math</span><span class="o">.</span><span class="na">PI</span> <span class="o">/</span> <span class="mf">180.0f</span><span class="o">);</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">mCenterXType</span>  <span class="o">=</span> <span class="n">centerXType</span><span class="o">;</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">mCenterXValue</span> <span class="o">=</span> <span class="n">centerXValue</span><span class="o">;</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">mCenterYType</span>  <span class="o">=</span> <span class="n">centerYType</span><span class="o">;</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">mCenterYValue</span> <span class="o">=</span> <span class="n">centerYValue</span><span class="o">;</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>initialize()</h3>
+
+<p>まず initialize() で View の座標やサイズなどの情報を取得します。</p>
+
+<p>他のアニメーションに倣い、回転の中心点を指定するときに絶対的(Animation.ABSOLUTE)か相対的(Animation.RELATIVE_TO_SELF)か、親基準で相対的(Animation.RELATIVE_TO_PARENT)かを選べるようにしてみましたが、このあたりは resolveSize() メソッドを使うことで容易に座標に変換できます。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span>
+</span><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">initialize</span><span class="o">(</span><span class="kt">int</span> <span class="n">width</span><span class="o">,</span> <span class="kt">int</span> <span class="n">height</span><span class="o">,</span> <span class="kt">int</span> <span class="n">parentWidth</span><span class="o">,</span>
+</span><span class='line'>        <span class="kt">int</span> <span class="n">parentHeight</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">super</span><span class="o">.</span><span class="na">initialize</span><span class="o">(</span><span class="n">width</span><span class="o">,</span> <span class="n">height</span><span class="o">,</span> <span class="n">parentWidth</span><span class="o">,</span> <span class="n">parentHeight</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kt">float</span> <span class="n">fromX</span>   <span class="o">=</span> <span class="n">resolveSize</span><span class="o">(</span><span class="n">Animation</span><span class="o">.</span><span class="na">ABSOLUTE</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">width</span><span class="o">,</span> <span class="n">parentWidth</span><span class="o">);</span>
+</span><span class='line'>    <span class="kt">float</span> <span class="n">fromY</span>   <span class="o">=</span> <span class="n">resolveSize</span><span class="o">(</span><span class="n">Animation</span><span class="o">.</span><span class="na">ABSOLUTE</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">height</span><span class="o">,</span> <span class="n">parentHeight</span><span class="o">);</span>
+</span><span class='line'>    <span class="kt">float</span> <span class="n">centerX</span> <span class="o">=</span> <span class="n">resolveSize</span><span class="o">(</span><span class="n">mCenterXType</span><span class="o">,</span> <span class="n">mCenterXValue</span><span class="o">,</span> <span class="n">width</span><span class="o">,</span> <span class="n">parentWidth</span><span class="o">);</span>
+</span><span class='line'>    <span class="kt">float</span> <span class="n">centerY</span> <span class="o">=</span> <span class="n">resolveSize</span><span class="o">(</span><span class="n">mCenterYType</span><span class="o">,</span> <span class="n">mCenterYValue</span><span class="o">,</span> <span class="n">height</span><span class="o">,</span> <span class="n">parentHeight</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">mDeltaRad</span> <span class="o">=</span> <span class="o">(</span><span class="kt">float</span><span class="o">)</span><span class="n">Math</span><span class="o">.</span><span class="na">atan2</span><span class="o">(</span><span class="n">fromY</span> <span class="o">-</span> <span class="n">centerY</span><span class="o">,</span> <span class="n">fromX</span> <span class="o">-</span> <span class="n">centerX</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">mRadius</span> <span class="o">=</span> <span class="o">(</span><span class="kt">float</span><span class="o">)</span><span class="n">Math</span><span class="o">.</span><span class="na">sqrt</span><span class="o">(</span><span class="n">Math</span><span class="o">.</span><span class="na">pow</span><span class="o">(</span><span class="n">fromX</span> <span class="o">-</span> <span class="n">centerX</span><span class="o">,</span> <span class="mi">2</span><span class="o">)</span> <span class="o">+</span> <span class="n">Math</span><span class="o">.</span><span class="na">pow</span><span class="o">(</span><span class="n">fromY</span> <span class="o">-</span> <span class="n">centerY</span><span class="o">,</span> <span class="mi">2</span><span class="o">));</span>
+</span><span class='line'>    <span class="n">mStartPoint</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Point</span><span class="o">((</span><span class="kt">int</span><span class="o">)(</span><span class="n">fromX</span> <span class="o">-</span> <span class="n">centerX</span><span class="o">),</span> <span class="o">(</span><span class="kt">int</span><span class="o">)(</span><span class="n">fromY</span> <span class="o">-</span> <span class="n">centerY</span><span class="o">));</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>中心点の座標がとれたので、開始地点と中心点における初期角度、円の半径、開始点などを保存しておきます。</p>
+
+<h3>applyTransformation()</h3>
+
+<p>applyTransformation() がアニメーションのキモで、引数として渡される interpolatedTime パラメータに 0.0f &ndash; 1.0f でアニメーションの進行値が入ってくるので、その値に合わせて表示を変更してやります。
+ちなみに interpolatedTime は Interpolator が適用された値が設定されているようなので、与えられた値をそのまま進行の割合として信じれば良さそうです。</p>
+
+<p>表示を変更するには、同じく引数として渡される t パラメータに対して操作を行えば OK です。
+位置やサイズを変更するなら getMatrix() で参照できる Matrix インスタンスを操作し、アルファ値を変更するなら setAlpha() でアルファ値を設定します。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">private</span> <span class="n">PointF</span> <span class="nf">getArcPoint</span><span class="o">(</span><span class="kt">float</span> <span class="n">interpolatedTime</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kt">float</span> <span class="n">rad</span> <span class="o">=</span> <span class="n">mStartRad</span> <span class="o">+</span> <span class="o">(</span><span class="n">mEndRad</span> <span class="o">-</span> <span class="n">mStartRad</span><span class="o">)</span> <span class="o">*</span> <span class="n">interpolatedTime</span> <span class="o">+</span> <span class="n">mDeltaRad</span><span class="o">;</span>
+</span><span class='line'>    <span class="kt">float</span> <span class="n">dx</span> <span class="o">=</span> <span class="o">(</span><span class="kt">float</span><span class="o">)(</span><span class="n">Math</span><span class="o">.</span><span class="na">cos</span><span class="o">(</span><span class="n">rad</span><span class="o">)</span> <span class="o">*</span> <span class="n">mRadius</span><span class="o">);</span>
+</span><span class='line'>    <span class="kt">float</span> <span class="n">dy</span> <span class="o">=</span> <span class="o">(</span><span class="kt">float</span><span class="o">)(</span><span class="n">Math</span><span class="o">.</span><span class="na">sin</span><span class="o">(</span><span class="n">rad</span><span class="o">)</span> <span class="o">*</span> <span class="n">mRadius</span><span class="o">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nf">PointF</span><span class="o">(</span><span class="n">dx</span> <span class="o">-</span> <span class="n">mStartPoint</span><span class="o">.</span><span class="na">x</span><span class="o">,</span> <span class="n">dy</span> <span class="o">-</span> <span class="n">mStartPoint</span><span class="o">.</span><span class="na">y</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@Override</span>
+</span><span class='line'><span class="kd">protected</span> <span class="kt">void</span> <span class="nf">applyTransformation</span><span class="o">(</span><span class="kt">float</span> <span class="n">interpolatedTime</span><span class="o">,</span> <span class="n">Transformation</span> <span class="n">t</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">PointF</span> <span class="n">p</span> <span class="o">=</span> <span class="n">getArcPoint</span><span class="o">(</span><span class="n">interpolatedTime</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">t</span><span class="o">.</span><span class="na">getMatrix</span><span class="o">().</span><span class="na">postTranslate</span><span class="o">(</span><span class="n">p</span><span class="o">.</span><span class="na">x</span><span class="o">,</span> <span class="n">p</span><span class="o">.</span><span class="na">y</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>今回は Translate アニメーションなので、 getArcPoint() で座標を決定したら Matrix#postTranslate() で位置を移動してやります。</p>
+
+<h3>カスタムアニメーションを使用する</h3>
+
+<p>これで普通の Animation と同じように使うことができます。</p>
+
+<figure class='code'><figcaption><span>使用例</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">View</span> <span class="n">target</span> <span class="o">=</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">targetView</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">Animation</span> <span class="n">anim1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArcTranslateAnimation</span><span class="o">(</span><span class="mi">0</span><span class="o">,</span> <span class="mi">90</span><span class="o">,</span> <span class="n">Animation</span><span class="o">.</span><span class="na">ABSOLUTE</span><span class="o">,</span> <span class="o">-</span><span class="mi">300</span><span class="o">,</span> <span class="n">Animation</span><span class="o">.</span><span class="na">ABSOLUTE</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+</span><span class='line'><span class="n">anim1</span><span class="o">.</span><span class="na">setDuration</span><span class="o">(</span><span class="mi">1000</span><span class="o">);</span>
+</span><span class='line'><span class="n">anim1</span><span class="o">.</span><span class="na">setFillEnabled</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span><span class='line'><span class="n">anim1</span><span class="o">.</span><span class="na">setFillAfter</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span><span class='line'><span class="n">target</span><span class="o">.</span><span class="na">startAnimation</span><span class="o">(</span><span class="n">anim1</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">Animation</span> <span class="n">anim2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArcTranslateAnimation</span><span class="o">(</span><span class="mi">90</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">Animation</span><span class="o">.</span><span class="na">ABSOLUTE</span><span class="o">,</span> <span class="o">-</span><span class="mi">300</span><span class="o">,</span> <span class="n">Animation</span><span class="o">.</span><span class="na">ABSOLUTE</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+</span><span class='line'><span class="n">anim2</span><span class="o">.</span><span class="na">setStartOffset</span><span class="o">(</span><span class="mi">1000</span><span class="o">);</span>
+</span><span class='line'><span class="n">anim2</span><span class="o">.</span><span class="na">setDuration</span><span class="o">(</span><span class="mi">1000</span><span class="o">);</span>
+</span><span class='line'><span class="n">anim2</span><span class="o">.</span><span class="na">setFillEnabled</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span><span class='line'><span class="n">anim2</span><span class="o">.</span><span class="na">setFillAfter</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span><span class='line'><span class="n">target</span><span class="o">.</span><span class="na">startAnimation</span><span class="o">(</span><span class="n">anim2</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>もちろん AnimationSet で使うこともできます。</p>
+
+<p>最後に今回作成した ArcTranslateAnimation クラスを置いておきます。</p>
+
+<figure class='code'><figcaption><span>ArcTranslateAnimation.java</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">import</span> <span class="nn">android.graphics.Point</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">android.graphics.PointF</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">android.view.animation.Animation</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">android.view.animation.Transformation</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ArcTranslateAnimation</span> <span class="kd">extends</span> <span class="n">Animation</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="kt">int</span> <span class="n">mCenterXType</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kt">int</span> <span class="n">mCenterYType</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kt">float</span> <span class="n">mCenterXValue</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kt">float</span> <span class="n">mCenterYValue</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="kt">float</span> <span class="n">mRadius</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">Point</span> <span class="n">mStartPoint</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">private</span> <span class="kt">float</span> <span class="n">mDeltaRad</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kt">float</span> <span class="n">mStartRad</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kt">float</span> <span class="n">mEndRad</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="cm">/**</span>
+</span><span class='line'><span class="cm">     * 円弧上に沿うように移動させるアニメーション</span>
+</span><span class='line'><span class="cm">     * @param startDegrees  開始角度</span>
+</span><span class='line'><span class="cm">     * @param endDegrees    終了角度</span>
+</span><span class='line'><span class="cm">     * @param centerXType   中心点のX座標のタイプ</span>
+</span><span class='line'><span class="cm">     * @param centerXValue  中心点のX座標を表す値</span>
+</span><span class='line'><span class="cm">     * @param centerYType   中心点のY座標のタイプ</span>
+</span><span class='line'><span class="cm">     * @param centerYValue  中心点のY座標を表す値</span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="nf">ArcTranslateAnimation</span><span class="o">(</span><span class="kt">int</span> <span class="n">startDegrees</span><span class="o">,</span> <span class="kt">int</span> <span class="n">endDegrees</span><span class="o">,</span>
+</span><span class='line'>            <span class="kt">int</span> <span class="n">centerXType</span><span class="o">,</span> <span class="kt">float</span> <span class="n">centerXValue</span><span class="o">,</span> <span class="kt">int</span> <span class="n">centerYType</span><span class="o">,</span> <span class="kt">float</span> <span class="n">centerYValue</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">mStartRad</span> <span class="o">=</span> <span class="o">(</span><span class="kt">float</span><span class="o">)(</span><span class="n">startDegrees</span> <span class="o">*</span> <span class="n">Math</span><span class="o">.</span><span class="na">PI</span> <span class="o">/</span> <span class="mf">180.0f</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">mEndRad</span>   <span class="o">=</span> <span class="o">(</span><span class="kt">float</span><span class="o">)(</span><span class="n">endDegrees</span>   <span class="o">*</span> <span class="n">Math</span><span class="o">.</span><span class="na">PI</span> <span class="o">/</span> <span class="mf">180.0f</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">mCenterXType</span>  <span class="o">=</span> <span class="n">centerXType</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">mCenterXValue</span> <span class="o">=</span> <span class="n">centerXValue</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">mCenterYType</span>  <span class="o">=</span> <span class="n">centerYType</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">this</span><span class="o">.</span><span class="na">mCenterYValue</span> <span class="o">=</span> <span class="n">centerYValue</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="cm">/**</span>
+</span><span class='line'><span class="cm">     * 現在の座標を取得する</span>
+</span><span class='line'><span class="cm">     * @param interpolatedTime</span>
+</span><span class='line'><span class="cm">     * @return</span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">PointF</span> <span class="nf">getArcPoint</span><span class="o">(</span><span class="kt">float</span> <span class="n">interpolatedTime</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="kt">float</span> <span class="n">rad</span> <span class="o">=</span> <span class="n">mStartRad</span> <span class="o">+</span> <span class="o">(</span><span class="n">mEndRad</span> <span class="o">-</span> <span class="n">mStartRad</span><span class="o">)</span> <span class="o">*</span> <span class="n">interpolatedTime</span> <span class="o">+</span> <span class="n">mDeltaRad</span><span class="o">;</span>
+</span><span class='line'>        <span class="kt">float</span> <span class="n">dx</span> <span class="o">=</span> <span class="o">(</span><span class="kt">float</span><span class="o">)(</span><span class="n">Math</span><span class="o">.</span><span class="na">cos</span><span class="o">(</span><span class="n">rad</span><span class="o">)</span> <span class="o">*</span> <span class="n">mRadius</span><span class="o">);</span>
+</span><span class='line'>        <span class="kt">float</span> <span class="n">dy</span> <span class="o">=</span> <span class="o">(</span><span class="kt">float</span><span class="o">)(</span><span class="n">Math</span><span class="o">.</span><span class="na">sin</span><span class="o">(</span><span class="n">rad</span><span class="o">)</span> <span class="o">*</span> <span class="n">mRadius</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">return</span> <span class="k">new</span> <span class="nf">PointF</span><span class="o">(</span><span class="n">dx</span> <span class="o">-</span> <span class="n">mStartPoint</span><span class="o">.</span><span class="na">x</span><span class="o">,</span> <span class="n">dy</span> <span class="o">-</span> <span class="n">mStartPoint</span><span class="o">.</span><span class="na">y</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">applyTransformation</span><span class="o">(</span><span class="kt">float</span> <span class="n">interpolatedTime</span><span class="o">,</span> <span class="n">Transformation</span> <span class="n">t</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">PointF</span> <span class="n">p</span> <span class="o">=</span> <span class="n">getArcPoint</span><span class="o">(</span><span class="n">interpolatedTime</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">t</span><span class="o">.</span><span class="na">getMatrix</span><span class="o">().</span><span class="na">postTranslate</span><span class="o">(</span><span class="n">p</span><span class="o">.</span><span class="na">x</span><span class="o">,</span> <span class="n">p</span><span class="o">.</span><span class="na">y</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">initialize</span><span class="o">(</span><span class="kt">int</span> <span class="n">width</span><span class="o">,</span> <span class="kt">int</span> <span class="n">height</span><span class="o">,</span> <span class="kt">int</span> <span class="n">parentWidth</span><span class="o">,</span>
+</span><span class='line'>            <span class="kt">int</span> <span class="n">parentHeight</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="kd">super</span><span class="o">.</span><span class="na">initialize</span><span class="o">(</span><span class="n">width</span><span class="o">,</span> <span class="n">height</span><span class="o">,</span> <span class="n">parentWidth</span><span class="o">,</span> <span class="n">parentHeight</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kt">float</span> <span class="n">fromX</span>   <span class="o">=</span> <span class="n">resolveSize</span><span class="o">(</span><span class="n">Animation</span><span class="o">.</span><span class="na">ABSOLUTE</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">width</span><span class="o">,</span> <span class="n">parentWidth</span><span class="o">);</span>
+</span><span class='line'>        <span class="kt">float</span> <span class="n">fromY</span>   <span class="o">=</span> <span class="n">resolveSize</span><span class="o">(</span><span class="n">Animation</span><span class="o">.</span><span class="na">ABSOLUTE</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">height</span><span class="o">,</span> <span class="n">parentHeight</span><span class="o">);</span>
+</span><span class='line'>        <span class="kt">float</span> <span class="n">centerX</span> <span class="o">=</span> <span class="n">resolveSize</span><span class="o">(</span><span class="n">mCenterXType</span><span class="o">,</span> <span class="n">mCenterXValue</span><span class="o">,</span> <span class="n">width</span><span class="o">,</span> <span class="n">parentWidth</span><span class="o">);</span>
+</span><span class='line'>        <span class="kt">float</span> <span class="n">centerY</span> <span class="o">=</span> <span class="n">resolveSize</span><span class="o">(</span><span class="n">mCenterYType</span><span class="o">,</span> <span class="n">mCenterYValue</span><span class="o">,</span> <span class="n">height</span><span class="o">,</span> <span class="n">parentHeight</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">mDeltaRad</span> <span class="o">=</span> <span class="o">(</span><span class="kt">float</span><span class="o">)</span><span class="n">Math</span><span class="o">.</span><span class="na">atan2</span><span class="o">(</span><span class="n">fromY</span> <span class="o">-</span> <span class="n">centerY</span><span class="o">,</span> <span class="n">fromX</span> <span class="o">-</span> <span class="n">centerX</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">mRadius</span> <span class="o">=</span> <span class="o">(</span><span class="kt">float</span><span class="o">)</span><span class="n">Math</span><span class="o">.</span><span class="na">sqrt</span><span class="o">(</span><span class="n">Math</span><span class="o">.</span><span class="na">pow</span><span class="o">(</span><span class="n">fromX</span> <span class="o">-</span> <span class="n">centerX</span><span class="o">,</span> <span class="mi">2</span><span class="o">)</span> <span class="o">+</span> <span class="n">Math</span><span class="o">.</span><span class="na">pow</span><span class="o">(</span><span class="n">fromY</span> <span class="o">-</span> <span class="n">centerY</span><span class="o">,</span> <span class="mi">2</span><span class="o">));</span>
+</span><span class='line'>        <span class="n">mStartPoint</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Point</span><span class="o">((</span><span class="kt">int</span><span class="o">)(</span><span class="n">fromX</span> <span class="o">-</span> <span class="n">centerX</span><span class="o">),</span> <span class="o">(</span><span class="kt">int</span><span class="o">)(</span><span class="n">fromY</span> <span class="o">-</span> <span class="n">centerY</span><span class="o">));</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[ファイル名に特定の記号が使用できる場合とできない場合がある]]></title>
@@ -49,7 +378,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>参考 : (ファイル名とフォルダ名で使用できない文字)[<a href="http://www2s.biglobe.ne.jp/~system/doc/winfile2.htm">http://www2s.biglobe.ne.jp/~system/doc/winfile2.htm</a>]</p>
+<p>参考 : <a href="http://www2s.biglobe.ne.jp/~system/doc/winfile2.htm">ファイル名とフォルダ名で使用できない文字</a></p>
 
 <p>というわけで、環境によって(サンプル数は少ないが、恐らく外部SDカードでは)一部の記号がファイル名に使えなくなることがある、ということが分かった。</p>
 
@@ -59,7 +388,7 @@
 
 <ul>
 <li>エミュレータでは FUSE ではなく YAFFS2 でマウントされていた(どこのレイヤーで変わってるのか不明)</li>
-<li><a href="http://source.android.com/devices/tech/storage/">ここ</a>を見ると、 Android 4.4 からは外部ストレージも FUSE 経由でマウントするようになるっぽい？が、4.4 のエミュレータが起動せず、実機も外部メモリがマウントできない端末しかなく確認できず (raw storage をラップしているとあるので、今回の件は実体の方でこけそうな感じがしますが)</li>
+<li><a href="http://source.android.com/devices/tech/storage/">ここ</a>を見ると、 Android 4.4 からは外部ストレージも FUSE 経由でマウントするようになるっぽい？が、4.4 のエミュレータが起動せず、実機も外部メモリがマウントできない端末しかなく確認できず (raw storage をラップしているとあるので、今回の件は実体の方でこけそう)</li>
 </ul>
 
 ]]></content>

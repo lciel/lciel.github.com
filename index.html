@@ -9,7 +9,8 @@
   <meta name="author" content="lciel">
 
   
-  <meta name="description" content="Android のバージョンは同じなのに、端末によってファイルの移動(renameTo())に失敗してしまうことがあって悩まされたが、オチは移動先のファイル名にクエスチョンマーク(&ldquo;?&rdquo;)が含まれていたことが原因だった。 &hellip;">
+  <meta name="description" content="Android で独自定義のカスタムアニメーションを作りたかったので試してみたところ、 Animation クラスを継承して割と簡単に作れたのでメモ。 ここでは例として、 View を円周に沿って動かすようなアニメーションを作ってみました。
+アニメーションさせたい View &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -84,6 +85,79 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2013/12/11/android-custom-animation/">Android のアニメーションを自作する</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-11T20:15:00+09:00" pubdate data-updated="true">Dec 11<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Android で独自定義のカスタムアニメーションを作りたかったので試してみたところ、 Animation クラスを継承して割と簡単に作れたのでメモ。</p>
+
+<p>ここでは例として、 View を円周に沿って動かすようなアニメーションを作ってみました。<br/>
+アニメーションさせたい View に対して中心点を指定して、開始角度と終了角度を与えてアニメーションさせてみます。</p>
+
+<p><img src="/images/android-arc-translate-animation.png" alt="円弧上を動かすアニメーション" /></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * 円弧上に沿うように移動させるアニメーション</span>
+</span><span class='line'><span class="cm"> * @param startDegrees  開始角度</span>
+</span><span class='line'><span class="cm"> * @param endDegrees    終了角度</span>
+</span><span class='line'><span class="cm"> * @param centerXType   中心点のX座標のタイプ</span>
+</span><span class='line'><span class="cm"> * @param centerXValue  中心点のX座標を表す値</span>
+</span><span class='line'><span class="cm"> * @param centerYType   中心点のY座標のタイプ</span>
+</span><span class='line'><span class="cm"> * @param centerYValue  中心点のY座標を表す値</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kd">public</span> <span class="nf">ArcTranslateAnimation</span><span class="o">(</span><span class="kt">int</span> <span class="n">startDegrees</span><span class="o">,</span> <span class="kt">int</span> <span class="n">endDegrees</span><span class="o">,</span>
+</span><span class='line'>        <span class="kt">int</span> <span class="n">centerXType</span><span class="o">,</span> <span class="kt">float</span> <span class="n">centerXValue</span><span class="o">,</span> <span class="kt">int</span> <span class="n">centerYType</span><span class="o">,</span> <span class="kt">float</span> <span class="n">centerYValue</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/12/11/android-custom-animation/">続きを読む &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2013/12/06/android-sdcard-vfat/">ファイル名に特定の記号が使用できる場合とできない場合がある</a></h1>
     
     
@@ -138,7 +212,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>参考 : (ファイル名とフォルダ名で使用できない文字)[<a href="http://www2s.biglobe.ne.jp/~system/doc/winfile2.htm">http://www2s.biglobe.ne.jp/~system/doc/winfile2.htm</a>]</p>
+<p>参考 : <a href="http://www2s.biglobe.ne.jp/~system/doc/winfile2.htm">ファイル名とフォルダ名で使用できない文字</a></p>
 
 <p>というわけで、環境によって(サンプル数は少ないが、恐らく外部SDカードでは)一部の記号がファイル名に使えなくなることがある、ということが分かった。</p>
 
@@ -148,7 +222,7 @@
 
 <ul>
 <li>エミュレータでは FUSE ではなく YAFFS2 でマウントされていた(どこのレイヤーで変わってるのか不明)</li>
-<li><a href="http://source.android.com/devices/tech/storage/">ここ</a>を見ると、 Android 4.4 からは外部ストレージも FUSE 経由でマウントするようになるっぽい？が、4.4 のエミュレータが起動せず、実機も外部メモリがマウントできない端末しかなく確認できず (raw storage をラップしているとあるので、今回の件は実体の方でこけそうな感じがしますが)</li>
+<li><a href="http://source.android.com/devices/tech/storage/">ここ</a>を見ると、 Android 4.4 からは外部ストレージも FUSE 経由でマウントするようになるっぽい？が、4.4 のエミュレータが起動せず、実機も外部メモリがマウントできない端末しかなく確認できず (raw storage をラップしているとあるので、今回の件は実体の方でこけそう)</li>
 </ul>
 
 </div>
@@ -723,59 +797,6 @@ Disqus にログインした状態で<a href="http://disqus.com/register">ここ
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/11/21/disable-in-animation-of-viewflipper/">ViewFlipper の InAnimation を1つ目には適用しない</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-11-21T20:58:00+09:00" pubdate data-updated="true">Nov 21<span>st</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>ViewFlipper に InAnimation を設定した状態で startFlipping() をコールした際に、1つ目の View にも InAnimation が適用されてしまうのを回避したい。</p>
-
-<p>AutoStart を指定せずに明示的に startFlipping() をコールした後に setInAnimation() してやれば OK</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">ViewFlipper</span> <span class="n">viewFlipper</span> <span class="o">=</span> <span class="o">(</span><span class="n">ViewFlipper</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">viewFlipper</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// viewFlipper.setAutoStart(true);</span>
-</span><span class='line'><span class="n">viewFlipper</span><span class="o">.</span><span class="na">startFlipping</span><span class="o">();</span>
-</span><span class='line'><span class="n">viewFlipper</span><span class="o">.</span><span class="na">setInAnimation</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">anim</span><span class="o">.</span><span class="na">fadein</span><span class="o">);</span>
-</span><span class='line'><span class="n">viewFlipper</span><span class="o">.</span><span class="na">setOutAnimation</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">anim</span><span class="o">.</span><span class="na">fadeout</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -791,6 +812,10 @@ Disqus にログインした状態で<a href="http://disqus.com/register">ここ
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/12/11/android-custom-animation/">Android のアニメーションを自作する</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/12/06/android-sdcard-vfat/">ファイル名に特定の記号が使用できる場合とできない場合がある</a>
       </li>
     
@@ -804,10 +829,6 @@ Disqus にログインした状態で<a href="http://disqus.com/register">ここ
     
       <li class="post">
         <a href="/blog/2013/11/30/octopress-unable-load-disqus/">Octopress + Disqus でコメントを表示しようとしたがうまくいかなかった話</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/11/29/get-stacktrace-strings/">StackTrace を文字列として取得する</a>
       </li>
     
   </ul>

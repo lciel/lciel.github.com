@@ -9,8 +9,7 @@
   <meta name="author" content="lciel">
 
   
-  <meta name="description" content="OpenSignal が公開してくれている、 Android 端末毎のシェアを視覚的に表示してくれるサービス。 Android Fragmentation Visualized こうみると SAMSUNG 一強だな。。
-">
+  <meta name="description" content="ViewFlipper に InAnimation を設定した状態で startFlipping() をコールした際に、1つ目の View にも InAnimation が適用されてしまうのを回避したい。 AutoStart を指定せずに明示的に startFlipping() をコールした後に &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -79,6 +78,59 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/11/21/disable-in-animation-of-viewflipper/">ViewFlipper の InAnimation を1つ目には適用しない</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-21T20:58:00+09:00" pubdate data-updated="true">Nov 21<span>st</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>ViewFlipper に InAnimation を設定した状態で startFlipping() をコールした際に、1つ目の View にも InAnimation が適用されてしまうのを回避したい。</p>
+
+<p>AutoStart を指定せずに明示的に startFlipping() をコールした後に setInAnimation() してやれば OK</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">ViewFlipper</span> <span class="n">viewFlipper</span> <span class="o">=</span> <span class="o">(</span><span class="n">ViewFlipper</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">viewFlipper</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// viewFlipper.setAutoStart(true);</span>
+</span><span class='line'><span class="n">viewFlipper</span><span class="o">.</span><span class="na">startFlipping</span><span class="o">();</span>
+</span><span class='line'><span class="n">viewFlipper</span><span class="o">.</span><span class="na">setInAnimation</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">anim</span><span class="o">.</span><span class="na">fadein</span><span class="o">);</span>
+</span><span class='line'><span class="n">viewFlipper</span><span class="o">.</span><span class="na">setOutAnimation</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">anim</span><span class="o">.</span><span class="na">fadeout</span><span class="o">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -271,6 +323,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/12/11/android-custom-animation/">Android のアニメーションを自作する</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/12/06/android-sdcard-vfat/">ファイル名に特定の記号が使用できる場合とできない場合がある</a>
       </li>
     
@@ -284,10 +340,6 @@
     
       <li class="post">
         <a href="/blog/2013/11/30/octopress-unable-load-disqus/">Octopress + Disqus でコメントを表示しようとしたがうまくいかなかった話</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/11/29/get-stacktrace-strings/">StackTrace を文字列として取得する</a>
       </li>
     
   </ul>
