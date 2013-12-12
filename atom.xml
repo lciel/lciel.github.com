@@ -4,7 +4,7 @@
   <title><![CDATA[Unmotivated]]></title>
   <link href="http://blog.lciel.jp/atom.xml" rel="self"/>
   <link href="http://blog.lciel.jp/"/>
-  <updated>2013-12-11T19:51:54+09:00</updated>
+  <updated>2013-12-12T20:35:31+09:00</updated>
   <id>http://blog.lciel.jp/</id>
   <author>
     <name><![CDATA[lciel]]></name>
@@ -12,6 +12,304 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Android のタッチイベントを理解する(その2)]]></title>
+    <link href="http://blog.lciel.jp/blog/2013/12/12/android-touch-event-2/"/>
+    <updated>2013-12-12T21:32:00+09:00</updated>
+    <id>http://blog.lciel.jp/blog/2013/12/12/android-touch-event-2</id>
+    <content type="html"><![CDATA[<h2>Activity にタッチイベントが流れてくるまで</h2>
+
+<p><a href="http://blog.lciel.jp/blog/2013/12/03/android-touch-event/">前回</a>は View のヒエラルキーのなかをどうやってタッチイベントが伝搬するかを追いました。<br/>
+参考にした資料には、 Activity#dispatchTouchEvent() からイベントが始まるとありますが、折角なのでそこまではどうなっているかも確認します。</p>
+
+<p>先に概要としてまとめてしまうとこんな雰囲気でした。</p>
+
+<p><img src="http://blog.lciel.jp/images/android-touch-event-flow.png" alt="Activity に渡るまでのタッチイベント概要" /></p>
+
+<p>View システムの根っこの部分をきちんと理解できてないので、勘違いがあるかもしれません。
+(親子関係が特に怪しい)</p>
+
+<!-- more -->
+
+
+<h3>参考にしたスタックトレース</h3>
+
+<p>206SH(Android 4.2.2) でとったものなので、完全に純正なコードでない可能性もありますが参考にしつつ追っていきます。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>12-02 22:58:25.726: D/TOUCH_TEST(27219):
+</span><span class='line'>    at onTouch(TouchTest.java:35)
+</span><span class='line'>    at dispatchTouchEvent(View.java:7319)
+</span><span class='line'>    at dispatchTransformedTouchEvent(ViewGroup.java:2205)
+</span><span class='line'>    at dispatchTouchEvent(ViewGroup.java:1948)
+</span><span class='line'>    at dispatchTransformedTouchEvent(ViewGroup.java:2205)
+</span><span class='line'>    at dispatchTouchEvent(ViewGroup.java:1948)
+</span><span class='line'>    at dispatchTransformedTouchEvent(ViewGroup.java:2205)
+</span><span class='line'>    at dispatchTouchEvent(ViewGroup.java:1948)
+</span><span class='line'>    at dispatchTransformedTouchEvent(ViewGroup.java:2205)
+</span><span class='line'>    at dispatchTouchEvent(ViewGroup.java:1948)
+</span><span class='line'>    at dispatchTransformedTouchEvent(ViewGroup.java:2205)
+</span><span class='line'>    at dispatchTouchEvent(ViewGroup.java:1948)
+</span><span class='line'>    at dispatchTransformedTouchEvent(ViewGroup.java:2205)
+</span><span class='line'>    at dispatchTouchEvent(ViewGroup.java:1948)
+</span><span class='line'>    at dispatchTransformedTouchEvent(ViewGroup.java:2205)
+</span><span class='line'>    at dispatchTouchEvent(ViewGroup.java:1948)
+</span><span class='line'>    at superDispatchTouchEvent(PhoneWindow.java:1974)
+</span><span class='line'>    at superDispatchTouchEvent(PhoneWindow.java:1426)
+</span><span class='line'>    at dispatchTouchEvent(Activity.java:2417)
+</span><span class='line'>    at dispatchTouchEvent(PhoneWindow.java:1922)
+</span><span class='line'>    at dispatchPointerEvent(View.java:7504)
+</span><span class='line'>    at deliverPointerEvent(ViewRootImpl.java:3356)
+</span><span class='line'>    at deliverInputEvent(ViewRootImpl.java:3301)
+</span><span class='line'>    at doProcessInputEvents(ViewRootImpl.java:4436)
+</span><span class='line'>    at enqueueInputEvent(ViewRootImpl.java:4415)
+</span><span class='line'>    at onInputEvent(ViewRootImpl.java:4507)
+</span><span class='line'>    at dispatchInputEvent(InputEventReceiver.java:179)
+</span><span class='line'>    at nativePollOnce(MessageQueue.java:-2)
+</span><span class='line'>    at next(MessageQueue.java:125)
+</span><span class='line'>    at loop(Looper.java:124)
+</span><span class='line'>    /**
+</span><span class='line'>     * ↑ActivityThread の Looper にイベントが登録されてくるようなので、ここからみていく
+</span><span class='line'>     * ----
+</span><span class='line'>     * ↓ここまでは Activity が Zygote によって立ち上げられている関係上、スタックトレースにのってきているっぽい
+</span><span class='line'>     */
+</span><span class='line'>    at main(ActivityThread.java:5159)
+</span><span class='line'>    at invokeNative(Method.java:-2)
+</span><span class='line'>    at invoke(Method.java:511)
+</span><span class='line'>    at run(ZygoteInit.java:810)
+</span><span class='line'>    at main(ZygoteInit.java:577)
+</span><span class='line'>    at main(NativeStart.java:-2)
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Activity 配下の View へとタッチイベントがわたるまで</h3>
+
+<p>このあたりのメソッドの引き回し方は、マイナバージョンの変更でもちょこちょこ変わっているようで、たとえば 4.2.2 と 4.3 でも違いがありました。<br/>
+大枠の流れまでは変わっていなそうでしたので、スタックトレースと比較するために 4.2.2 でコードを追っています。</p>
+
+<ul>
+<li>どこかの誰かが ActivityThread の Looper にイベントを登録してくる(どこの誰かは今のところ追えてません)</li>
+<li>ActivityThread の Looper がメッセージを dispatch していくなかで、入力イベントを ViewRootImpl の onInputEvent() に渡す</li>
+<li>ViewRootImpl にて、入力イベントのキューを順に処理していく</li>
+</ul>
+
+
+<figure class='code'><figcaption><span>ViewRootImpl#deliverInputEvent()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">private</span> <span class="kt">void</span> <span class="nf">deliverInputEvent</span><span class="o">(</span><span class="n">QueuedInputEvent</span> <span class="n">q</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">Trace</span><span class="o">.</span><span class="na">traceBegin</span><span class="o">(</span><span class="n">Trace</span><span class="o">.</span><span class="na">TRACE_TAG_VIEW</span><span class="o">,</span> <span class="s">&quot;deliverInputEvent&quot;</span><span class="o">);</span>
+</span><span class='line'>    <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">q</span><span class="o">.</span><span class="na">mEvent</span> <span class="k">instanceof</span> <span class="n">KeyEvent</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">deliverKeyEvent</span><span class="o">(</span><span class="n">q</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>            <span class="kd">final</span> <span class="kt">int</span> <span class="n">source</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="na">mEvent</span><span class="o">.</span><span class="na">getSource</span><span class="o">();</span>
+</span><span class='line'>            <span class="k">if</span> <span class="o">((</span><span class="n">source</span> <span class="o">&amp;</span> <span class="n">InputDevice</span><span class="o">.</span><span class="na">SOURCE_CLASS_POINTER</span><span class="o">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="c1">// タッチイベントは SOURCE_CLASS_POINTER に分類されるため、 deliverPointerEvent() が呼ばれる</span>
+</span><span class='line'>                <span class="c1">// ここに分類されるのはマウス、ペン、タッチ、トラックボールなどらしい</span>
+</span><span class='line'>                <span class="n">deliverPointerEvent</span><span class="o">(</span><span class="n">q</span><span class="o">);</span>
+</span><span class='line'>            <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">((</span><span class="n">source</span> <span class="o">&amp;</span> <span class="n">InputDevice</span><span class="o">.</span><span class="na">SOURCE_CLASS_TRACKBALL</span><span class="o">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">deliverTrackballEvent</span><span class="o">(</span><span class="n">q</span><span class="o">);</span>
+</span><span class='line'>            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">deliverGenericMotionEvent</span><span class="o">(</span><span class="n">q</span><span class="o">);</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">Trace</span><span class="o">.</span><span class="na">traceEnd</span><span class="o">(</span><span class="n">Trace</span><span class="o">.</span><span class="na">TRACE_TAG_VIEW</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>キューからイベントを抽出して、 DecorView にポインタイベントとして流す</li>
+</ul>
+
+
+<figure class='code'><figcaption><span>ViewRootImpl#deliverPointerEvent()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">private</span> <span class="kt">void</span> <span class="nf">deliverPointerEvent</span><span class="o">(</span><span class="n">QueuedInputEvent</span> <span class="n">q</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">final</span> <span class="n">MotionEvent</span> <span class="n">event</span> <span class="o">=</span> <span class="o">(</span><span class="n">MotionEvent</span><span class="o">)</span><span class="n">q</span><span class="o">.</span><span class="na">mEvent</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// 中略</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// タッチイベントを View ヒエラルキーに流していく</span>
+</span><span class='line'>    <span class="c1">// 通常、 mView には Activity のルートビューとなる DecorView が入っているはず</span>
+</span><span class='line'>    <span class="kt">boolean</span> <span class="n">handled</span> <span class="o">=</span> <span class="n">mView</span><span class="o">.</span><span class="na">dispatchPointerEvent</span><span class="o">(</span><span class="n">event</span><span class="o">);</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">MEASURE_LATENCY</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">lt</span><span class="o">.</span><span class="na">sample</span><span class="o">(</span><span class="s">&quot;B Dispatched PointerEvents &quot;</span><span class="o">,</span> <span class="n">System</span><span class="o">.</span><span class="na">nanoTime</span><span class="o">()</span> <span class="o">-</span> <span class="n">event</span><span class="o">.</span><span class="na">getEventTimeNano</span><span class="o">());</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// タッチイベントの処理が返ってきたら、イベントキューを完了させる</span>
+</span><span class='line'>    <span class="c1">// handled で分岐しているが native method に入ってしまうので、今回は追ってません</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">handled</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">finishInputEvent</span><span class="o">(</span><span class="n">q</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">return</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Pointer event was unhandled.</span>
+</span><span class='line'>    <span class="n">finishInputEvent</span><span class="o">(</span><span class="n">q</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>DecorView の親クラス(View)でタッチイベントと判定して dispatch する</li>
+</ul>
+
+
+<figure class='code'><figcaption><span>View#dispatchPointerEvent()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">final</span> <span class="kt">boolean</span> <span class="nf">dispatchPointerEvent</span><span class="o">(</span><span class="n">MotionEvent</span> <span class="n">event</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">event</span><span class="o">.</span><span class="na">isTouchEvent</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// 今回はタッチイベントなのでこちら</span>
+</span><span class='line'>        <span class="k">return</span> <span class="nf">dispatchTouchEvent</span><span class="o">(</span><span class="n">event</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="nf">dispatchGenericMotionEvent</span><span class="o">(</span><span class="n">event</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>DecorView にて Callback として登録されている Activity に、一旦イベントを流す</li>
+</ul>
+
+
+<figure class='code'><figcaption><span>PhoneWindow.DecorView#dispatchTouchEvent()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">boolean</span> <span class="n">More</span> <span class="nf">dispatchTouchEvent</span><span class="o">(</span><span class="n">MotionEvent</span> <span class="n">ev</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// callback には通常 Activity が登録されている</span>
+</span><span class='line'>    <span class="kd">final</span> <span class="n">Callback</span> <span class="n">cb</span> <span class="o">=</span> <span class="n">getCallback</span><span class="o">();</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">cb</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">isDestroyed</span><span class="o">()</span> <span class="o">&amp;&amp;</span> <span class="n">mFeatureId</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">?</span> <span class="n">cb</span><span class="o">.</span><span class="na">dispatchTouchEvent</span><span class="o">(</span><span class="n">ev</span><span class="o">)</span>
+</span><span class='line'>            <span class="o">:</span> <span class="kd">super</span><span class="o">.</span><span class="na">dispatchTouchEvent</span><span class="o">(</span><span class="n">ev</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Activity にてユーザからの入力があったことを表す <a href="http://developer.android.com/reference/android/app/Activity.html#onUserInteraction%28%29">onUserInteraction()</a> などを呼びながら、再度 DecorView にイベントを dispatch し、子供の View (Activity#addContentView()したViewたち)へとタッチイベントを流していく</li>
+</ul>
+
+
+<figure class='code'><figcaption><span>Activity#dispatchTouchEvent()</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">dispatchTouchEvent</span><span class="o">(</span><span class="n">MotionEvent</span> <span class="n">ev</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// キータッチの開始なら onUserInteraction() が呼ばれる</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">ev</span><span class="o">.</span><span class="na">getAction</span><span class="o">()</span> <span class="o">==</span> <span class="n">MotionEvent</span><span class="o">.</span><span class="na">ACTION_DOWN</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">onUserInteraction</span><span class="o">();</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    <span class="c1">// ここで一旦 DecorView(FrameLayoutを継承) にイベントを戻し、ここから ViewGroup の dispatchTouchEvent() が呼ばれて、タッチイベントの旅が始まる</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">getWindow</span><span class="o">().</span><span class="na">superDispatchTouchEvent</span><span class="o">(</span><span class="n">ev</span><span class="o">))</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    <span class="c1">// イベントがキャンセルされずにココまで到達したら、最後に Activity のタッチイベントが呼ばれる</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nf">onTouchEvent</span><span class="o">(</span><span class="n">ev</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Android のアニメーションを自作する]]></title>

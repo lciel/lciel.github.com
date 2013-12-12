@@ -4,7 +4,7 @@
   <title><![CDATA[Category: TouchEvent | Unmotivated]]></title>
   <link href="http://blog.lciel.jp/blog/categories/touchevent/atom.xml" rel="self"/>
   <link href="http://blog.lciel.jp/"/>
-  <updated>2013-12-11T19:51:54+09:00</updated>
+  <updated>2013-12-12T20:35:31+09:00</updated>
   <id>http://blog.lciel.jp/</id>
   <author>
     <name><![CDATA[lciel]]></name>
@@ -12,6 +12,211 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Android のタッチイベントを理解する(その2)]]></title>
+    <link href="http://blog.lciel.jp/blog/2013/12/12/android-touch-event-2/"/>
+    <updated>2013-12-12T21:32:00+09:00</updated>
+    <id>http://blog.lciel.jp/blog/2013/12/12/android-touch-event-2</id>
+    <content type="html"><![CDATA[<h2>Activity にタッチイベントが流れてくるまで</h2>
+
+<p><a href="/blog/2013/12/03/android-touch-event/">前回</a>は View のヒエラルキーのなかをどうやってタッチイベントが伝搬するかを追いました。<br/>
+参考にした資料には、 Activity#dispatchTouchEvent() からイベントが始まるとありますが、折角なのでそこまではどうなっているかも確認します。</p>
+
+<p>先に概要としてまとめてしまうとこんな雰囲気でした。</p>
+
+<p><img src="/images/android-touch-event-flow.png" alt="Activity に渡るまでのタッチイベント概要" /></p>
+
+<p>View システムの根っこの部分をきちんと理解できてないので、勘違いがあるかもしれません。
+(親子関係が特に怪しい)</p>
+
+<!-- more -->
+
+
+<h3>参考にしたスタックトレース</h3>
+
+<p>206SH(Android 4.2.2) でとったものなので、完全に純正なコードでない可能性もありますが参考にしつつ追っていきます。</p>
+
+<p>``` text
+12-02 22:58:25.726: D/TOUCH_TEST(27219):</p>
+
+<pre><code>at onTouch(TouchTest.java:35)
+at dispatchTouchEvent(View.java:7319)
+at dispatchTransformedTouchEvent(ViewGroup.java:2205)
+at dispatchTouchEvent(ViewGroup.java:1948)
+at dispatchTransformedTouchEvent(ViewGroup.java:2205)
+at dispatchTouchEvent(ViewGroup.java:1948)
+at dispatchTransformedTouchEvent(ViewGroup.java:2205)
+at dispatchTouchEvent(ViewGroup.java:1948)
+at dispatchTransformedTouchEvent(ViewGroup.java:2205)
+at dispatchTouchEvent(ViewGroup.java:1948)
+at dispatchTransformedTouchEvent(ViewGroup.java:2205)
+at dispatchTouchEvent(ViewGroup.java:1948)
+at dispatchTransformedTouchEvent(ViewGroup.java:2205)
+at dispatchTouchEvent(ViewGroup.java:1948)
+at dispatchTransformedTouchEvent(ViewGroup.java:2205)
+at dispatchTouchEvent(ViewGroup.java:1948)
+at superDispatchTouchEvent(PhoneWindow.java:1974)
+at superDispatchTouchEvent(PhoneWindow.java:1426)
+at dispatchTouchEvent(Activity.java:2417)
+at dispatchTouchEvent(PhoneWindow.java:1922)
+at dispatchPointerEvent(View.java:7504)
+at deliverPointerEvent(ViewRootImpl.java:3356)
+at deliverInputEvent(ViewRootImpl.java:3301)
+at doProcessInputEvents(ViewRootImpl.java:4436)
+at enqueueInputEvent(ViewRootImpl.java:4415)
+at onInputEvent(ViewRootImpl.java:4507)
+at dispatchInputEvent(InputEventReceiver.java:179)
+at nativePollOnce(MessageQueue.java:-2)
+at next(MessageQueue.java:125)
+at loop(Looper.java:124)
+/**
+ * ↑ActivityThread の Looper にイベントが登録されてくるようなので、ここからみていく
+ * ----
+ * ↓ここまでは Activity が Zygote によって立ち上げられている関係上、スタックトレースにのってきているっぽい
+ */
+at main(ActivityThread.java:5159)
+at invokeNative(Method.java:-2)
+at invoke(Method.java:511)
+at run(ZygoteInit.java:810)
+at main(ZygoteInit.java:577)
+at main(NativeStart.java:-2)
+</code></pre>
+
+<p>```</p>
+
+<h3>Activity 配下の View へとタッチイベントがわたるまで</h3>
+
+<p>このあたりのメソッドの引き回し方は、マイナバージョンの変更でもちょこちょこ変わっているようで、たとえば 4.2.2 と 4.3 でも違いがありました。<br/>
+大枠の流れまでは変わっていなそうでしたので、スタックトレースと比較するために 4.2.2 でコードを追っています。</p>
+
+<ul>
+<li>どこかの誰かが ActivityThread の Looper にイベントを登録してくる(どこの誰かは今のところ追えてません)</li>
+<li>ActivityThread の Looper がメッセージを dispatch していくなかで、入力イベントを ViewRootImpl の onInputEvent() に渡す</li>
+<li>ViewRootImpl にて、入力イベントのキューを順に処理していく</li>
+</ul>
+
+
+<p>``` java ViewRootImpl#deliverInputEvent()
+private void deliverInputEvent(QueuedInputEvent q) {</p>
+
+<pre><code>Trace.traceBegin(Trace.TRACE_TAG_VIEW, "deliverInputEvent");
+try {
+    if (q.mEvent instanceof KeyEvent) {
+        deliverKeyEvent(q);
+    } else {
+        final int source = q.mEvent.getSource();
+        if ((source &amp; InputDevice.SOURCE_CLASS_POINTER) != 0) {
+            // タッチイベントは SOURCE_CLASS_POINTER に分類されるため、 deliverPointerEvent() が呼ばれる
+            // ここに分類されるのはマウス、ペン、タッチ、トラックボールなどらしい
+            deliverPointerEvent(q);
+        } else if ((source &amp; InputDevice.SOURCE_CLASS_TRACKBALL) != 0) {
+            deliverTrackballEvent(q);
+        } else {
+            deliverGenericMotionEvent(q);
+        }
+    }
+} finally {
+    Trace.traceEnd(Trace.TRACE_TAG_VIEW);
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<ul>
+<li>キューからイベントを抽出して、 DecorView にポインタイベントとして流す</li>
+</ul>
+
+
+<p>``` java ViewRootImpl#deliverPointerEvent()
+private void deliverPointerEvent(QueuedInputEvent q) {</p>
+
+<pre><code>final MotionEvent event = (MotionEvent)q.mEvent;
+
+// 中略
+
+// タッチイベントを View ヒエラルキーに流していく
+// 通常、 mView には Activity のルートビューとなる DecorView が入っているはず
+boolean handled = mView.dispatchPointerEvent(event);
+if (MEASURE_LATENCY) {
+    lt.sample("B Dispatched PointerEvents ", System.nanoTime() - event.getEventTimeNano());
+}
+
+// タッチイベントの処理が返ってきたら、イベントキューを完了させる
+// handled で分岐しているが native method に入ってしまうので、今回は追ってません
+if (handled) {
+    finishInputEvent(q, true);
+    return;
+}
+
+// Pointer event was unhandled.
+finishInputEvent(q, false);
+</code></pre>
+
+<p>}
+```</p>
+
+<ul>
+<li>DecorView の親クラス(View)でタッチイベントと判定して dispatch する</li>
+</ul>
+
+
+<p>``` java View#dispatchPointerEvent()
+public final boolean dispatchPointerEvent(MotionEvent event) {</p>
+
+<pre><code>if (event.isTouchEvent()) {
+    // 今回はタッチイベントなのでこちら
+    return dispatchTouchEvent(event);
+} else {
+    return dispatchGenericMotionEvent(event);
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<ul>
+<li>DecorView にて Callback として登録されている Activity に、一旦イベントを流す</li>
+</ul>
+
+
+<p>``` java PhoneWindow.DecorView#dispatchTouchEvent()
+public boolean More dispatchTouchEvent(MotionEvent ev) {</p>
+
+<pre><code>// callback には通常 Activity が登録されている
+final Callback cb = getCallback();
+return cb != null &amp;&amp; !isDestroyed() &amp;&amp; mFeatureId &lt; 0 ? cb.dispatchTouchEvent(ev)
+        : super.dispatchTouchEvent(ev);
+</code></pre>
+
+<p>}
+```</p>
+
+<ul>
+<li>Activity にてユーザからの入力があったことを表す <a href="http://developer.android.com/reference/android/app/Activity.html#onUserInteraction%28%29">onUserInteraction()</a> などを呼びながら、再度 DecorView にイベントを dispatch し、子供の View (Activity#addContentView()したViewたち)へとタッチイベントを流していく</li>
+</ul>
+
+
+<p>``` java Activity#dispatchTouchEvent()
+public boolean dispatchTouchEvent(MotionEvent ev) {</p>
+
+<pre><code>// キータッチの開始なら onUserInteraction() が呼ばれる
+if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+    onUserInteraction();
+}
+// ここで一旦 DecorView(FrameLayoutを継承) にイベントを戻し、ここから ViewGroup の dispatchTouchEvent() が呼ばれて、タッチイベントの旅が始まる
+if (getWindow().superDispatchTouchEvent(ev)) {
+    return true;
+}
+// イベントがキャンセルされずにココまで到達したら、最後に Activity のタッチイベントが呼ばれる
+return onTouchEvent(ev);
+</code></pre>
+
+<p>}
+```</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Android のタッチイベントを理解する(その1)]]></title>

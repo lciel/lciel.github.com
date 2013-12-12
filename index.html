@@ -9,8 +9,8 @@
   <meta name="author" content="lciel">
 
   
-  <meta name="description" content="Android で独自定義のカスタムアニメーションを作りたかったので試してみたところ、 Animation クラスを継承して割と簡単に作れたのでメモ。 ここでは例として、 View を円周に沿って動かすようなアニメーションを作ってみました。
-アニメーションさせたい View &hellip;">
+  <meta name="description" content="Activity にタッチイベントが流れてくるまで 前回は View のヒエラルキーのなかをどうやってタッチイベントが伝搬するかを追いました。
+参考にした資料には、 Activity#dispatchTouchEvent() からイベントが始まるとありますが、 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -79,6 +79,57 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/12/12/android-touch-event-2/">Android のタッチイベントを理解する(その2)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-12T21:32:00+09:00" pubdate data-updated="true">Dec 12<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h2>Activity にタッチイベントが流れてくるまで</h2>
+
+<p><a href="/blog/2013/12/03/android-touch-event/">前回</a>は View のヒエラルキーのなかをどうやってタッチイベントが伝搬するかを追いました。<br/>
+参考にした資料には、 Activity#dispatchTouchEvent() からイベントが始まるとありますが、折角なのでそこまではどうなっているかも確認します。</p>
+
+<p>先に概要としてまとめてしまうとこんな雰囲気でした。</p>
+
+<p><img src="/images/android-touch-event-flow.png" alt="Activity に渡るまでのタッチイベント概要" /></p>
+
+<p>View システムの根っこの部分をきちんと理解できてないので、勘違いがあるかもしれません。
+(親子関係が特に怪しい)</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/12/12/android-touch-event-2/">続きを読む &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -728,75 +779,6 @@ Disqus にログインした状態で<a href="http://disqus.com/register">ここ
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/11/22/onitemclick-vs-onitemlongclick/">ListView で onItemClick() と onItemLongClick() を両立</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-11-22T18:50:00+09:00" pubdate data-updated="true">Nov 22<span>nd</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>ListView で onItemClick() と onItemLongClick() を同時に仕掛けた際に、指を離すタイミングによっては onItemLongClick() に続けて onItemClick() が呼ばれてしまう。</p>
-
-<p>一般的な Touch Event の例に漏れず、 onItemLongClick() で true を返しておけば、その後のイベントはキャンセルされる。</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span>
-</span><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onItemClick</span><span class="o">(</span><span class="n">AdapterView</span><span class="o">&lt;?&gt;</span> <span class="n">parent</span><span class="o">,</span> <span class="n">View</span> <span class="n">view</span><span class="o">,</span> <span class="kt">int</span> <span class="n">position</span><span class="o">,</span> <span class="kt">long</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="cm">/*</span>
-</span><span class='line'><span class="cm">        なんやかんや</span>
-</span><span class='line'><span class="cm">    */</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="nd">@Override</span>
-</span><span class='line'><span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">onItemLongClick</span><span class="o">(</span><span class="n">AdapterView</span><span class="o">&lt;?&gt;</span> <span class="n">parent</span><span class="o">,</span> <span class="n">View</span> <span class="n">view</span><span class="o">,</span> <span class="kt">int</span> <span class="n">position</span><span class="o">,</span> <span class="kt">long</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="cm">/*</span>
-</span><span class='line'><span class="cm">        なんやかんや</span>
-</span><span class='line'><span class="cm">    */</span>
-</span><span class='line'>    <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>    <span class="c1">// これで onItemLongClick() のあとに onItemClick() が呼ばれなくなる</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -812,6 +794,10 @@ Disqus にログインした状態で<a href="http://disqus.com/register">ここ
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/12/12/android-touch-event-2/">Android のタッチイベントを理解する(その2)</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/12/11/android-custom-animation/">Android のアニメーションを自作する</a>
       </li>
     
@@ -825,10 +811,6 @@ Disqus にログインした状態で<a href="http://disqus.com/register">ここ
     
       <li class="post">
         <a href="/blog/2013/12/03/android-touch-event/">Android のタッチイベントを理解する(その1)</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/11/30/octopress-unable-load-disqus/">Octopress + Disqus でコメントを表示しようとしたがうまくいかなかった話</a>
       </li>
     
   </ul>
