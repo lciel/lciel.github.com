@@ -9,8 +9,7 @@
   <meta name="author" content="lciel">
 
   
-  <meta name="description" content="Activity にタッチイベントが流れてくるまで 前回は View のヒエラルキーのなかをどうやってタッチイベントが伝搬するかを追いました。
-参考にした資料には、 Activity#dispatchTouchEvent() からイベントが始まるとありますが、 &hellip;">
+  <meta name="description" content="Android でライブラリを使用する際、プロジェクトを作成する必要のあるライブラリプロジェクトと、クラスライブラリの JAR と2種類存在するけれど、それぞれどう違うのか軽く調べました。 ライブラリプロジェクトと JAR の違い 最も根本的な違いは Resources &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -80,6 +79,127 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/12/13/difference-between-jar-and-library-project/">Android Library Project と JAR の違いを理解する</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-13T19:57:00+09:00" pubdate data-updated="true">Dec 13<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Android でライブラリを使用する際、プロジェクトを作成する必要のあるライブラリプロジェクトと、クラスライブラリの JAR と2種類存在するけれど、それぞれどう違うのか軽く調べました。</p>
+
+<h2>ライブラリプロジェクトと JAR の違い</h2>
+
+<p>最も根本的な違いは Resources を内包しているかどうかのようです。<br/>
+ライブラリプロジェクトは Resources を保持できるので、 JAR のように静的に APK に組み込むことができません。
+そのためプロジェクトとして作成した上で、組み込みたいプロジェクトに依存させて、ビルド時に R.java を一緒に作成する必要があります。</p>
+
+<ul>
+<li>参考: <a href="http://www.growprogress.com/vcommon/?p=3059">Android Application, Android Libraries and Jar Libraries</a></li>
+</ul>
+
+
+<h2>Android APK のビルドの流れを軽く理解する</h2>
+
+<p>完全に上記参考サイトの受け売りですが、Android APK のビルドの流れも要点だけ追っておきます。
+(これを以前追っておいたおかげで、 Gradle のビルドで詰まったときにとても役立ちました)</p>
+
+<p>もっと詳しく理解する場合は、リンク先をご確認下さい。</p>
+
+<h3>Android APK のビルド</h3>
+
+<ol>
+<li>リソースと ID の対応づけを持った R.java を作る</li>
+<li>.java を .class にコンパイル</li>
+<li>.class(bin/classes) をまとめて Dalvik ByteCode である .dex にコンパイル</li>
+<li>.dex を APK に追加する</li>
+</ol>
+
+
+<h3>JAR を含んだ Android APK のビルド</h3>
+
+<ul>
+<li>Android APK のビルドにおいて、 .dex を作るときに JAR Library(実体は.class) を .dex に一緒にまとめてコンパイルするだけ</li>
+</ul>
+
+
+<h3>Android Library を含めた Android APK のビルド</h3>
+
+<ol>
+<li>依存関係を計算</li>
+<li>R.java を作る
+
+<ul>
+<li><strong>Library Project の AndroidManifest.xml は無視される</strong></li>
+</ul>
+</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>aapt package –f –m –auto-add-overlay
+</span><span class='line'>    –M /absolute/path/to/app/AndroidManifest.xml
+</span><span class='line'>    –S /absolute/path/to/app/res
+</span><span class='line'>    -S /absolute/path/to/library-project/res
+</span><span class='line'>    -I /absolute/path/to/android.jar
+</span><span class='line'>    -J /absolute/path/to/app/gen</span></code></pre></td></tr></table></div></figure>
+
+
+<ol>
+<li>Android Library を含めた .java を .class にコンパイル</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>javac &lt;other options&gt; –sourcepath
+</span><span class='line'>    /absolute/path/to/app/src;/absolute/path/to/app/gen/;absolute/path/to/library-project/src</span></code></pre></td></tr></table></div></figure>
+
+
+<ol>
+<li>.class を .dex にコンパイル</li>
+<li>resources を Library Project の分もまとめてマージしてパッケージ</li>
+<li>マージされた resources と、マージされた .dex を .apk に追加する
+
+<ul>
+<li><a href="http://devmaze.files.wordpress.com/2011/05/image_thumb12.png">http://devmaze.files.wordpress.com/2011/05/image_thumb12.png</a></li>
+</ul>
+</li>
+</ol>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -673,113 +793,6 @@ Disqus にログインした状態で<a href="http://disqus.com/register">ここ
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/11/25/imageview-getimagematrix/">Android 4.3 で ImageView#getImageMatrix() の挙動が変わっている</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-11-25T11:19:00+09:00" pubdate data-updated="true">Nov 25<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>今まで ImageView#getImageMatrix() で取得した Matrix のインスタンスに対して、直接 post*() のメソッドを呼んだりして操作すれば表示に反映されていたが、どうやら 4.3 で挙動が変わったご様子。</p>
-
-<p>結論から言うと、横着せずにちゃんと毎回 setImageMatrix() をしてやるか、はじめに setImageMatrix() してから getImageMatrix() を使うようにすれば想定通りに動作する。</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">ImageView</span> <span class="n">imageView</span> <span class="o">=</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">imageView</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">float</span> <span class="n">ratio</span> <span class="o">=</span> <span class="mf">2.0f</span><span class="o">;</span>
-</span><span class='line'><span class="n">Matrix</span> <span class="n">matrix</span> <span class="o">=</span> <span class="n">imageView</span><span class="o">.</span><span class="na">getImageMatrix</span><span class="o">();</span>
-</span><span class='line'><span class="n">matrix</span><span class="o">.</span><span class="na">postScale</span><span class="o">(</span><span class="n">ratio</span><span class="o">,</span> <span class="n">ratio</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">matrix</span><span class="o">.</span><span class="na">setImageMatrix</span><span class="o">(</span><span class="n">matrix</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">ImageView</span> <span class="n">imageView</span> <span class="o">=</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">imageView</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">Matrix</span> <span class="n">matrix</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Matrix</span><span class="o">();</span>
-</span><span class='line'><span class="n">imageView</span><span class="o">.</span><span class="na">setImageMatrix</span><span class="o">();</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">float</span> <span class="n">ratio</span> <span class="o">=</span> <span class="mf">2.0f</span><span class="o">;</span>
-</span><span class='line'><span class="n">matrix</span> <span class="o">=</span> <span class="n">imageView</span><span class="o">.</span><span class="na">getImageMatrix</span><span class="o">();</span>
-</span><span class='line'><span class="n">matrix</span><span class="o">.</span><span class="na">postScale</span><span class="o">(</span><span class="n">ratio</span><span class="o">,</span> <span class="n">ratio</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>どう変わってるのか確認</h3>
-
-<p>4.2 以前では mMatrix (initImageView()で初期化されてる)がそのまま返っているのに対して、 4.3 以降では mDrawMatrix が返るようになっている。
-(mDrawMatrix は configureBounds() でセットされている)</p>
-
-<p>mDrawMatrix がセットされていない状態だと、その場で Matrix のインスタンスが作られているため、このインスタンスに対して直接操作を行っても反映されないというわけでした。</p>
-
-<figure class='code'><figcaption><span>4.2_r1 android.widget.ImageView#getImageMatrix()</span><a href='http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/4.2_r1/android/widget/ImageView.java#ImageView.getImageMatrix%28%29'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Matrix</span> <span class="nf">getImageMatrix</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">return</span> <span class="n">mMatrix</span><span class="o">;</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<figure class='code'><figcaption><span>4.3_r1 android.widget.ImageView#getImageMatrix()</span><a href='http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/4.3_r1/android/widget/ImageView.java#ImageView.getImageMatrix%28%29'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="n">Matrix</span> <span class="nf">getImageMatrix</span><span class="o">()</span> <span class="o">{</span>
-</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">mDrawMatrix</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>        <span class="k">return</span> <span class="k">new</span> <span class="nf">Matrix</span><span class="o">(</span><span class="n">Matrix</span><span class="o">.</span><span class="na">IDENTITY_MATRIX</span><span class="o">);</span>
-</span><span class='line'>    <span class="o">}</span>
-</span><span class='line'>    <span class="k">return</span> <span class="n">mDrawMatrix</span><span class="o">;</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>Android はマイナーバージョンアップでも、結構こういう細かい挙動変更が入ってくるので、以前動いていたものが突然動かなくなることが良くあるのだけれど、Android のコードを直接見に行けば答えが書いてあるので安心感がありますね。</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -795,6 +808,10 @@ Disqus にログインした状態で<a href="http://disqus.com/register">ここ
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/12/13/difference-between-jar-and-library-project/">Android Library Project と JAR の違いを理解する</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/12/12/android-touch-event-2/">Android のタッチイベントを理解する(その2)</a>
       </li>
     
@@ -808,10 +825,6 @@ Disqus にログインした状態で<a href="http://disqus.com/register">ここ
     
       <li class="post">
         <a href="/blog/2013/12/04/listview-setemptyview/">ListView#setEmptyView() について</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/12/03/android-touch-event/">Android のタッチイベントを理解する(その1)</a>
       </li>
     
   </ul>

@@ -4,7 +4,7 @@
   <title><![CDATA[Unmotivated]]></title>
   <link href="http://blog.lciel.jp/atom.xml" rel="self"/>
   <link href="http://blog.lciel.jp/"/>
-  <updated>2013-12-13T10:53:36+09:00</updated>
+  <updated>2013-12-13T20:03:27+09:00</updated>
   <id>http://blog.lciel.jp/</id>
   <author>
     <name><![CDATA[lciel]]></name>
@@ -12,6 +12,100 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Android Library Project と JAR の違いを理解する]]></title>
+    <link href="http://blog.lciel.jp/blog/2013/12/13/difference-between-jar-and-library-project/"/>
+    <updated>2013-12-13T19:57:00+09:00</updated>
+    <id>http://blog.lciel.jp/blog/2013/12/13/difference-between-jar-and-library-project</id>
+    <content type="html"><![CDATA[<p>Android でライブラリを使用する際、プロジェクトを作成する必要のあるライブラリプロジェクトと、クラスライブラリの JAR と2種類存在するけれど、それぞれどう違うのか軽く調べました。</p>
+
+<h2>ライブラリプロジェクトと JAR の違い</h2>
+
+<p>最も根本的な違いは Resources を内包しているかどうかのようです。<br/>
+ライブラリプロジェクトは Resources を保持できるので、 JAR のように静的に APK に組み込むことができません。
+そのためプロジェクトとして作成した上で、組み込みたいプロジェクトに依存させて、ビルド時に R.java を一緒に作成する必要があります。</p>
+
+<ul>
+<li>参考: <a href="http://www.growprogress.com/vcommon/?p=3059">Android Application, Android Libraries and Jar Libraries</a></li>
+</ul>
+
+
+<h2>Android APK のビルドの流れを軽く理解する</h2>
+
+<p>完全に上記参考サイトの受け売りですが、Android APK のビルドの流れも要点だけ追っておきます。
+(これを以前追っておいたおかげで、 Gradle のビルドで詰まったときにとても役立ちました)</p>
+
+<p>もっと詳しく理解する場合は、リンク先をご確認下さい。</p>
+
+<h3>Android APK のビルド</h3>
+
+<ol>
+<li>リソースと ID の対応づけを持った R.java を作る</li>
+<li>.java を .class にコンパイル</li>
+<li>.class(bin/classes) をまとめて Dalvik ByteCode である .dex にコンパイル</li>
+<li>.dex を APK に追加する</li>
+</ol>
+
+
+<h3>JAR を含んだ Android APK のビルド</h3>
+
+<ul>
+<li>Android APK のビルドにおいて、 .dex を作るときに JAR Library(実体は.class) を .dex に一緒にまとめてコンパイルするだけ</li>
+</ul>
+
+
+<h3>Android Library を含めた Android APK のビルド</h3>
+
+<ol>
+<li>依存関係を計算</li>
+<li>R.java を作る
+
+<ul>
+<li><strong>Library Project の AndroidManifest.xml は無視される</strong></li>
+</ul>
+</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>aapt package –f –m –auto-add-overlay
+</span><span class='line'>    –M /absolute/path/to/app/AndroidManifest.xml
+</span><span class='line'>    –S /absolute/path/to/app/res
+</span><span class='line'>    -S /absolute/path/to/library-project/res
+</span><span class='line'>    -I /absolute/path/to/android.jar
+</span><span class='line'>    -J /absolute/path/to/app/gen</span></code></pre></td></tr></table></div></figure>
+
+
+<ol>
+<li>Android Library を含めた .java を .class にコンパイル</li>
+</ol>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>javac &lt;other options&gt; –sourcepath
+</span><span class='line'>    /absolute/path/to/app/src;/absolute/path/to/app/gen/;absolute/path/to/library-project/src</span></code></pre></td></tr></table></div></figure>
+
+
+<ol>
+<li>.class を .dex にコンパイル</li>
+<li>resources を Library Project の分もまとめてマージしてパッケージ</li>
+<li>マージされた resources と、マージされた .dex を .apk に追加する
+
+<ul>
+<li><a href="http://devmaze.files.wordpress.com/2011/05/image_thumb12.png">http://devmaze.files.wordpress.com/2011/05/image_thumb12.png</a></li>
+</ul>
+</li>
+</ol>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Android のタッチイベントを理解する(その2)]]></title>
