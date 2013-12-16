@@ -9,7 +9,14 @@
   <meta name="author" content="lciel">
 
   
-  <meta name="description" content="今まで ImageView#getImageMatrix() で取得した Matrix のインスタンスに対して、直接 post*() のメソッドを呼んだりして操作すれば表示に反映されていたが、どうやら 4.3 で挙動が変わったご様子。 結論から言うと、横着せずにちゃんと毎回 &hellip;">
+  <meta name="description" content="今まで気がつかなかったけれど、わざわざ generate してから preview しなくても、 preview 中に source ファイルを書き換えれば勝手にそれを検知して regenerate してくれるっぽい。 1
+2
+3
+4
+5
+$ rake preview
+...
+&gt;&gt;& &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -79,6 +86,59 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/11/26/octopress-preview-include-generate/">Octopress の Preview は Generate を兼ねる</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-26T21:10:00+09:00" pubdate data-updated="true">Nov 26<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>今まで気がつかなかったけれど、わざわざ generate してから preview しなくても、 preview 中に source ファイルを書き換えれば勝手にそれを検知して regenerate してくれるっぽい。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'>$ rake preview
+</span><span class='line'>...
+</span><span class='line'>&gt;&gt;&gt; compass is watching for changes. press ctrl-c to stop.
+</span><span class='line'>&lt;ここでファイルを編集&gt;
+</span><span class='line'>[2013-11-25 22:35:05] regeneration: 1 files changed
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>これは便利！
+ちなみに新規ファイルを保存してもきちんと捕足して regenerate してくれるみたい。<br/>
+投稿のハードルを限りなく低くしたいと思っている身からは、preview を立てっぱなしに出来るのは捗りそう。</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -500,6 +560,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/12/16/android-capture-view-image/">View のキャプチャを撮る</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/12/13/difference-between-jar-and-library-project/">Android Library Project と JAR の違いを理解する</a>
       </li>
     
@@ -513,10 +577,6 @@
     
       <li class="post">
         <a href="/blog/2013/12/06/android-sdcard-vfat/">ファイル名に特定の記号が使用できる場合とできない場合がある</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/12/04/listview-setemptyview/">ListView#setEmptyView() について</a>
       </li>
     
   </ul>

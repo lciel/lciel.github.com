@@ -121,18 +121,18 @@
 <h2>Android APK のビルドの流れを軽く理解する</h2>
 
 <p>完全に上記参考サイトの受け売りですが、Android APK のビルドの流れも要点だけ追っておきます。
-(これを以前追っておいたおかげで、 Gradle のビルドで詰まったときにとても役立ちました)</p>
+(これを以前追っておいたおかげで、 Gradle のビルドで詰まったときなどにとても役立ちました)</p>
 
 <p>もっと詳しく理解する場合は、リンク先をご確認下さい。</p>
 
 <h3>Android APK のビルド</h3>
 
-<ol>
+<ul>
 <li>リソースと ID の対応づけを持った R.java を作る</li>
 <li>.java を .class にコンパイル</li>
 <li>.class(bin/classes) をまとめて Dalvik ByteCode である .dex にコンパイル</li>
 <li>.dex を APK に追加する</li>
-</ol>
+</ul>
 
 
 <h3>JAR を含んだ Android APK のビルド</h3>
@@ -144,7 +144,7 @@
 
 <h3>Android Library を含めた Android APK のビルド</h3>
 
-<ol>
+<ul>
 <li>依存関係を計算</li>
 <li>R.java を作る
 
@@ -152,7 +152,7 @@
 <li><strong>Library Project の AndroidManifest.xml は無視される</strong></li>
 </ul>
 </li>
-</ol>
+</ul>
 
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -169,9 +169,9 @@
 </span><span class='line'>    -J /absolute/path/to/app/gen</span></code></pre></td></tr></table></div></figure>
 
 
-<ol>
+<ul>
 <li>Android Library を含めた .java を .class にコンパイル</li>
-</ol>
+</ul>
 
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -180,16 +180,11 @@
 </span><span class='line'>    /absolute/path/to/app/src;/absolute/path/to/app/gen/;absolute/path/to/library-project/src</span></code></pre></td></tr></table></div></figure>
 
 
-<ol>
+<ul>
 <li>.class を .dex にコンパイル</li>
 <li>resources を Library Project の分もまとめてマージしてパッケージ</li>
-<li>マージされた resources と、マージされた .dex を .apk に追加する
-
-<ul>
-<li><a href="http://devmaze.files.wordpress.com/2011/05/image_thumb12.png">http://devmaze.files.wordpress.com/2011/05/image_thumb12.png</a></li>
+<li>マージされた resources と、マージされた .dex を .apk に追加する</li>
 </ul>
-</li>
-</ol>
 
 </div>
 
@@ -241,6 +236,8 @@
         <a class="basic-alignment left" href="/blog/2013/12/12/android-touch-event-2/" title="Previous Post: Android のタッチイベントを理解する(その2)">&laquo; Android のタッチイベントを理解する(その2)</a>
       
       
+        <a class="basic-alignment right" href="/blog/2013/12/16/android-capture-view-image/" title="Next Post: View のキャプチャを撮る">View のキャプチャを撮る &raquo;</a>
+      
     </p>
   </footer>
 </article>
@@ -261,6 +258,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/12/16/android-capture-view-image/">View のキャプチャを撮る</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/12/13/difference-between-jar-and-library-project/">Android Library Project と JAR の違いを理解する</a>
       </li>
     
@@ -274,10 +275,6 @@
     
       <li class="post">
         <a href="/blog/2013/12/06/android-sdcard-vfat/">ファイル名に特定の記号が使用できる場合とできない場合がある</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/12/04/listview-setemptyview/">ListView#setEmptyView() について</a>
       </li>
     
   </ul>

@@ -9,7 +9,13 @@
   <meta name="author" content="lciel">
 
   
-  <meta name="description" content="Android でライブラリを使用する際、プロジェクトを作成する必要のあるライブラリプロジェクトと、クラスライブラリの JAR と2種類存在するけれど、それぞれどう違うのか軽く調べました。 ライブラリプロジェクトと JAR の違い 最も根本的な違いは Resources &hellip;">
+  <meta name="description" content="Android で View のキャプチャ画像を取得する方法を二種類紹介します。 どちらも UI スレッド以外のスレッドから呼び出し可能でした。 View の描画キャッシュを使用する方法 View の描画のためのキャッシュを利用する方法。 1
+2
+3
+4
+5
+6
+View view = &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -85,6 +91,123 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2013/12/16/android-capture-view-image/">View のキャプチャを撮る</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-16T20:52:00+09:00" pubdate data-updated="true">Dec 16<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Android で View のキャプチャ画像を取得する方法を二種類紹介します。</p>
+
+<p>どちらも UI スレッド以外のスレッドから呼び出し可能でした。</p>
+
+<h2>View の描画キャッシュを使用する方法</h2>
+
+<p>View の描画のためのキャッシュを利用する方法。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">View</span> <span class="n">view</span> <span class="o">=</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">view</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">view</span><span class="o">.</span><span class="na">setDrawingCacheEnabled</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>      <span class="c1">// キャッシュを取得する設定にする</span>
+</span><span class='line'><span class="n">view</span><span class="o">.</span><span class="na">destroyDrawingCache</span><span class="o">();</span>             <span class="c1">// 既存のキャッシュをクリアする</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">Bitmap</span> <span class="n">bmp</span> <span class="o">=</span> <span class="n">view</span><span class="o">.</span><span class="na">getDrawingCache</span><span class="o">();</span>    <span class="c1">// キャッシュを作成して取得する</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>描画キャッシュが有効になっているかどうかや、最新のキャッシュが存在するかどうかは状況によるので、自分で設定してやることで View のキャプチャを取得することができます。</p>
+
+<h2>Canvas に View を描画する方法</h2>
+
+<p>自分で用意した Canvas に View を描画する方法。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">View</span> <span class="n">view</span> <span class="o">=</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">view</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">Bitmap</span> <span class="n">bmp</span> <span class="o">=</span> <span class="n">Bitmap</span><span class="o">.</span><span class="na">createBitmap</span><span class="o">(</span><span class="n">view</span><span class="o">.</span><span class="na">getWidth</span><span class="o">(),</span> <span class="n">view</span><span class="o">.</span><span class="na">getHeight</span><span class="o">(),</span> <span class="n">Config</span><span class="o">.</span><span class="na">ARGB_8888</span><span class="o">);</span>
+</span><span class='line'>                                        <span class="c1">// view のサイズで Bitmap を作成</span>
+</span><span class='line'><span class="n">Canvas</span> <span class="n">canvas</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Canvas</span><span class="o">(</span><span class="n">bmp</span><span class="o">);</span>        <span class="c1">// bmp をターゲットにした Canvas を作成</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">view</span><span class="o">.</span><span class="na">draw</span><span class="o">(</span><span class="n">canvas</span><span class="o">);</span>                      <span class="c1">// canvas に view を描画する</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>View のサイズで作った Bitmap を Canvas の書き込み先にし、draw() メソッドで書き込んでやることで、 View が描画された Bitmap を取得することができます。</p>
+
+<h2>[おまけ] getDrawingCache() まわりの豆知識</h2>
+
+<p>今までなんとなく使っていたけれど、View のキャプチャに buildDrawingCache() を必ず呼ぶようにしているスニペットがあったり、 getDrawingCache() で null が返ってくることがあったりと挙動を不審に思っていたので軽く調査(Android 4.2.2)。</p>
+
+<ul>
+<li>直前に setDrawingCacheEnabled(true) さえすれば、 getDrawingCache() の前に自分で buildDrawingCache() を呼ぶ必要はない
+
+<ul>
+<li>View のフラグに PFLAG_DRAWING_CACHE_ENABLED が立っていれば getDrawingCache() で buildDrawingCache() を呼んでいる</li>
+</ul>
+</li>
+<li>キャッシュを確実に更新したい場合は View を invalidate() するか destroyDrawingCache() でキャッシュをクリアする
+
+<ul>
+<li>フラグに PFLAG_DRAWING_CACHE_VALID が立っている、かつ DrawingCache が確保されていると buildDrawingCache() が呼ばれてもキャッシュが更新されない</li>
+<li>invalidate() するだけだと Bitmap が recycle() されなそうなので、連打するとメモリ不足に陥るかも</li>
+</ul>
+</li>
+<li>setDrawingCacheEnabled() するだけでは destroyDrawingCache() が呼ばれないことがある
+
+<ul>
+<li>フラグが &ldquo;変わった&rdquo; ときだけ destroyDrawingCache() が呼ばれるようなので、オーバーヘッドも少ないし自分で destroyDrawingCache() を呼んだ方が無難そう</li>
+</ul>
+</li>
+<li>そもそも何に使われている &ldquo;キャッシュ&rdquo; なのか？
+
+<ul>
+<li>draw() 時に caching の条件を満たしていれば、 canvas に直接 drawBitmap() するために使われているので、まさに描画キャッシュのように見える</li>
+<li>条件については今回は追いきれず(LayerType や HardwareAccelerated など Android の描画周りの知識が足りなすぎた..)</li>
+<li>ご存知の方がいたら教えて下さい！</li>
+</ul>
+</li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2013/12/13/difference-between-jar-and-library-project/">Android Library Project と JAR の違いを理解する</a></h1>
     
     
@@ -124,18 +247,18 @@
 <h2>Android APK のビルドの流れを軽く理解する</h2>
 
 <p>完全に上記参考サイトの受け売りですが、Android APK のビルドの流れも要点だけ追っておきます。
-(これを以前追っておいたおかげで、 Gradle のビルドで詰まったときにとても役立ちました)</p>
+(これを以前追っておいたおかげで、 Gradle のビルドで詰まったときなどにとても役立ちました)</p>
 
 <p>もっと詳しく理解する場合は、リンク先をご確認下さい。</p>
 
 <h3>Android APK のビルド</h3>
 
-<ol>
+<ul>
 <li>リソースと ID の対応づけを持った R.java を作る</li>
 <li>.java を .class にコンパイル</li>
 <li>.class(bin/classes) をまとめて Dalvik ByteCode である .dex にコンパイル</li>
 <li>.dex を APK に追加する</li>
-</ol>
+</ul>
 
 
 <h3>JAR を含んだ Android APK のビルド</h3>
@@ -147,7 +270,7 @@
 
 <h3>Android Library を含めた Android APK のビルド</h3>
 
-<ol>
+<ul>
 <li>依存関係を計算</li>
 <li>R.java を作る
 
@@ -155,7 +278,7 @@
 <li><strong>Library Project の AndroidManifest.xml は無視される</strong></li>
 </ul>
 </li>
-</ol>
+</ul>
 
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -172,9 +295,9 @@
 </span><span class='line'>    -J /absolute/path/to/app/gen</span></code></pre></td></tr></table></div></figure>
 
 
-<ol>
+<ul>
 <li>Android Library を含めた .java を .class にコンパイル</li>
-</ol>
+</ul>
 
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -183,16 +306,11 @@
 </span><span class='line'>    /absolute/path/to/app/src;/absolute/path/to/app/gen/;absolute/path/to/library-project/src</span></code></pre></td></tr></table></div></figure>
 
 
-<ol>
+<ul>
 <li>.class を .dex にコンパイル</li>
 <li>resources を Library Project の分もまとめてマージしてパッケージ</li>
-<li>マージされた resources と、マージされた .dex を .apk に追加する
-
-<ul>
-<li><a href="http://devmaze.files.wordpress.com/2011/05/image_thumb12.png">http://devmaze.files.wordpress.com/2011/05/image_thumb12.png</a></li>
+<li>マージされた resources と、マージされた .dex を .apk に追加する</li>
 </ul>
-</li>
-</ol>
 
 </div>
   
@@ -740,59 +858,6 @@ Disqus にログインした状態で<a href="http://disqus.com/register">ここ
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/11/26/octopress-preview-include-generate/">Octopress の Preview は Generate を兼ねる</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-11-26T21:10:00+09:00" pubdate data-updated="true">Nov 26<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>今まで気がつかなかったけれど、わざわざ generate してから preview しなくても、 preview 中に source ファイルを書き換えれば勝手にそれを検知して regenerate してくれるっぽい。</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='text'><span class='line'>$ rake preview
-</span><span class='line'>...
-</span><span class='line'>&gt;&gt;&gt; compass is watching for changes. press ctrl-c to stop.
-</span><span class='line'>&lt;ここでファイルを編集&gt;
-</span><span class='line'>[2013-11-25 22:35:05] regeneration: 1 files changed
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>これは便利！
-ちなみに新規ファイルを保存してもきちんと捕足して regenerate してくれるみたい。<br/>
-投稿のハードルを限りなく低くしたいと思っている身からは、preview を立てっぱなしに出来るのは捗りそう。</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -808,6 +873,10 @@ Disqus にログインした状態で<a href="http://disqus.com/register">ここ
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/12/16/android-capture-view-image/">View のキャプチャを撮る</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/12/13/difference-between-jar-and-library-project/">Android Library Project と JAR の違いを理解する</a>
       </li>
     
@@ -821,10 +890,6 @@ Disqus にログインした状態で<a href="http://disqus.com/register">ここ
     
       <li class="post">
         <a href="/blog/2013/12/06/android-sdcard-vfat/">ファイル名に特定の記号が使用できる場合とできない場合がある</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/12/04/listview-setemptyview/">ListView#setEmptyView() について</a>
       </li>
     
   </ul>
