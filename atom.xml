@@ -4,7 +4,7 @@
   <title><![CDATA[Unmotivated]]></title>
   <link href="http://blog.lciel.jp/atom.xml" rel="self"/>
   <link href="http://blog.lciel.jp/"/>
-  <updated>2014-02-09T00:06:22+09:00</updated>
+  <updated>2014-02-09T00:09:19+09:00</updated>
   <id>http://blog.lciel.jp/</id>
   <author>
     <name><![CDATA[lciel]]></name>
@@ -140,12 +140,13 @@
 
 <h2>保存先はSDカード？内蔵ストレージ？</h2>
 
-<p>結論から言うと、 getExternal 系のメソッドでとれるディレクトリは、SDカードの場合もあれば内蔵ストレージの場合もあるようです。
+<p>結論から言うと、 getExternal 系のメソッドでとれるディレクトリは、SDカードの場合もあれば内蔵ストレージの場合もあるようです。<br/>
 基本的にアプリ側からSDカードを指定して扱うようなことは <strong>できない</strong> というのが正しそうです。</p>
 
 <p>getExternal〜 でとれるディレクトリはシステムに決められたプライマリストレージであり、それがSDカードである保証はないということ。
-よく getExternalStorageDirectory() でSDカード内のディレクトリがとれるという記事を見ますが、正確にはSDカードである可能性が高いディレクトリがとれるというのが正しそうです。
-External という名前がついているので紛らわしいですが(というか完全に勘違いする)、これはSDカードのことをさしている訳ではなく、
+よく getExternalStorageDirectory() でSDカード内のディレクトリがとれるという記事を見ますが、正確にはSDカードである可能性が高いディレクトリがとれるというのが正しそうです。</p>
+
+<p>External という名前がついているので紛らわしいですが(というか完全に勘違いする)、これはSDカードのことをさしている訳ではなく、
 システム領域の外のストレージという意味で External とついているようです。(<a href="http://developer.android.com/reference/android/os/Environment.html#getExternalStorageDirectory%28%29">参考</a>)</p>
 
 <p>とはいえ getExternal〜 で取得したディレクトリを使う場合は、プライマリストレージがSDカードである可能性を考慮しなくてはいけないため、マウントされているかどうかなどを確かめる必要があります。</p>
@@ -180,9 +181,8 @@ External という名前がついているので紛らわしいですが(とい�
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>ちなみに手持ちの 206SH / Android 4.2.2 で確認してみたところ、Environment のさしているプライマリストレージは内蔵メモリのようでした。</p>
-
-<p>ついでに 206SH でプライマリストレージを切り替えられるのかどうかを調べてみたけれど、結局切り替わる条件は不明でした。</p>
+<p>ちなみに手持ちの 206SH / Android 4.2.2 で確認してみたところ、Environment のさしているプライマリストレージは内蔵メモリのようでした。<br/>
+ついでに 206SH でプライマリストレージを切り替えられるのかどうかを調べてみたけれど、結局切り替わる条件は不明でした。</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='java'><span class='line'><span class="err">端末設定</span> <span class="o">&gt;</span> <span class="err">ストレージ</span> <span class="o">&gt;</span> <span class="err">優先インストール先</span>
@@ -193,7 +193,7 @@ External という名前がついているので紛らわしいですが(とい�
 
 <h2>(おまけ)各ディレクトリのファイルパスなど</h2>
 
-<p>Nexus7 のほうは getExternal〜 でとれるディレクトリがマルチアカウント対応の Emulated なものになってました。
+<p>Nexus7 のほうは getExternal〜 でとれるディレクトリがマルチアカウント対応の Emulated なものになってました。<br/>
 4.2 で追加されたマルチアカウントですが、 206SH では封じられているようです。</p>
 
 <figure class='code'><figcaption><span>206SH/Android4.2.2</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
