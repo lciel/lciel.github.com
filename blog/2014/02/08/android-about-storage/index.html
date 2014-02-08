@@ -1,0 +1,518 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Android におけるストレージまとめ - Unmotivated</title>
+  <meta name="author" content="lciel">
+
+  
+  <meta name="description" content="Android で外部ファイルを保存する場合、どこに何を保存すれば良いのか？それぞれの違いは何なのか？
+内蔵メモリなのか？SDカードなのか？ いい加減しっかり把握しておきたいと思ったので、まとめてみました。 ざっくりまとめ それぞれの領域の名前は、この記事の中で区別するためにつけたもので、 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-site-verification" content="kxAq6CeZmGwjLHZkQGyfGUT77eII6KP6PjMiC6h3h7I" />
+
+  
+  <link rel="canonical" href="http://blog.lciel.jp/blog/2014/02/08/android-about-storage">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Unmotivated" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-45923521-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Unmotivated</a></h1>
+  
+    <h2>やる気はない</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.lciel.jp" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Android におけるストレージまとめ</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-08T23:29:00+09:00" pubdate data-updated="true">Feb 8<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Android で外部ファイルを保存する場合、どこに何を保存すれば良いのか？それぞれの違いは何なのか？<br/>
+内蔵メモリなのか？SDカードなのか？</p>
+
+<p>いい加減しっかり把握しておきたいと思ったので、まとめてみました。</p>
+
+<h2>ざっくりまとめ</h2>
+
+<p>それぞれの領域の名前は、この記事の中で区別するためにつけたもので、アクセス権減は非 root ユーザから見た図です。</p>
+
+<table>
+<thead>
+<tr>
+<th align="left"></th>
+<th align="left">ディレクトリ取得メソッド                   </th>
+<th align="left">アプリ専用？</th>
+<th align="left">ユーザがアクセス可能？</th>
+<th align="left">クリア方法      </th>
+<th align="left">アプリ削除時に</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">内部データ領域      </td>
+<td align="left">Context.getFilesDir()                      </td>
+<td align="left">yes         </td>
+<td align="left">no                    </td>
+<td align="left">データを消去    </td>
+<td align="left">消える        </td>
+</tr>
+<tr>
+<td align="left">内部キャッシュ領域  </td>
+<td align="left">Context.getCacheDir()                      </td>
+<td align="left">yes         </td>
+<td align="left">no                    </td>
+<td align="left">キャッシュを消去</td>
+<td align="left">消える        </td>
+</tr>
+<tr>
+<td align="left">外部データ領域      </td>
+<td align="left">Context.getExternalFilesDir()              </td>
+<td align="left">yes         </td>
+<td align="left">yes                   </td>
+<td align="left">データを消去    </td>
+<td align="left">消える        </td>
+</tr>
+<tr>
+<td align="left">外部キャッシュ領域  </td>
+<td align="left">Context.getExternalCacheDir()              </td>
+<td align="left">yes         </td>
+<td align="left">yes                   </td>
+<td align="left">キャッシュを消去</td>
+<td align="left">消える        </td>
+</tr>
+<tr>
+<td align="left">外部公開領域    </td>
+<td align="left">Environment.getExternalStorageDirectory()      </td>
+<td align="left">no          </td>
+<td align="left">yes                   </td>
+<td align="left">提供されず      </td>
+<td align="left">消えない      </td>
+</tr>
+<tr>
+<td align="left">外部公開共有領域</td>
+<td align="left">Environment.getExternalStoragePublicDirectory()</td>
+<td align="left">no          </td>
+<td align="left">yes                   </td>
+<td align="left">提供されず      </td>
+<td align="left">消えない      </td>
+</tr>
+</tbody>
+</table>
+
+
+<p>　</p>
+
+<ul>
+<li>ユーザに見せたくないファイルは内部の領域を使う</li>
+<li>消えるとアプリが維持できなくなるようなファイルは、内部データ領域</li>
+<li>消えても全く問題ないような一時ファイルは、ユーザが消しやすいキャッシュ領域が良さそう</li>
+<li>アプリが消えても消したくないファイルは、外部公開領域にディレクトリ掘って作る</li>
+<li>端末全体に共有したいようなファイルは外部公開共有領域に入れる
+
+<ul>
+<li>カメラから取得した画像を保存するなら Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) にディレクトリ掘るとか</li>
+<li>アプリで生成した画像を保存するなら Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURE) にディレクトリ掘るとか</li>
+</ul>
+</li>
+</ul>
+
+
+<h2>その他のまめ知識</h2>
+
+<ul>
+<li>キャッシュ領域にサイズ制限はないが、ストレージが圧迫されてくるとシステムによって消されることがあるらしい(未実験)
+
+<ul>
+<li><a href="http://stackoverflow.com/questions/2175843/limit-size-of-cache-directory">http://stackoverflow.com/questions/2175843/limit-size-of-cache-directory</a></li>
+<li>逆に言うと消えることが保証されているわけではないので、容量制限などを行う場合は自分で実装する</li>
+<li><a href="http://techbooster.org/android/application/16004/">こちら</a>によると 1MB 以下が推奨とあるが、現在もそうであるか不明。キャッシュ容量二桁MB越えのアプリは珍しくない気がする</li>
+</ul>
+</li>
+<li>マルチアカウント利用されている場合でも、 Context からディレクトリを取得していれば良きに計らってくれるみたい
+
+<ul>
+<li><a href="http://techbooster.org/android/application/16004/">http://techbooster.org/android/application/16004/</a></li>
+</ul>
+</li>
+<li>アプリをアンインストール時にも残しておきたいが、ユーザに見られたくない！消されたくない！は「できない」
+
+<ul>
+<li>このようなデータは公開領域に置くのが主流っぽいが、隠蔽することはできない</li>
+<li>せいぜい見つけづらいところに置くくらいしかできないので、補助的に使うしかない</li>
+</ul>
+</li>
+</ul>
+
+
+<h2>保存先はSDカード？内蔵ストレージ？</h2>
+
+<p>結論から言うと、 getExternal 系のメソッドでとれるディレクトリは、SDカードの場合もあれば内蔵ストレージの場合もあるようです。
+基本的にアプリ側からSDカードを指定して扱うようなことは <strong>できない</strong> というのが正しそうです。</p>
+
+<p>getExternal〜 でとれるディレクトリはシステムに決められたプライマリストレージであり、それがSDカードである保証はないということ。
+よく getExternalStorageDirectory() でSDカード内のディレクトリがとれるという記事を見ますが、正確にはSDカードである可能性が高いディレクトリがとれるというのが正しそうです。
+External という名前がついているので紛らわしいですが(というか完全に勘違いする)、これはSDカードのことをさしている訳ではなく、
+システム領域の外のストレージという意味で External とついているようです。(<a href="http://developer.android.com/reference/android/os/Environment.html#getExternalStorageDirectory(">参考</a>))</p>
+
+<p>とはいえ getExternal〜 で取得したディレクトリを使う場合は、プライマリストレージがSDカードである可能性を考慮しなくてはいけないため、マウントされているかどうかなどを確かめる必要があります。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">String</span> <span class="n">state</span> <span class="o">=</span> <span class="n">Environment</span><span class="o">.</span><span class="na">getExternalStorageState</span><span class="o">()</span>
+</span><span class='line'><span class="k">if</span><span class="o">(</span><span class="n">state</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">Environment</span><span class="o">.</span><span class="na">MEDIA_MOUNTED</span><span class="o">)){</span>
+</span><span class='line'>    <span class="c1">// マウントされていて read/write 可能</span>
+</span><span class='line'><span class="o">}</span><span class="k">else</span> <span class="k">if</span><span class="o">(</span><span class="n">state</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">Environment</span><span class="o">.</span><span class="na">MEDIA_MOUNTED_READ_ONLY</span><span class="o">)){</span>
+</span><span class='line'>    <span class="c1">// マウントされているが read 権限しかない</span>
+</span><span class='line'><span class="o">}</span><span class="k">else</span><span class="o">{</span>
+</span><span class='line'>    <span class="c1">// マウントされていない</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>今指定されているプライマリストレージが取り外し可能(普通はイコールSDカードになると思います)かどうかは以下を確認することで分かるので、取り外されるとまずい場合などは判別できそうです。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="k">if</span><span class="o">(</span><span class="n">Environment</span><span class="o">.</span><span class="na">isExternalStorageRemovable</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// 取り外し可能</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ちなみに手持ちの 206SH / Android 4.2.2 で確認してみたところ、Environment のさしているプライマリストレージは内蔵メモリのようでした。</p>
+
+<p>ついでに 206SH でプライマリストレージを切り替えられるのかどうかを調べてみたけれど、結局切り替わる条件は不明でした。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="err">端末設定</span> <span class="o">&gt;</span> <span class="err">ストレージ</span> <span class="o">&gt;</span> <span class="err">優先インストール先</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>あたりで切り替えられそうだなーと睨んで色々と試行錯誤してみましたが、プライマリストレージは変わりませんでした。</p>
+
+<h2>(おまけ)各ディレクトリのファイルパスなど</h2>
+
+<figure class='code'><figcaption><span>206SH/Android4.2.2</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'># 各種ディレクトリ
+</span><span class='line'>Context.getFilesDir()                           :/data/data/com.example/files
+</span><span class='line'>Context.getCacheDir()                           :/data/data/com.example/cache
+</span><span class='line'>Context.getExternalCacheDir()                   :/storage/sdcard0/Android/data/com.example/cache
+</span><span class='line'>Context.getExternalFilesDir()                   :/storage/sdcard0/Android/data/com.example/files
+</span><span class='line'>Environment.getExternalStorageDirectory()       :/storage/sdcard0
+</span><span class='line'>Environment.getExternalStoragePublicDirectory() :/storage/sdcard0/DCIM
+</span><span class='line'>Environment.isExternalStorageEmulated()         :false
+</span><span class='line'>Environment.isExternalStorageRemovable()        :false
+</span><span class='line'>
+</span><span class='line'># マウント状況 - getFilesDir() などでとれるところ
+</span><span class='line'>/dev/block/platform/msm_sdcc.1/by-name/userdata /data ext4 rw,nosuid,nodev,noatime,discard,noauto_da_alloc,data=ordered 0 0
+</span><span class='line'># マウント状況 - getExternalStorageDirectory() でとれるところ
+</span><span class='line'>/dev/fuse /storage/sdcard0 fuse rw,nosuid,nodev,relatime,user_id=1023,group_id=1023,default_permissions,allow_other 0 0
+</span><span class='line'># マウント状況 - 実際のSDカードがマウントされているところ
+</span><span class='line'>/dev/block/vold/179:33 /storage/sdcard0/external_sd vfat rw,dirsync,nosuid,nodev,noexec,relatime,uid=1000,gid=1015,fmask=0602,dmask=0602,allow_utime=0020,codepage=cp437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 0
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>Nexus7(2013)/Android4.4.2</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='text'><span class='line'># 各種ディレクトリ
+</span><span class='line'>Context.getFilesDir()                           :/data/data/com.example/files
+</span><span class='line'>Context.getCacheDir()                           :/data/data/com.example/cache
+</span><span class='line'>Context.getExternalCacheDir()                   :/storage/emulated/0/Android/data/com.example/cache
+</span><span class='line'>Context.getExternalFilesDir()                   :/storage/emulated/0/Android/data/com.example/files
+</span><span class='line'>Environment.getExternalStorageDirectory()       :/storage/emulated/0
+</span><span class='line'>Environment.getExternalStoragePublicDirectory() :/storage/emulated/0/DCIM
+</span><span class='line'>Environment.isExternalStorageEmulated()         :true
+</span><span class='line'>Environment.isExternalStorageRemovable()        :false
+</span><span class='line'>
+</span><span class='line'># マウント状況 - getFilesDir() などでとれるところ
+</span><span class='line'>/dev/block/platform/msm_sdcc.1/by-name/userdata /data ext4 rw,seclabel,nosuid,nodev,noatime,nomblk_io_submit,errors=panic,data=ordered 0 0
+</span><span class='line'># マウント状況 - getExternalStorageDirectory() でとれるところの実体？
+</span><span class='line'>/dev/fuse /mnt/shell/emulated fuse rw,nosuid,nodev,relatime,user_id=1023,group_id=1023,default_permissions,allow_other 0 0
+</span><span class='line'>
+</span><span class='line'># /storage/emulated に置いてあるシンボリックリンク
+</span><span class='line'>shell@flo:/ $ ls -la /storage/emulated/
+</span><span class='line'>lrwxrwxrwx root     root              2014-01-30 19:47 legacy -&gt; /mnt/shell/emulated/0
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Nexus7 のほうは getExternal〜 でとれるディレクトリがマルチアカウント対応の Emulated なものになってました。
+4.2 で追加されたマルチアカウントですが、 206SH では封じられているようです。</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <a href="/about"><img src="/images/lciel.png" style="width:28px; height:28px; box-shadow:none; -webkit-box-shadow:none; margin:3px; padding:2px; border: #dedede 1px solid; vertical-align:middle;"/><span class="fn">lciel</span></a></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-08T23:29:00+09:00" pubdate data-updated="true">Feb 8<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android/'>android</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://blog.lciel.jp/blog/2014/02/08/android-about-storage/" data-via="lciel" data-counturl="http://blog.lciel.jp/blog/2014/02/08/android-about-storage/" >Tweet</a>
+  
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/12/16/android-capture-view-image/" title="Previous Post: View のキャプチャを撮る">&laquo; View のキャプチャを撮る</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/02/08/android-about-storage/">Android におけるストレージまとめ</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/12/16/android-capture-view-image/">View のキャプチャを撮る</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/12/13/difference-between-jar-and-library-project/">Android Library Project と JAR の違いを理解する</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/12/12/android-touch-event-2/">Android のタッチイベントを理解する(その2)</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/12/11/android-custom-animation/">Android のアニメーションを自作する</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - lciel -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'unmotivated';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.lciel.jp/blog/2014/02/08/android-about-storage/';
+        var disqus_url = 'http://blog.lciel.jp/blog/2014/02/08/android-about-storage/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

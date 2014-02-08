@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Android | Unmotivated]]></title>
+  <title><![CDATA[Category: android | Unmotivated]]></title>
   <link href="http://blog.lciel.jp/blog/categories/android/atom.xml" rel="self"/>
   <link href="http://blog.lciel.jp/"/>
-  <updated>2013-12-16T21:11:25+09:00</updated>
+  <updated>2014-02-08T23:49:47+09:00</updated>
   <id>http://blog.lciel.jp/</id>
   <author>
     <name><![CDATA[lciel]]></name>
@@ -14,618 +14,235 @@
 
   
   <entry>
-    <title type="html"><![CDATA[View のキャプチャを撮る]]></title>
-    <link href="http://blog.lciel.jp/blog/2013/12/16/android-capture-view-image/"/>
-    <updated>2013-12-16T20:52:00+09:00</updated>
-    <id>http://blog.lciel.jp/blog/2013/12/16/android-capture-view-image</id>
-    <content type="html"><![CDATA[<p>Android で View のキャプチャ画像を取得する方法を二種類紹介します。</p>
+    <title type="html"><![CDATA[Android におけるストレージまとめ]]></title>
+    <link href="http://blog.lciel.jp/blog/2014/02/08/android-about-storage/"/>
+    <updated>2014-02-08T23:29:00+09:00</updated>
+    <id>http://blog.lciel.jp/blog/2014/02/08/android-about-storage</id>
+    <content type="html"><![CDATA[<p>Android で外部ファイルを保存する場合、どこに何を保存すれば良いのか？それぞれの違いは何なのか？<br/>
+内蔵メモリなのか？SDカードなのか？</p>
 
-<p>どちらも UI スレッド以外のスレッドから呼び出し可能でした。</p>
+<p>いい加減しっかり把握しておきたいと思ったので、まとめてみました。</p>
 
-<h2>View の描画キャッシュを使用する方法</h2>
+<h2>ざっくりまとめ</h2>
 
-<p>View の描画のためのキャッシュを利用する方法。</p>
+<p>それぞれの領域の名前は、この記事の中で区別するためにつけたもので、アクセス権減は非 root ユーザから見た図です。</p>
+
+<table>
+<thead>
+<tr>
+<th align="left"></th>
+<th align="left">ディレクトリ取得メソッド                   </th>
+<th align="left">アプリ専用？</th>
+<th align="left">ユーザがアクセス可能？</th>
+<th align="left">クリア方法      </th>
+<th align="left">アプリ削除時に</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">内部データ領域      </td>
+<td align="left">Context.getFilesDir()                      </td>
+<td align="left">yes         </td>
+<td align="left">no                    </td>
+<td align="left">データを消去    </td>
+<td align="left">消える        </td>
+</tr>
+<tr>
+<td align="left">内部キャッシュ領域  </td>
+<td align="left">Context.getCacheDir()                      </td>
+<td align="left">yes         </td>
+<td align="left">no                    </td>
+<td align="left">キャッシュを消去</td>
+<td align="left">消える        </td>
+</tr>
+<tr>
+<td align="left">外部データ領域      </td>
+<td align="left">Context.getExternalFilesDir()              </td>
+<td align="left">yes         </td>
+<td align="left">yes                   </td>
+<td align="left">データを消去    </td>
+<td align="left">消える        </td>
+</tr>
+<tr>
+<td align="left">外部キャッシュ領域  </td>
+<td align="left">Context.getExternalCacheDir()              </td>
+<td align="left">yes         </td>
+<td align="left">yes                   </td>
+<td align="left">キャッシュを消去</td>
+<td align="left">消える        </td>
+</tr>
+<tr>
+<td align="left">外部公開領域    </td>
+<td align="left">Environment.getExternalStorageDirectory()      </td>
+<td align="left">no          </td>
+<td align="left">yes                   </td>
+<td align="left">提供されず      </td>
+<td align="left">消えない      </td>
+</tr>
+<tr>
+<td align="left">外部公開共有領域</td>
+<td align="left">Environment.getExternalStoragePublicDirectory()</td>
+<td align="left">no          </td>
+<td align="left">yes                   </td>
+<td align="left">提供されず      </td>
+<td align="left">消えない      </td>
+</tr>
+</tbody>
+</table>
+
+
+<p>　</p>
+
+<ul>
+<li>ユーザに見せたくないファイルは内部の領域を使う</li>
+<li>消えるとアプリが維持できなくなるようなファイルは、内部データ領域</li>
+<li>消えても全く問題ないような一時ファイルは、ユーザが消しやすいキャッシュ領域が良さそう</li>
+<li>アプリが消えても消したくないファイルは、外部公開領域にディレクトリ掘って作る</li>
+<li>端末全体に共有したいようなファイルは外部公開共有領域に入れる
+
+<ul>
+<li>カメラから取得した画像を保存するなら Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) にディレクトリ掘るとか</li>
+<li>アプリで生成した画像を保存するなら Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURE) にディレクトリ掘るとか</li>
+</ul>
+</li>
+</ul>
+
+
+<h2>その他のまめ知識</h2>
+
+<ul>
+<li>キャッシュ領域にサイズ制限はないが、ストレージが圧迫されてくるとシステムによって消されることがあるらしい(未実験)
+
+<ul>
+<li><a href="http://stackoverflow.com/questions/2175843/limit-size-of-cache-directory">http://stackoverflow.com/questions/2175843/limit-size-of-cache-directory</a></li>
+<li>逆に言うと消えることが保証されているわけではないので、容量制限などを行う場合は自分で実装する</li>
+<li><a href="http://techbooster.org/android/application/16004/">こちら</a>によると 1MB 以下が推奨とあるが、現在もそうであるか不明。キャッシュ容量二桁MB越えのアプリは珍しくない気がする</li>
+</ul>
+</li>
+<li>マルチアカウント利用されている場合でも、 Context からディレクトリを取得していれば良きに計らってくれるみたい
+
+<ul>
+<li><a href="http://techbooster.org/android/application/16004/">http://techbooster.org/android/application/16004/</a></li>
+</ul>
+</li>
+<li>アプリをアンインストール時にも残しておきたいが、ユーザに見られたくない！消されたくない！は「できない」
+
+<ul>
+<li>このようなデータは公開領域に置くのが主流っぽいが、隠蔽することはできない</li>
+<li>せいぜい見つけづらいところに置くくらいしかできないので、補助的に使うしかない</li>
+</ul>
+</li>
+</ul>
+
+
+<h2>保存先はSDカード？内蔵ストレージ？</h2>
+
+<p>結論から言うと、 getExternal 系のメソッドでとれるディレクトリは、SDカードの場合もあれば内蔵ストレージの場合もあるようです。
+基本的にアプリ側からSDカードを指定して扱うようなことは <strong>できない</strong> というのが正しそうです。</p>
+
+<p>getExternal〜 でとれるディレクトリはシステムに決められたプライマリストレージであり、それがSDカードである保証はないということ。
+よく getExternalStorageDirectory() でSDカード内のディレクトリがとれるという記事を見ますが、正確にはSDカードである可能性が高いディレクトリがとれるというのが正しそうです。
+External という名前がついているので紛らわしいですが(というか完全に勘違いする)、これはSDカードのことをさしている訳ではなく、
+システム領域の外のストレージという意味で External とついているようです。(<a href="http://developer.android.com/reference/android/os/Environment.html#getExternalStorageDirectory(">参考</a>))</p>
+
+<p>とはいえ getExternal〜 で取得したディレクトリを使う場合は、プライマリストレージがSDカードである可能性を考慮しなくてはいけないため、マウントされているかどうかなどを確かめる必要があります。</p>
 
 <p>``` java
-View view = findViewById(R.id.view);</p>
+String state = Environment.getExternalStorageState()
+if(state.equals(Environment.MEDIA_MOUNTED)){</p>
 
-<p>view.setDrawingCacheEnabled(true);      // キャッシュを取得する設定にする
-view.destroyDrawingCache();             // 既存のキャッシュをクリアする</p>
+<pre><code>// マウントされていて read/write 可能
+</code></pre>
 
-<p>Bitmap bmp = view.getDrawingCache();    // キャッシュを作成して取得する
+<p>}else if(state.equals(Environment.MEDIA_MOUNTED_READ_ONLY)){</p>
+
+<pre><code>// マウントされているが read 権限しかない
+</code></pre>
+
+<p>}else{</p>
+
+<pre><code>// マウントされていない
+</code></pre>
+
+<p>}
 ```</p>
 
-<p>描画キャッシュが有効になっているかどうかや、最新のキャッシュが存在するかどうかは状況によるので、自分で設定してやることで View のキャプチャを取得することができます。</p>
-
-<h2>Canvas に View を描画する方法</h2>
-
-<p>自分で用意した Canvas に View を描画する方法。</p>
+<p>今指定されているプライマリストレージが取り外し可能(普通はイコールSDカードになると思います)かどうかは以下を確認することで分かるので、取り外されるとまずい場合などは判別できそうです。</p>
 
 <p>``` java
-View view = findViewById(R.id.view);</p>
+if(Environment.isExternalStorageRemovable()) {</p>
 
-<p>Bitmap bmp = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Config.ARGB_8888);</p>
-
-<pre><code>                                    // view のサイズで Bitmap を作成
-</code></pre>
-
-<p>Canvas canvas = new Canvas(bmp);        // bmp をターゲットにした Canvas を作成</p>
-
-<p>view.draw(canvas);                      // canvas に view を描画する
-```</p>
-
-<p>View のサイズで作った Bitmap を Canvas の書き込み先にし、draw() メソッドで書き込んでやることで、 View が描画された Bitmap を取得することができます。</p>
-
-<h2>[おまけ] getDrawingCache() まわりの豆知識</h2>
-
-<p>今までなんとなく使っていたけれど、View のキャプチャに buildDrawingCache() を必ず呼ぶようにしているスニペットがあったり、 getDrawingCache() で null が返ってくることがあったりと挙動を不審に思っていたので軽く調査(Android 4.2.2)。</p>
-
-<ul>
-<li>直前に setDrawingCacheEnabled(true) さえすれば、 getDrawingCache() の前に自分で buildDrawingCache() を呼ぶ必要はない
-
-<ul>
-<li>View のフラグに PFLAG_DRAWING_CACHE_ENABLED が立っていれば getDrawingCache() で buildDrawingCache() を呼んでいる</li>
-</ul>
-</li>
-<li>キャッシュを確実に更新したい場合は View を invalidate() するか destroyDrawingCache() でキャッシュをクリアする
-
-<ul>
-<li>フラグに PFLAG_DRAWING_CACHE_VALID が立っている、かつ DrawingCache が確保されていると buildDrawingCache() が呼ばれてもキャッシュが更新されない</li>
-<li>invalidate() するだけだと Bitmap が recycle() されなそうなので、連打するとメモリ不足に陥るかも</li>
-</ul>
-</li>
-<li>setDrawingCacheEnabled() するだけでは destroyDrawingCache() が呼ばれないことがある
-
-<ul>
-<li>フラグが &ldquo;変わった&rdquo; ときだけ destroyDrawingCache() が呼ばれるようなので、オーバーヘッドも少ないし自分で destroyDrawingCache() を呼んだ方が無難そう</li>
-</ul>
-</li>
-<li>そもそも何に使われている &ldquo;キャッシュ&rdquo; なのか？
-
-<ul>
-<li>draw() 時に caching の条件を満たしていれば、 canvas に直接 drawBitmap() するために使われているので、まさに描画キャッシュのように見える</li>
-<li>条件については今回は追いきれず(LayerType や HardwareAccelerated など Android の描画周りの知識が足りなすぎた..)</li>
-<li>ご存知の方がいたら教えて下さい！</li>
-</ul>
-</li>
-</ul>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Android Library Project と JAR の違いを理解する]]></title>
-    <link href="http://blog.lciel.jp/blog/2013/12/13/difference-between-jar-and-library-project/"/>
-    <updated>2013-12-13T19:57:00+09:00</updated>
-    <id>http://blog.lciel.jp/blog/2013/12/13/difference-between-jar-and-library-project</id>
-    <content type="html"><![CDATA[<p>Android でライブラリを使用する際、プロジェクトを作成する必要のあるライブラリプロジェクトと、クラスライブラリの JAR と2種類存在するけれど、それぞれどう違うのか軽く調べました。</p>
-
-<h2>ライブラリプロジェクトと JAR の違い</h2>
-
-<p>最も根本的な違いは Resources を内包しているかどうかのようです。<br/>
-ライブラリプロジェクトは Resources を保持できるので、 JAR のように静的に APK に組み込むことができません。
-そのためプロジェクトとして作成した上で、組み込みたいプロジェクトに依存させて、ビルド時に R.java を一緒に作成する必要があります。</p>
-
-<ul>
-<li>参考: <a href="http://www.growprogress.com/vcommon/?p=3059">Android Application, Android Libraries and Jar Libraries</a></li>
-</ul>
-
-
-<h2>Android APK のビルドの流れを軽く理解する</h2>
-
-<p>完全に上記参考サイトの受け売りですが、Android APK のビルドの流れも要点だけ追っておきます。
-(これを以前追っておいたおかげで、 Gradle のビルドで詰まったときなどにとても役立ちました)</p>
-
-<p>もっと詳しく理解する場合は、リンク先をご確認下さい。</p>
-
-<h3>Android APK のビルド</h3>
-
-<ul>
-<li>リソースと ID の対応づけを持った R.java を作る</li>
-<li>.java を .class にコンパイル</li>
-<li>.class(bin/classes) をまとめて Dalvik ByteCode である .dex にコンパイル</li>
-<li>.dex を APK に追加する</li>
-</ul>
-
-
-<h3>JAR を含んだ Android APK のビルド</h3>
-
-<ul>
-<li>Android APK のビルドにおいて、 .dex を作るときに JAR Library(実体は.class) を .dex に一緒にまとめてコンパイルするだけ</li>
-</ul>
-
-
-<h3>Android Library を含めた Android APK のビルド</h3>
-
-<ul>
-<li>依存関係を計算</li>
-<li>R.java を作る
-
-<ul>
-<li><strong>Library Project の AndroidManifest.xml は無視される</strong>
-<code>
-aapt package –f –m –auto-add-overlay
-–M /absolute/path/to/app/AndroidManifest.xml
-–S /absolute/path/to/app/res
--S /absolute/path/to/library-project/res
--I /absolute/path/to/android.jar
--J /absolute/path/to/app/gen
-</code></li>
-</ul>
-</li>
-<li>Android Library を含めた .java を .class にコンパイル
-<code>
-javac &lt;other options&gt; –sourcepath
-  /absolute/path/to/app/src;/absolute/path/to/app/gen/;absolute/path/to/library-project/src
-</code></li>
-<li>.class を .dex にコンパイル</li>
-<li>resources を Library Project の分もまとめてマージしてパッケージ</li>
-<li>マージされた resources と、マージされた .dex を .apk に追加する</li>
-</ul>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Android のタッチイベントを理解する(その2)]]></title>
-    <link href="http://blog.lciel.jp/blog/2013/12/12/android-touch-event-2/"/>
-    <updated>2013-12-12T21:32:00+09:00</updated>
-    <id>http://blog.lciel.jp/blog/2013/12/12/android-touch-event-2</id>
-    <content type="html"><![CDATA[<h2>Activity にタッチイベントが流れてくるまで</h2>
-
-<p><a href="/blog/2013/12/03/android-touch-event/">前回</a>は View のヒエラルキーのなかをどうやってタッチイベントが伝搬するかを追いました。<br/>
-参考にした資料には、 Activity#dispatchTouchEvent() からイベントが始まるとありますが、折角なのでそこまではどうなっているかも確認します。</p>
-
-<p>先に概要としてまとめてしまうとこんな雰囲気でした。</p>
-
-<p><img src="/images/android-touch-event-flow.png" alt="Activity に渡るまでのタッチイベント概要" /></p>
-
-<p>View システムの根っこの部分をきちんと理解できてないので、勘違いがあるかもしれません。
-(親子関係が特に怪しい)</p>
-
-<!-- more -->
-
-
-<h3>参考にしたスタックトレース</h3>
-
-<p>206SH(Android 4.2.2) でとったものなので、完全に純正なコードでない可能性もありますが参考にしつつ追っていきます。</p>
-
-<p>``` text
-12-02 22:58:25.726: D/TOUCH_TEST(27219):</p>
-
-<pre><code>at onTouch(TouchTest.java:35)
-at dispatchTouchEvent(View.java:7319)
-at dispatchTransformedTouchEvent(ViewGroup.java:2205)
-at dispatchTouchEvent(ViewGroup.java:1948)
-at dispatchTransformedTouchEvent(ViewGroup.java:2205)
-at dispatchTouchEvent(ViewGroup.java:1948)
-at dispatchTransformedTouchEvent(ViewGroup.java:2205)
-at dispatchTouchEvent(ViewGroup.java:1948)
-at dispatchTransformedTouchEvent(ViewGroup.java:2205)
-at dispatchTouchEvent(ViewGroup.java:1948)
-at dispatchTransformedTouchEvent(ViewGroup.java:2205)
-at dispatchTouchEvent(ViewGroup.java:1948)
-at dispatchTransformedTouchEvent(ViewGroup.java:2205)
-at dispatchTouchEvent(ViewGroup.java:1948)
-at dispatchTransformedTouchEvent(ViewGroup.java:2205)
-at dispatchTouchEvent(ViewGroup.java:1948)
-at superDispatchTouchEvent(PhoneWindow.java:1974)
-at superDispatchTouchEvent(PhoneWindow.java:1426)
-at dispatchTouchEvent(Activity.java:2417)
-at dispatchTouchEvent(PhoneWindow.java:1922)
-at dispatchPointerEvent(View.java:7504)
-at deliverPointerEvent(ViewRootImpl.java:3356)
-at deliverInputEvent(ViewRootImpl.java:3301)
-at doProcessInputEvents(ViewRootImpl.java:4436)
-at enqueueInputEvent(ViewRootImpl.java:4415)
-at onInputEvent(ViewRootImpl.java:4507)
-at dispatchInputEvent(InputEventReceiver.java:179)
-at nativePollOnce(MessageQueue.java:-2)
-at next(MessageQueue.java:125)
-at loop(Looper.java:124)
-/**
- * ↑ActivityThread の Looper にイベントが登録されてくるようなので、ここからみていく
- * ----
- * ↓ここまでは Activity が Zygote によって立ち上げられている関係上、スタックトレースにのってきているっぽい
- */
-at main(ActivityThread.java:5159)
-at invokeNative(Method.java:-2)
-at invoke(Method.java:511)
-at run(ZygoteInit.java:810)
-at main(ZygoteInit.java:577)
-at main(NativeStart.java:-2)
-</code></pre>
-
-<p>```</p>
-
-<h3>Activity 配下の View へとタッチイベントがわたるまで</h3>
-
-<p>このあたりのメソッドの引き回し方は、マイナバージョンの変更でもちょこちょこ変わっているようで、たとえば 4.2.2 と 4.3 でも違いがありました。<br/>
-大枠の流れまでは変わっていなそうでしたので、スタックトレースと比較するために 4.2.2 でコードを追っています。</p>
-
-<ul>
-<li>どこかの誰かが ActivityThread の Looper にイベントを登録してくる(どこの誰かは今のところ追えてません)</li>
-<li>ActivityThread の Looper がメッセージを dispatch していくなかで、入力イベントを ViewRootImpl の onInputEvent() に渡す</li>
-<li>ViewRootImpl にて、入力イベントのキューを順に処理していく</li>
-</ul>
-
-
-<p>``` java ViewRootImpl#deliverInputEvent()
-private void deliverInputEvent(QueuedInputEvent q) {</p>
-
-<pre><code>Trace.traceBegin(Trace.TRACE_TAG_VIEW, "deliverInputEvent");
-try {
-    if (q.mEvent instanceof KeyEvent) {
-        deliverKeyEvent(q);
-    } else {
-        final int source = q.mEvent.getSource();
-        if ((source &amp; InputDevice.SOURCE_CLASS_POINTER) != 0) {
-            // タッチイベントは SOURCE_CLASS_POINTER に分類されるため、 deliverPointerEvent() が呼ばれる
-            // ここに分類されるのはマウス、ペン、タッチ、トラックボールなどらしい
-            deliverPointerEvent(q);
-        } else if ((source &amp; InputDevice.SOURCE_CLASS_TRACKBALL) != 0) {
-            deliverTrackballEvent(q);
-        } else {
-            deliverGenericMotionEvent(q);
-        }
-    }
-} finally {
-    Trace.traceEnd(Trace.TRACE_TAG_VIEW);
-}
+<pre><code>// 取り外し可能
 </code></pre>
 
 <p>}
 ```</p>
 
-<ul>
-<li>キューからイベントを抽出して、 DecorView にポインタイベントとして流す</li>
-</ul>
+<p>ちなみに手持ちの 206SH / Android 4.2.2 で確認してみたところ、Environment のさしているプライマリストレージは内蔵メモリのようでした。</p>
 
+<p>ついでに 206SH でプライマリストレージを切り替えられるのかどうかを調べてみたけれど、結局切り替わる条件は不明でした。
+<code>java
+端末設定 &gt; ストレージ &gt; 優先インストール先
+</code>
+あたりで切り替えられそうだなーと睨んで色々と試行錯誤してみましたが、プライマリストレージは変わりませんでした。</p>
 
-<p>``` java ViewRootImpl#deliverPointerEvent()
-private void deliverPointerEvent(QueuedInputEvent q) {</p>
+<h2>(おまけ)各ディレクトリのファイルパスなど</h2>
 
-<pre><code>final MotionEvent event = (MotionEvent)q.mEvent;
+<p>``` text 206SH/Android4.2.2</p>
 
-// 中略
+<h1>各種ディレクトリ</h1>
 
-// タッチイベントを View ヒエラルキーに流していく
-// 通常、 mView には Activity のルートビューとなる DecorView が入っているはず
-boolean handled = mView.dispatchPointerEvent(event);
-if (MEASURE_LATENCY) {
-    lt.sample("B Dispatched PointerEvents ", System.nanoTime() - event.getEventTimeNano());
-}
+<p>Context.getFilesDir()                           :/data/data/com.example/files
+Context.getCacheDir()                           :/data/data/com.example/cache
+Context.getExternalCacheDir()                   :/storage/sdcard0/Android/data/com.example/cache
+Context.getExternalFilesDir()                   :/storage/sdcard0/Android/data/com.example/files
+Environment.getExternalStorageDirectory()       :/storage/sdcard0
+Environment.getExternalStoragePublicDirectory() :/storage/sdcard0/DCIM
+Environment.isExternalStorageEmulated()         :false
+Environment.isExternalStorageRemovable()        :false</p>
 
-// タッチイベントの処理が返ってきたら、イベントキューを完了させる
-// handled で分岐しているが native method に入ってしまうので、今回は追ってません
-if (handled) {
-    finishInputEvent(q, true);
-    return;
-}
+<h1>マウント状況 &ndash; getFilesDir() などでとれるところ</h1>
 
-// Pointer event was unhandled.
-finishInputEvent(q, false);
-</code></pre>
+<p>/dev/block/platform/msm_sdcc.1/by-name/userdata /data ext4 rw,nosuid,nodev,noatime,discard,noauto_da_alloc,data=ordered 0 0</p>
 
-<p>}
-```</p>
-
-<ul>
-<li>DecorView の親クラス(View)でタッチイベントと判定して dispatch する</li>
-</ul>
-
-
-<p>``` java View#dispatchPointerEvent()
-public final boolean dispatchPointerEvent(MotionEvent event) {</p>
-
-<pre><code>if (event.isTouchEvent()) {
-    // 今回はタッチイベントなのでこちら
-    return dispatchTouchEvent(event);
-} else {
-    return dispatchGenericMotionEvent(event);
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<ul>
-<li>DecorView にて Callback として登録されている Activity に、一旦イベントを流す</li>
-</ul>
-
-
-<p>``` java PhoneWindow.DecorView#dispatchTouchEvent()
-public boolean More dispatchTouchEvent(MotionEvent ev) {</p>
-
-<pre><code>// callback には通常 Activity が登録されている
-final Callback cb = getCallback();
-return cb != null &amp;&amp; !isDestroyed() &amp;&amp; mFeatureId &lt; 0 ? cb.dispatchTouchEvent(ev)
-        : super.dispatchTouchEvent(ev);
-</code></pre>
-
-<p>}
-```</p>
-
-<ul>
-<li>Activity にてユーザからの入力があったことを表す <a href="http://developer.android.com/reference/android/app/Activity.html#onUserInteraction%28%29">onUserInteraction()</a> などを呼びながら、再度 DecorView にイベントを dispatch し、子供の View (Activity#addContentView()したViewたち)へとタッチイベントを流していく</li>
-</ul>
-
-
-<p>``` java Activity#dispatchTouchEvent()
-public boolean dispatchTouchEvent(MotionEvent ev) {</p>
-
-<pre><code>// キータッチの開始なら onUserInteraction() が呼ばれる
-if (ev.getAction() == MotionEvent.ACTION_DOWN) {
-    onUserInteraction();
-}
-// ここで一旦 DecorView(FrameLayoutを継承) にイベントを戻し、ここから ViewGroup の dispatchTouchEvent() が呼ばれて、タッチイベントの旅が始まる
-if (getWindow().superDispatchTouchEvent(ev)) {
-    return true;
-}
-// イベントがキャンセルされずにココまで到達したら、最後に Activity のタッチイベントが呼ばれる
-return onTouchEvent(ev);
-</code></pre>
-
-<p>}
-```</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Android のアニメーションを自作する]]></title>
-    <link href="http://blog.lciel.jp/blog/2013/12/11/android-custom-animation/"/>
-    <updated>2013-12-11T20:15:00+09:00</updated>
-    <id>http://blog.lciel.jp/blog/2013/12/11/android-custom-animation</id>
-    <content type="html"><![CDATA[<p>Android で独自定義のカスタムアニメーションを作りたかったので試してみたところ、 Animation クラスを継承して割と簡単に作れたのでメモ。</p>
-
-<p>ここでは例として、 View を円周に沿って動かすようなアニメーションを作ってみました。<br/>
-アニメーションさせたい View に対して中心点を指定して、開始角度と終了角度を与えてアニメーションさせてみます。</p>
-
-<p><img src="/images/android-arc-translate-animation.png" alt="円弧上を動かすアニメーション" /></p>
-
-<p>``` java
-/<em>*
- * 円弧上に沿うように移動させるアニメーション
- * @param startDegrees  開始角度
- * @param endDegrees    終了角度
- * @param centerXType   中心点のX座標のタイプ
- * @param centerXValue  中心点のX座標を表す値
- * @param centerYType   中心点のY座標のタイプ
- * @param centerYValue  中心点のY座標を表す値
- </em>/
-public ArcTranslateAnimation(int startDegrees, int endDegrees,</p>
-
-<pre><code>    int centerXType, float centerXValue, int centerYType, float centerYValue);
-</code></pre>
-
-<p>```</p>
-
-<!-- more -->
-
-
-<h3>コンストラクタ</h3>
-
-<p>今回はパラメータを受け取るだけ。
-``` java</p>
-
-<pre><code>public ArcTranslateAnimation(int startDegrees, int endDegrees,
-        int centerXType, float centerXValue, int centerYType, float centerYValue) {
-    this.mStartRad = (float)(startDegrees * Math.PI / 180.0f);
-    this.mEndRad   = (float)(endDegrees   * Math.PI / 180.0f);
-    this.mCenterXType  = centerXType;
-    this.mCenterXValue = centerXValue;
-    this.mCenterYType  = centerYType;
-    this.mCenterYValue = centerYValue;
-}
-</code></pre>
-
-<p>```</p>
-
-<h3>initialize()</h3>
-
-<p>まず initialize() で View の座標やサイズなどの情報を取得します。</p>
-
-<p>他のアニメーションに倣い、回転の中心点を指定するときに絶対的(Animation.ABSOLUTE)か相対的(Animation.RELATIVE_TO_SELF)か、親基準で相対的(Animation.RELATIVE_TO_PARENT)かを選べるようにしてみましたが、このあたりは resolveSize() メソッドを使うことで容易に座標に変換できます。</p>
-
-<p>``` java</p>
-
-<pre><code>@Override
-public void initialize(int width, int height, int parentWidth,
-        int parentHeight) {
-    super.initialize(width, height, parentWidth, parentHeight);
-
-    float fromX   = resolveSize(Animation.ABSOLUTE, 0, width, parentWidth);
-    float fromY   = resolveSize(Animation.ABSOLUTE, 0, height, parentHeight);
-    float centerX = resolveSize(mCenterXType, mCenterXValue, width, parentWidth);
-    float centerY = resolveSize(mCenterYType, mCenterYValue, height, parentHeight);
-
-    mDeltaRad = (float)Math.atan2(fromY - centerY, fromX - centerX);
-    mRadius = (float)Math.sqrt(Math.pow(fromX - centerX, 2) + Math.pow(fromY - centerY, 2));
-    mStartPoint = new Point((int)(fromX - centerX), (int)(fromY - centerY));
-}
-</code></pre>
-
-<p>```</p>
-
-<p>中心点の座標がとれたので、開始地点と中心点における初期角度、円の半径、開始点などを保存しておきます。</p>
-
-<h3>applyTransformation()</h3>
-
-<p>applyTransformation() がアニメーションのキモで、引数として渡される interpolatedTime パラメータに 0.0f &ndash; 1.0f でアニメーションの進行値が入ってくるので、その値に合わせて表示を変更してやります。
-ちなみに interpolatedTime は Interpolator が適用された値が設定されているようなので、与えられた値をそのまま進行の割合として信じれば良さそうです。</p>
-
-<p>表示を変更するには、同じく引数として渡される t パラメータに対して操作を行えば OK です。
-位置やサイズを変更するなら getMatrix() で参照できる Matrix インスタンスを操作し、アルファ値を変更するなら setAlpha() でアルファ値を設定します。</p>
-
-<p>``` java</p>
-
-<pre><code>private PointF getArcPoint(float interpolatedTime) {
-    float rad = mStartRad + (mEndRad - mStartRad) * interpolatedTime + mDeltaRad;
-    float dx = (float)(Math.cos(rad) * mRadius);
-    float dy = (float)(Math.sin(rad) * mRadius);
-    return new PointF(dx - mStartPoint.x, dy - mStartPoint.y);
-}
-
-@Override
-protected void applyTransformation(float interpolatedTime, Transformation t) {
-    PointF p = getArcPoint(interpolatedTime);
-    t.getMatrix().postTranslate(p.x, p.y);
-}
-</code></pre>
-
-<p>```</p>
-
-<p>今回は Translate アニメーションなので、 getArcPoint() で座標を決定したら Matrix#postTranslate() で位置を移動してやります。</p>
-
-<h3>カスタムアニメーションを使用する</h3>
-
-<p>これで普通の Animation と同じように使うことができます。</p>
-
-<p>``` java 使用例
-View target = findViewById(R.id.targetView);</p>
-
-<p>Animation anim1 = new ArcTranslateAnimation(0, 90, Animation.ABSOLUTE, -300, Animation.ABSOLUTE, 0);
-anim1.setDuration(1000);
-anim1.setFillEnabled(true);
-anim1.setFillAfter(true);
-target.startAnimation(anim1);</p>
-
-<p>Animation anim2 = new ArcTranslateAnimation(90, 0, Animation.ABSOLUTE, -300, Animation.ABSOLUTE, 0);
-anim2.setStartOffset(1000);
-anim2.setDuration(1000);
-anim2.setFillEnabled(true);
-anim2.setFillAfter(true);
-target.startAnimation(anim2);
-```</p>
-
-<p>もちろん AnimationSet で使うこともできます。</p>
-
-<p>最後に今回作成した ArcTranslateAnimation クラスを置いておきます。</p>
-
-<p>``` java ArcTranslateAnimation.java
-import android.graphics.Point;
-import android.graphics.PointF;
-import android.view.animation.Animation;
-import android.view.animation.Transformation;</p>
-
-<p>public class ArcTranslateAnimation extends Animation {</p>
-
-<pre><code>private int mCenterXType;
-private int mCenterYType;
-private float mCenterXValue;
-private float mCenterYValue;
-
-private float mRadius;
-private Point mStartPoint;
-
-private float mDeltaRad;
-private float mStartRad;
-private float mEndRad;
-
-/**
- * 円弧上に沿うように移動させるアニメーション
- * @param startDegrees  開始角度
- * @param endDegrees    終了角度
- * @param centerXType   中心点のX座標のタイプ
- * @param centerXValue  中心点のX座標を表す値
- * @param centerYType   中心点のY座標のタイプ
- * @param centerYValue  中心点のY座標を表す値
- */
-public ArcTranslateAnimation(int startDegrees, int endDegrees,
-        int centerXType, float centerXValue, int centerYType, float centerYValue) {
-    this.mStartRad = (float)(startDegrees * Math.PI / 180.0f);
-    this.mEndRad   = (float)(endDegrees   * Math.PI / 180.0f);
-    this.mCenterXType  = centerXType;
-    this.mCenterXValue = centerXValue;
-    this.mCenterYType  = centerYType;
-    this.mCenterYValue = centerYValue;
-}
-
-/**
- * 現在の座標を取得する
- * @param interpolatedTime
- * @return
- */
-private PointF getArcPoint(float interpolatedTime) {
-    float rad = mStartRad + (mEndRad - mStartRad) * interpolatedTime + mDeltaRad;
-    float dx = (float)(Math.cos(rad) * mRadius);
-    float dy = (float)(Math.sin(rad) * mRadius);
-    return new PointF(dx - mStartPoint.x, dy - mStartPoint.y);
-}
-
-@Override
-protected void applyTransformation(float interpolatedTime, Transformation t) {
-    PointF p = getArcPoint(interpolatedTime);
-    t.getMatrix().postTranslate(p.x, p.y);
-}
-
-@Override
-public void initialize(int width, int height, int parentWidth,
-        int parentHeight) {
-    super.initialize(width, height, parentWidth, parentHeight);
-
-    float fromX   = resolveSize(Animation.ABSOLUTE, 0, width, parentWidth);
-    float fromY   = resolveSize(Animation.ABSOLUTE, 0, height, parentHeight);
-    float centerX = resolveSize(mCenterXType, mCenterXValue, width, parentWidth);
-    float centerY = resolveSize(mCenterYType, mCenterYValue, height, parentHeight);
-
-    mDeltaRad = (float)Math.atan2(fromY - centerY, fromX - centerX);
-    mRadius = (float)Math.sqrt(Math.pow(fromX - centerX, 2) + Math.pow(fromY - centerY, 2));
-    mStartPoint = new Point((int)(fromX - centerX), (int)(fromY - centerY));
-}
-</code></pre>
-
-<p>}
-```</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[ファイル名に特定の記号が使用できる場合とできない場合がある]]></title>
-    <link href="http://blog.lciel.jp/blog/2013/12/06/android-sdcard-vfat/"/>
-    <updated>2013-12-06T21:11:00+09:00</updated>
-    <id>http://blog.lciel.jp/blog/2013/12/06/android-sdcard-vfat</id>
-    <content type="html"><![CDATA[<p>Android のバージョンは同じなのに、端末によってファイルの移動(renameTo())に失敗してしまうことがあって悩まされたが、オチは移動先のファイル名にクエスチョンマーク(&ldquo;?&rdquo;)が含まれていたことが原因だった。</p>
-
-<p>クエスチョンマークが入ってしまっていたこと自体がバグだったのだけれど、そもそも何で端末によってこのようなことが起きるのかを軽く追ってみた。</p>
-
-<h3>原因はファイルシステム(っぽい)</h3>
-
-<p>成功する端末では内部ストレージに書き込みを行っており、失敗する端末では外部ストレージに書き込みを行っていた。</p>
-
-<p>ファイルシステムを見てみると、内部ストレージは FUSE でマウントされているのに対し、外部ストレージは VFAT でマウントされていた。</p>
-
-<p>``` text mount の状態</p>
-
-<h1>内部ストレージとして認識されているディレクトリ</h1>
+<h1>マウント状況 &ndash; getExternalStorageDirectory() でとれるところ</h1>
 
 <p>/dev/fuse /storage/sdcard0 fuse rw,nosuid,nodev,relatime,user_id=1023,group_id=1023,default_permissions,allow_other 0 0</p>
 
-<h1>外部ストレージとして認識されているディレクトリ</h1>
+<h1>マウント状況 &ndash; 実際のSDカードがマウントされているところ</h1>
 
 <p>/dev/block/vold/179:33 /storage/sdcard0/external_sd vfat rw,dirsync,nosuid,nodev,noexec,relatime,uid=1000,gid=1015,fmask=0602,dmask=0602,allow_utime=0020,codepage=cp437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 0
 ```</p>
 
-<p>正式な出典が見つからなかったけれど、 VFAT ではファイル名に以下の文字の使用を禁止しているようなので、恐らくこれが原因っぽい。<br/>
-試しにその他の記号を含めたファイル名を作成してみたところ、全て失敗した。</p>
+<p>``` text Nexus7(2013)/Android4.4.2</p>
 
-<p><code>text
-\ : * ? &lt; &gt; | / ;
-</code></p>
+<h1>各種ディレクトリ</h1>
 
-<p>参考 : <a href="http://www2s.biglobe.ne.jp/~system/doc/winfile2.htm">ファイル名とフォルダ名で使用できない文字</a></p>
+<p>Context.getFilesDir()                           :/data/data/com.example/files
+Context.getCacheDir()                           :/data/data/com.example/cache
+Context.getExternalCacheDir()                   :/storage/emulated/0/Android/data/com.example/cache
+Context.getExternalFilesDir()                   :/storage/emulated/0/Android/data/com.example/files
+Environment.getExternalStorageDirectory()       :/storage/emulated/0
+Environment.getExternalStoragePublicDirectory() :/storage/emulated/0/DCIM
+Environment.isExternalStorageEmulated()         :true
+Environment.isExternalStorageRemovable()        :false</p>
 
-<p>というわけで、環境によって(サンプル数は少ないが、恐らく外部SDカードでは)一部の記号がファイル名に使えなくなることがある、ということが分かった。</p>
+<h1>マウント状況 &ndash; getFilesDir() などでとれるところ</h1>
 
-<h3>メモ</h3>
+<p>/dev/block/platform/msm_sdcc.1/by-name/userdata /data ext4 rw,seclabel,nosuid,nodev,noatime,nomblk_io_submit,errors=panic,data=ordered 0 0</p>
 
-<p>Android のファイルシステム周りについては全く調べられていないが、いくつか気になることがあったのでメモ。</p>
+<h1>マウント状況 &ndash; getExternalStorageDirectory() でとれるところの実体？</h1>
 
-<ul>
-<li>エミュレータでは FUSE ではなく YAFFS2 でマウントされていた(どこのレイヤーで変わってるのか不明)</li>
-<li><a href="http://source.android.com/devices/tech/storage/">ここ</a>を見ると、 Android 4.4 からは外部ストレージも FUSE 経由でマウントするようになるっぽい？が、4.4 のエミュレータが起動せず、実機も外部メモリがマウントできない端末しかなく確認できず (raw storage をラップしているとあるので、今回の件は実体の方でこけそう)</li>
-</ul>
+<p>/dev/fuse /mnt/shell/emulated fuse rw,nosuid,nodev,relatime,user_id=1023,group_id=1023,default_permissions,allow_other 0 0</p>
 
+<h1>/storage/emulated に置いてあるシンボリックリンク</h1>
+
+<p>shell@flo:/ $ ls -la /storage/emulated/
+lrwxrwxrwx root     root              2014-01-30 19:47 legacy &ndash;> /mnt/shell/emulated/0
+```</p>
+
+<p>Nexus7 のほうは getExternal〜 でとれるディレクトリがマルチアカウント対応の Emulated なものになってました。
+4.2 で追加されたマルチアカウントですが、 206SH では封じられているようです。</p>
 ]]></content>
   </entry>
   
