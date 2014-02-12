@@ -4,7 +4,7 @@
   <title><![CDATA[Category: android | Unmotivated]]></title>
   <link href="http://blog.lciel.jp/blog/categories/android/atom.xml" rel="self"/>
   <link href="http://blog.lciel.jp/"/>
-  <updated>2014-02-09T00:09:19+09:00</updated>
+  <updated>2014-02-12T12:24:40+09:00</updated>
   <id>http://blog.lciel.jp/</id>
   <author>
     <name><![CDATA[lciel]]></name>
@@ -12,6 +12,20 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Android デフォルトのアニメーションなどを調べる]]></title>
+    <link href="http://blog.lciel.jp/blog/2014/02/12/android-framework-resources/"/>
+    <updated>2014-02-12T12:21:00+09:00</updated>
+    <id>http://blog.lciel.jp/blog/2014/02/12/android-framework-resources</id>
+    <content type="html"><![CDATA[<p>フレームワークに組み込まれた標準のアニメーションなど、Android のデフォルトのリソースを調べるときは、この辺りを見ると便利。</p>
+
+<ul>
+<li><a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/4.2.2_r1/frameworks/base/core/res/res/">GrepCode/com.google.android/android/4.2.2_r1/frameworks/base/core/res/res</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Android におけるストレージまとめ]]></title>
