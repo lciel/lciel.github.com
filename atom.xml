@@ -4,7 +4,7 @@
   <title><![CDATA[Unmotivated]]></title>
   <link href="http://blog.lciel.jp/atom.xml" rel="self"/>
   <link href="http://blog.lciel.jp/"/>
-  <updated>2014-02-12T12:24:40+09:00</updated>
+  <updated>2014-03-03T09:53:57+09:00</updated>
   <id>http://blog.lciel.jp/</id>
   <author>
     <name><![CDATA[lciel]]></name>
@@ -12,6 +12,241 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[GestureDetector でリスナに渡ってくる MotionEvent が null になる]]></title>
+    <link href="http://blog.lciel.jp/blog/2014/02/27/onfling-onscroll-getting-a-null-motionevent/"/>
+    <updated>2014-02-27T19:30:00+09:00</updated>
+    <id>http://blog.lciel.jp/blog/2014/02/27/onfling-onscroll-getting-a-null-motionevent</id>
+    <content type="html"><![CDATA[<p>タッチジェスチャを検出する場合は、 GestureDetector に次のようなリスナを渡して判定するのが常套手段ですが、<a href="http://developer.android.com/reference/android/view/GestureDetector.OnGestureListener.html#onScroll%28android.view.MotionEvent,%20android.view.MotionEvent,%20float,%20float%29">onScroll()</a> や <a href="http://developer.android.com/reference/android/view/GestureDetector.OnGestureListener.html#onFling%28android.view.MotionEvent,%20android.view.MotionEvent,%20float,%20float%29">onFling()</a> の第一引数の e1 にはジェスチャの開始地点の MotionEvent が入ります。<br/>
+ところが、時々 e1 に null が渡ってくることがあって困りました。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">private</span> <span class="kd">class</span> <span class="nc">MyGestureListener</span> <span class="kd">extends</span> <span class="n">SimpleOnGestureListener</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">onScroll</span><span class="o">(</span><span class="n">MotionEvent</span> <span class="n">e1</span><span class="o">,</span> <span class="n">MotionEvent</span> <span class="n">e2</span><span class="o">,</span>
+</span><span class='line'>            <span class="kt">float</span> <span class="n">distanceX</span><span class="o">,</span> <span class="kt">float</span> <span class="n">distanceY</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// なぜか e1 が null !!</span>
+</span><span class='line'>        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">onFling</span><span class="o">(</span><span class="n">MotionEvent</span> <span class="n">e1</span><span class="o">,</span> <span class="n">MotionEvent</span> <span class="n">e2</span><span class="o">,</span>
+</span><span class='line'>            <span class="kt">float</span> <span class="n">velocityX</span><span class="o">,</span> <span class="kt">float</span> <span class="n">velocityY</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// なぜか e1 が null !!</span>
+</span><span class='line'>        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ググるといくつか stackoverflow が見つかったけど、どれも根本解決には至っていない様子。</p>
+
+<ul>
+<li><a href="http://stackoverflow.com/questions/4151385/android-simpleongesturelistener-onfling-getting-a-null-motionevent">Android SimpleOnGestureListener.onFling getting a null MotionEvent</a></li>
+<li><a href="http://stackoverflow.com/questions/17390873/onfling-motionevent-e1-null">OnFling MotionEvent e1 null?</a></li>
+</ul>
+
+
+<p>というわけで、原因を調べてみました。</p>
+
+<p>結論を先に言うと、 ACTION_DOWN のタッチイベント(MotionEvent)を GestureDetector#onTouchEvent() に渡せていないのが原因でした。</p>
+
+<!-- more -->
+
+
+<h2>原因特定</h2>
+
+<p>GestureDetector のコードを見てみる。</p>
+
+<figure class='code'><figcaption><span>GestureDetector.java(2.2_r1)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">onTouchEvent</span><span class="o">(</span><span class="n">MotionEvent</span> <span class="n">ev</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// ...</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">mIsDoubleTapping</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// Give the move events of the double-tap</span>
+</span><span class='line'>        <span class="n">handled</span> <span class="o">|=</span> <span class="n">mDoubleTapListener</span><span class="o">.</span><span class="na">onDoubleTapEvent</span><span class="o">(</span><span class="n">ev</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">mAlwaysInTapRegion</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="kd">final</span> <span class="kt">int</span> <span class="n">deltaX</span> <span class="o">=</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span> <span class="o">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">mCurrentDownEvent</span><span class="o">.</span><span class="na">getX</span><span class="o">());</span>
+</span><span class='line'>        <span class="kd">final</span> <span class="kt">int</span> <span class="n">deltaY</span> <span class="o">=</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span> <span class="o">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">mCurrentDownEvent</span><span class="o">.</span><span class="na">getY</span><span class="o">());</span>
+</span><span class='line'>        <span class="kt">int</span> <span class="n">distance</span> <span class="o">=</span> <span class="o">(</span><span class="n">deltaX</span> <span class="o">*</span> <span class="n">deltaX</span><span class="o">)</span> <span class="o">+</span> <span class="o">(</span><span class="n">deltaY</span> <span class="o">*</span> <span class="n">deltaY</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">distance</span> <span class="o">&gt;</span> <span class="n">mTouchSlopSquare</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="c1">// onScroll が呼ばれる</span>
+</span><span class='line'>            <span class="n">handled</span> <span class="o">=</span> <span class="n">mListener</span><span class="o">.</span><span class="na">onScroll</span><span class="o">(</span><span class="n">mCurrentDownEvent</span><span class="o">,</span> <span class="n">ev</span><span class="o">,</span> <span class="n">scrollX</span><span class="o">,</span> <span class="n">scrollY</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">mLastMotionX</span> <span class="o">=</span> <span class="n">x</span><span class="o">;</span>
+</span><span class='line'>            <span class="n">mLastMotionY</span> <span class="o">=</span> <span class="n">y</span><span class="o">;</span>
+</span><span class='line'>            <span class="n">mAlwaysInTapRegion</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>            <span class="n">mHandler</span><span class="o">.</span><span class="na">removeMessages</span><span class="o">(</span><span class="n">TAP</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">mHandler</span><span class="o">.</span><span class="na">removeMessages</span><span class="o">(</span><span class="n">SHOW_PRESS</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">mHandler</span><span class="o">.</span><span class="na">removeMessages</span><span class="o">(</span><span class="n">LONG_PRESS</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">distance</span> <span class="o">&gt;</span> <span class="n">mBiggerTouchSlopSquare</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">mAlwaysInBiggerTapRegion</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">((</span><span class="n">Math</span><span class="o">.</span><span class="na">abs</span><span class="o">(</span><span class="n">scrollX</span><span class="o">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="o">)</span> <span class="o">||</span> <span class="o">(</span><span class="n">Math</span><span class="o">.</span><span class="na">abs</span><span class="o">(</span><span class="n">scrollY</span><span class="o">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="o">))</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// onScroll が呼ばれる</span>
+</span><span class='line'>        <span class="n">handled</span> <span class="o">=</span> <span class="n">mListener</span><span class="o">.</span><span class="na">onScroll</span><span class="o">(</span><span class="n">mCurrentDownEvent</span><span class="o">,</span> <span class="n">ev</span><span class="o">,</span> <span class="n">scrollX</span><span class="o">,</span> <span class="n">scrollY</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">mLastMotionX</span> <span class="o">=</span> <span class="n">x</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">mLastMotionY</span> <span class="o">=</span> <span class="n">y</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// ...</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="o">(</span><span class="n">mIsDoubleTapping</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// Finally, give the up event of the double-tap</span>
+</span><span class='line'>        <span class="n">handled</span> <span class="o">|=</span> <span class="n">mDoubleTapListener</span><span class="o">.</span><span class="na">onDoubleTapEvent</span><span class="o">(</span><span class="n">ev</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">mInLongPress</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">mHandler</span><span class="o">.</span><span class="na">removeMessages</span><span class="o">(</span><span class="n">TAP</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">mInLongPress</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">mAlwaysInTapRegion</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">handled</span> <span class="o">=</span> <span class="n">mListener</span><span class="o">.</span><span class="na">onSingleTapUp</span><span class="o">(</span><span class="n">ev</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// A fling must travel the minimum tap distance</span>
+</span><span class='line'>        <span class="kd">final</span> <span class="n">VelocityTracker</span> <span class="n">velocityTracker</span> <span class="o">=</span> <span class="n">mVelocityTracker</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">velocityTracker</span><span class="o">.</span><span class="na">computeCurrentVelocity</span><span class="o">(</span><span class="mi">1000</span><span class="o">,</span> <span class="n">mMaximumFlingVelocity</span><span class="o">);</span>
+</span><span class='line'>        <span class="kd">final</span> <span class="kt">float</span> <span class="n">velocityY</span> <span class="o">=</span> <span class="n">velocityTracker</span><span class="o">.</span><span class="na">getYVelocity</span><span class="o">();</span>
+</span><span class='line'>        <span class="kd">final</span> <span class="kt">float</span> <span class="n">velocityX</span> <span class="o">=</span> <span class="n">velocityTracker</span><span class="o">.</span><span class="na">getXVelocity</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="o">((</span><span class="n">Math</span><span class="o">.</span><span class="na">abs</span><span class="o">(</span><span class="n">velocityY</span><span class="o">)</span> <span class="o">&gt;</span> <span class="n">mMinimumFlingVelocity</span><span class="o">)</span>
+</span><span class='line'>                <span class="o">||</span> <span class="o">(</span><span class="n">Math</span><span class="o">.</span><span class="na">abs</span><span class="o">(</span><span class="n">velocityX</span><span class="o">)</span> <span class="o">&gt;</span> <span class="n">mMinimumFlingVelocity</span><span class="o">)){</span>
+</span><span class='line'>            <span class="c1">// onFling が呼ばれる</span>
+</span><span class='line'>            <span class="n">handled</span> <span class="o">=</span> <span class="n">mListener</span><span class="o">.</span><span class="na">onFling</span><span class="o">(</span><span class="n">mCurrentDownEvent</span><span class="o">,</span> <span class="n">ev</span><span class="o">,</span> <span class="n">velocityX</span><span class="o">,</span> <span class="n">velocityY</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// ...</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>どちらも mCurrentDownEvent がそのまま渡されるだけなので、 mCurrentDownEvent を確認する。</p>
+
+<figure class='code'><figcaption><span>GestureDetector.java(2.2_r1)</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">onTouchEvent</span><span class="o">(</span><span class="n">MotionEvent</span> <span class="n">ev</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// ...</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">case</span> <span class="n">MotionEvent</span><span class="o">.</span><span class="na">ACTION_DOWN</span><span class="o">:</span>
+</span><span class='line'>        <span class="c1">// ...</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">mCurrentDownEvent</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">mCurrentDownEvent</span><span class="o">.</span><span class="na">recycle</span><span class="o">();</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="n">mCurrentDownEvent</span> <span class="o">=</span> <span class="n">MotionEvent</span><span class="o">.</span><span class="na">obtain</span><span class="o">(</span><span class="n">ev</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// ...</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>というわけで ACTION_DOWN のイベントを GestureDetector#onTouchEvent() に渡せていないのが原因でした。</p>
+
+<p>ジェスチャを判定したい View において dispatchTouchEvent() や onInterceptTouchEvent() なんかでイベントの分配をしている状況だと、 View の onTouchEvent() に ACTION_DOWN の MotionEvent が渡らなかったりするので、そう言うときに発生していたみたい。</p>
+
+<p>今回は別のところでタッチ時の情報を保存していたので、その情報を使って e1 の代わりとさせました。<br/>
+そもそも GestureDetector が ACTION_DOWN 時に色々初期化しているので、これを渡せないと onScroll() とか onFling() は判定されたものの、そもそも全く判定されないジェスチャが盛りだくさんかと思われます。<br/>
+ちゃんと全てのイベントを渡せるようにした方がよさそう。</p>
+
+<p>ちなみに、どんな時でもジェスチャを判定させたいなら View#dispatchTouchEvent() で GestureDetector#onTouchEvent() を呼び出したりすれば、ややこしいことは一切抜きで子供の View に邪魔されずにジェスチャ判定できたりします。(その View にタッチイベントが回って来てさえいれば:<a href="http://blog.lciel.jp/blog/2013/12/03/android-touch-event/">参考</a>)</p>
+
+<h2>余談</h2>
+
+<p>GestureDetector のジェスチャ判定のためのパラメータを変更できないのかな？と前々から疑問に思っていたのでついでに読んでみたけど、どうも定数がぶち込まれるようになっているのでやっぱりできないっぽいです。<br/>
+onFling() で拾った後に velocity でさらに絞る&hellip;とかいつもやっているので、 GestureDetector 自体にパラメータを渡せた方が楽そうなんだけど&hellip;。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Android デフォルトのアニメーションなどを調べる]]></title>

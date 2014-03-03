@@ -4,7 +4,7 @@
   <title><![CDATA[Category: TouchEvent | Unmotivated]]></title>
   <link href="http://blog.lciel.jp/blog/categories/touchevent/atom.xml" rel="self"/>
   <link href="http://blog.lciel.jp/"/>
-  <updated>2014-02-12T12:24:40+09:00</updated>
+  <updated>2014-03-03T09:53:57+09:00</updated>
   <id>http://blog.lciel.jp/</id>
   <author>
     <name><![CDATA[lciel]]></name>
@@ -12,6 +12,154 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[GestureDetector でリスナに渡ってくる MotionEvent が null になる]]></title>
+    <link href="http://blog.lciel.jp/blog/2014/02/27/onfling-onscroll-getting-a-null-motionevent/"/>
+    <updated>2014-02-27T19:30:00+09:00</updated>
+    <id>http://blog.lciel.jp/blog/2014/02/27/onfling-onscroll-getting-a-null-motionevent</id>
+    <content type="html"><![CDATA[<p>タッチジェスチャを検出する場合は、 GestureDetector に次のようなリスナを渡して判定するのが常套手段ですが、<a href="http://developer.android.com/reference/android/view/GestureDetector.OnGestureListener.html#onScroll%28android.view.MotionEvent,%20android.view.MotionEvent,%20float,%20float%29">onScroll()</a> や <a href="http://developer.android.com/reference/android/view/GestureDetector.OnGestureListener.html#onFling%28android.view.MotionEvent,%20android.view.MotionEvent,%20float,%20float%29">onFling()</a> の第一引数の e1 にはジェスチャの開始地点の MotionEvent が入ります。<br/>
+ところが、時々 e1 に null が渡ってくることがあって困りました。</p>
+
+<p>``` java
+private class MyGestureListener extends SimpleOnGestureListener {</p>
+
+<pre><code>@Override
+public boolean onScroll(MotionEvent e1, MotionEvent e2,
+        float distanceX, float distanceY) {
+    // なぜか e1 が null !!
+    return true;
+}
+
+@Override
+public boolean onFling(MotionEvent e1, MotionEvent e2,
+        float velocityX, float velocityY) {
+    // なぜか e1 が null !!
+    return true;
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>ググるといくつか stackoverflow が見つかったけど、どれも根本解決には至っていない様子。</p>
+
+<ul>
+<li><a href="http://stackoverflow.com/questions/4151385/android-simpleongesturelistener-onfling-getting-a-null-motionevent">Android SimpleOnGestureListener.onFling getting a null MotionEvent</a></li>
+<li><a href="http://stackoverflow.com/questions/17390873/onfling-motionevent-e1-null">OnFling MotionEvent e1 null?</a></li>
+</ul>
+
+
+<p>というわけで、原因を調べてみました。</p>
+
+<p>結論を先に言うと、 ACTION_DOWN のタッチイベント(MotionEvent)を GestureDetector#onTouchEvent() に渡せていないのが原因でした。</p>
+
+<!-- more -->
+
+
+<h2>原因特定</h2>
+
+<p>GestureDetector のコードを見てみる。</p>
+
+<p>``` java GestureDetector.java(2.2_r1)
+public boolean onTouchEvent(MotionEvent ev) {</p>
+
+<pre><code>// ...
+
+if (mIsDoubleTapping) {
+    // Give the move events of the double-tap
+    handled |= mDoubleTapListener.onDoubleTapEvent(ev);
+} else if (mAlwaysInTapRegion) {
+    final int deltaX = (int) (x - mCurrentDownEvent.getX());
+    final int deltaY = (int) (y - mCurrentDownEvent.getY());
+    int distance = (deltaX * deltaX) + (deltaY * deltaY);
+    if (distance &gt; mTouchSlopSquare) {
+        // onScroll が呼ばれる
+        handled = mListener.onScroll(mCurrentDownEvent, ev, scrollX, scrollY);
+        mLastMotionX = x;
+        mLastMotionY = y;
+        mAlwaysInTapRegion = false;
+        mHandler.removeMessages(TAP);
+        mHandler.removeMessages(SHOW_PRESS);
+        mHandler.removeMessages(LONG_PRESS);
+    }
+    if (distance &gt; mBiggerTouchSlopSquare) {
+        mAlwaysInBiggerTapRegion = false;
+    }
+} else if ((Math.abs(scrollX) &gt;= 1) || (Math.abs(scrollY) &gt;= 1)) {
+    // onScroll が呼ばれる
+    handled = mListener.onScroll(mCurrentDownEvent, ev, scrollX, scrollY);
+    mLastMotionX = x;
+    mLastMotionY = y;
+}
+
+// ...
+
+if (mIsDoubleTapping) {
+    // Finally, give the up event of the double-tap
+    handled |= mDoubleTapListener.onDoubleTapEvent(ev);
+} else if (mInLongPress) {
+    mHandler.removeMessages(TAP);
+    mInLongPress = false;
+} else if (mAlwaysInTapRegion) {
+    handled = mListener.onSingleTapUp(ev);
+} else {
+
+    // A fling must travel the minimum tap distance
+    final VelocityTracker velocityTracker = mVelocityTracker;
+    velocityTracker.computeCurrentVelocity(1000, mMaximumFlingVelocity);
+    final float velocityY = velocityTracker.getYVelocity();
+    final float velocityX = velocityTracker.getXVelocity();
+
+    if ((Math.abs(velocityY) &gt; mMinimumFlingVelocity)
+            || (Math.abs(velocityX) &gt; mMinimumFlingVelocity)){
+        // onFling が呼ばれる
+        handled = mListener.onFling(mCurrentDownEvent, ev, velocityX, velocityY);
+    }
+}
+
+// ...
+</code></pre>
+
+<p>}
+```</p>
+
+<p>どちらも mCurrentDownEvent がそのまま渡されるだけなので、 mCurrentDownEvent を確認する。</p>
+
+<p>``` java GestureDetector.java(2.2_r1)
+public boolean onTouchEvent(MotionEvent ev) {</p>
+
+<pre><code>// ...
+
+case MotionEvent.ACTION_DOWN:
+    // ...
+    if (mCurrentDownEvent != null) {
+        mCurrentDownEvent.recycle();
+    }
+    mCurrentDownEvent = MotionEvent.obtain(ev);
+
+// ...
+</code></pre>
+
+<p>}
+```</p>
+
+<p>というわけで ACTION_DOWN のイベントを GestureDetector#onTouchEvent() に渡せていないのが原因でした。</p>
+
+<p>ジェスチャを判定したい View において dispatchTouchEvent() や onInterceptTouchEvent() なんかでイベントの分配をしている状況だと、 View の onTouchEvent() に ACTION_DOWN の MotionEvent が渡らなかったりするので、そう言うときに発生していたみたい。</p>
+
+<p>今回は別のところでタッチ時の情報を保存していたので、その情報を使って e1 の代わりとさせました。<br/>
+そもそも GestureDetector が ACTION_DOWN 時に色々初期化しているので、これを渡せないと onScroll() とか onFling() は判定されたものの、そもそも全く判定されないジェスチャが盛りだくさんかと思われます。<br/>
+ちゃんと全てのイベントを渡せるようにした方がよさそう。</p>
+
+<p>ちなみに、どんな時でもジェスチャを判定させたいなら View#dispatchTouchEvent() で GestureDetector#onTouchEvent() を呼び出したりすれば、ややこしいことは一切抜きで子供の View に邪魔されずにジェスチャ判定できたりします。(その View にタッチイベントが回って来てさえいれば:<a href="http://blog.lciel.jp/blog/2013/12/03/android-touch-event/">参考</a>)</p>
+
+<h2>余談</h2>
+
+<p>GestureDetector のジェスチャ判定のためのパラメータを変更できないのかな？と前々から疑問に思っていたのでついでに読んでみたけど、どうも定数がぶち込まれるようになっているのでやっぱりできないっぽいです。<br/>
+onFling() で拾った後に velocity でさらに絞る&hellip;とかいつもやっているので、 GestureDetector 自体にパラメータを渡せた方が楽そうなんだけど&hellip;。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Android のタッチイベントを理解する(その2)]]></title>

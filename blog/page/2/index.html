@@ -9,17 +9,8 @@
   <meta name="author" content="lciel">
 
   
-  <meta name="description" content="Java において StackTrace を取得する。
-どこかに仕込んでおくとデバッグ時に何かと便利。 1
-2
-3
-4
-5
-6
-7
-8
-9
-public static String getStackTrace() { StackTraceElement[] stacks = new &hellip;">
+  <meta name="description" content="Octopress ルートディレクトリの _config.xml の disqus_short_name に short_name を書き込むだけで Disqus と連携されてコメントモジュールが表示される。 1
+disqus_short_name: &lt;short_name&gt; &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -89,6 +80,57 @@ public static String getStackTrace() { StackTraceElement[] stacks = new &hellip;
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/11/30/octopress-unable-load-disqus/">Octopress + Disqus でコメントを表示しようとしたがうまくいかなかった話</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-30T22:16:00+09:00" pubdate data-updated="true">Nov 30<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Octopress ルートディレクトリの _config.xml の disqus_short_name に short_name を書き込むだけで Disqus と連携されてコメントモジュールが表示される。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>disqus_short_name: &lt;short_name&gt;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ところが以下のエラーが表示されてしまい、コメントモジュールがロードされない。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>We were unable to load Disqus. If you are a moderator please see our troubleshooting guide.</span></code></pre></td></tr></table></div></figure>
+
+
+<p>オチは Disqus の short_name を理解していなかったのが原因で、ずっと Disqus ID を disqus_short_name に書き込んでいたのが問題だった。 # Disqus 使ったこと無かった上に説明を読んでなかった</p>
+
+<p>Disqus では、コメントを投稿する単位としてまず Site を登録する必要があり、この Site の識別子として使われるのが short_name だった。
+Disqus にログインした状態で<a href="http://disqus.com/register">ここ</a>にアクセスして Site を登録したところ、無事に short_name が生成された。</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -679,6 +721,10 @@ public static String getStackTrace() { StackTraceElement[] stacks = new &hellip;
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/02/27/onfling-onscroll-getting-a-null-motionevent/">GestureDetector でリスナに渡ってくる MotionEvent が null になる</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/02/12/android-framework-resources/">Android デフォルトのアニメーションなどを調べる</a>
       </li>
     
@@ -692,10 +738,6 @@ public static String getStackTrace() { StackTraceElement[] stacks = new &hellip;
     
       <li class="post">
         <a href="/blog/2013/12/13/difference-between-jar-and-library-project/">Android Library Project と JAR の違いを理解する</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/12/12/android-touch-event-2/">Android のタッチイベントを理解する(その2)</a>
       </li>
     
   </ul>

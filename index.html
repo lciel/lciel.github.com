@@ -9,7 +9,8 @@
   <meta name="author" content="lciel">
 
   
-  <meta name="description" content="フレームワークに組み込まれた標準のアニメーションなど、Android のデフォルトのリソースを調べるときは、この辺りを見ると便利。 GrepCode/com.google.android/android/4.2.2_r1/frameworks/base/core/res/res ">
+  <meta name="description" content="タッチジェスチャを検出する場合は、 GestureDetector に次のようなリスナを渡して判定するのが常套手段ですが、onScroll() や onFling() の第一引数の e1 にはジェスチャの開始地点の MotionEvent が入ります。
+ところが、時々 e1 に null &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -79,6 +80,97 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/27/onfling-onscroll-getting-a-null-motionevent/">GestureDetector でリスナに渡ってくる MotionEvent が Null になる</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-27T19:30:00+09:00" pubdate data-updated="true">Feb 27<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>タッチジェスチャを検出する場合は、 GestureDetector に次のようなリスナを渡して判定するのが常套手段ですが、<a href="http://developer.android.com/reference/android/view/GestureDetector.OnGestureListener.html#onScroll%28android.view.MotionEvent,%20android.view.MotionEvent,%20float,%20float%29">onScroll()</a> や <a href="http://developer.android.com/reference/android/view/GestureDetector.OnGestureListener.html#onFling%28android.view.MotionEvent,%20android.view.MotionEvent,%20float,%20float%29">onFling()</a> の第一引数の e1 にはジェスチャの開始地点の MotionEvent が入ります。<br/>
+ところが、時々 e1 に null が渡ってくることがあって困りました。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">private</span> <span class="kd">class</span> <span class="nc">MyGestureListener</span> <span class="kd">extends</span> <span class="n">SimpleOnGestureListener</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">onScroll</span><span class="o">(</span><span class="n">MotionEvent</span> <span class="n">e1</span><span class="o">,</span> <span class="n">MotionEvent</span> <span class="n">e2</span><span class="o">,</span>
+</span><span class='line'>            <span class="kt">float</span> <span class="n">distanceX</span><span class="o">,</span> <span class="kt">float</span> <span class="n">distanceY</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// なぜか e1 が null !!</span>
+</span><span class='line'>        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">onFling</span><span class="o">(</span><span class="n">MotionEvent</span> <span class="n">e1</span><span class="o">,</span> <span class="n">MotionEvent</span> <span class="n">e2</span><span class="o">,</span>
+</span><span class='line'>            <span class="kt">float</span> <span class="n">velocityX</span><span class="o">,</span> <span class="kt">float</span> <span class="n">velocityY</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="c1">// なぜか e1 が null !!</span>
+</span><span class='line'>        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ググるといくつか stackoverflow が見つかったけど、どれも根本解決には至っていない様子。</p>
+
+<ul>
+<li><a href="http://stackoverflow.com/questions/4151385/android-simpleongesturelistener-onfling-getting-a-null-motionevent">Android SimpleOnGestureListener.onFling getting a null MotionEvent</a></li>
+<li><a href="http://stackoverflow.com/questions/17390873/onfling-motionevent-e1-null">OnFling MotionEvent e1 null?</a></li>
+</ul>
+
+
+<p>というわけで、原因を調べてみました。</p>
+
+<p>結論を先に言うと、 ACTION_DOWN のタッチイベント(MotionEvent)を GestureDetector#onTouchEvent() に渡せていないのが原因でした。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/02/27/onfling-onscroll-getting-a-null-motionevent/">続きを読む &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -770,57 +862,6 @@ EmptyView として設定する View の Visibility は特に指定しなくて�
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/11/30/octopress-unable-load-disqus/">Octopress + Disqus でコメントを表示しようとしたがうまくいかなかった話</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-11-30T22:16:00+09:00" pubdate data-updated="true">Nov 30<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Octopress ルートディレクトリの _config.xml の disqus_short_name に short_name を書き込むだけで Disqus と連携されてコメントモジュールが表示される。</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>disqus_short_name: &lt;short_name&gt;</span></code></pre></td></tr></table></div></figure>
-
-
-<p>ところが以下のエラーが表示されてしまい、コメントモジュールがロードされない。</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>We were unable to load Disqus. If you are a moderator please see our troubleshooting guide.</span></code></pre></td></tr></table></div></figure>
-
-
-<p>オチは Disqus の short_name を理解していなかったのが原因で、ずっと Disqus ID を disqus_short_name に書き込んでいたのが問題だった。 # Disqus 使ったこと無かった上に説明を読んでなかった</p>
-
-<p>Disqus では、コメントを投稿する単位としてまず Site を登録する必要があり、この Site の識別子として使われるのが short_name だった。
-Disqus にログインした状態で<a href="http://disqus.com/register">ここ</a>にアクセスして Site を登録したところ、無事に short_name が生成された。</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -836,6 +877,10 @@ Disqus にログインした状態で<a href="http://disqus.com/register">ここ
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/02/27/onfling-onscroll-getting-a-null-motionevent/">GestureDetector でリスナに渡ってくる MotionEvent が null になる</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/02/12/android-framework-resources/">Android デフォルトのアニメーションなどを調べる</a>
       </li>
     
@@ -849,10 +894,6 @@ Disqus にログインした状態で<a href="http://disqus.com/register">ここ
     
       <li class="post">
         <a href="/blog/2013/12/13/difference-between-jar-and-library-project/">Android Library Project と JAR の違いを理解する</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/12/12/android-touch-event-2/">Android のタッチイベントを理解する(その2)</a>
       </li>
     
   </ul>
