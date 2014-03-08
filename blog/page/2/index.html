@@ -9,8 +9,8 @@
   <meta name="author" content="lciel">
 
   
-  <meta name="description" content="Octopress ルートディレクトリの _config.xml の disqus_short_name に short_name を書き込むだけで Disqus と連携されてコメントモジュールが表示される。 1
-disqus_short_name: &lt;short_name&gt; &hellip;">
+  <meta name="description" content="タッチイベントがうまく流れてこなくて困ったり、自力でイベントをルーティングしたりするときに困ったりと、ちょこちょことタッチイベントについて勉強したのでまとめておきます。
+主にタッチイベントがどう流れてどう止まるかなどについて調べています。 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -80,6 +80,57 @@ disqus_short_name: &lt;short_name&gt; &hellip;">
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/12/03/android-touch-event/">Android のタッチイベントを理解する(その1)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-12-03T20:31:00+09:00" pubdate data-updated="true">Dec 3<span>rd</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>タッチイベントがうまく流れてこなくて困ったり、自力でイベントをルーティングしたりするときに困ったりと、ちょこちょことタッチイベントについて勉強したのでまとめておきます。<br/>
+主にタッチイベントがどう流れてどう止まるかなどについて調べています。</p>
+
+<p>イベントの流れを理解するには以下の資料がかなり参考になりました。</p>
+
+<ul>
+<li><a href="http://devsbuild.it/files/PRE_andevcon_mastering-the-android-touch-system.pdf">Mastering the Android Touch System (PDF)</a></li>
+</ul>
+
+
+<p>毎度のことながら、間違いがありましたらご指摘頂ければ幸いです。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/12/03/android-touch-event/">続きを読む &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -666,47 +717,9 @@ Disqus にログインした状態で<a href="http://disqus.com/register">ここ
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/11/21/about/">ブログ(また)はじめました</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-11-21T20:14:00+09:00" pubdate data-updated="true">Nov 21<span>st</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>投稿の敷居を極限まで下げてみたので、久しぶりにブログを書き始めてみます。</p>
-
-<p>基本的に、普段書いているメモを切り取って投げるだけなので、スニペットやら調査の結果やらばかりになるかと思います。</p>
-
-<p>3日坊主にならないように、適当にがんばります。</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
+    
+      <a class="prev" href="/blog/page/3/">&larr; Older</a>
     
     <a href="/blog/archives">Blog Archives</a>
     
@@ -719,6 +732,10 @@ Disqus にログインした状態で<a href="http://disqus.com/register">ここ
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/03/09/about-resources-and-drawables/">Android の Resources における画像(Drawable)についての話</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2014/02/27/onfling-onscroll-getting-a-null-motionevent/">GestureDetector でリスナに渡ってくる MotionEvent が null になる</a>
@@ -734,10 +751,6 @@ Disqus にログインした状態で<a href="http://disqus.com/register">ここ
     
       <li class="post">
         <a href="/blog/2013/12/16/android-capture-view-image/">View のキャプチャを撮る</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/12/13/difference-between-jar-and-library-project/">Android Library Project と JAR の違いを理解する</a>
       </li>
     
   </ul>

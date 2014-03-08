@@ -9,8 +9,8 @@
   <meta name="author" content="lciel">
 
   
-  <meta name="description" content="タッチジェスチャを検出する場合は、 GestureDetector に次のようなリスナを渡して判定するのが常套手段ですが、onScroll() や onFling() の第一引数の e1 にはジェスチャの開始地点の MotionEvent が入ります。
-ところが、時々 e1 に null &hellip;">
+  <meta name="description" content="Android で Resources から getDrawable() などして画像をとった場合、一体それはいつどんなタイミングでメモリに読み込まれているのか？
+キャッシュはされているのか？ いい加減把握しておきたかったので、これも調べました。 API 17(4.2.2_r1)で見た結果なので、 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -80,6 +80,52 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/03/09/about-resources-and-drawables/">Android の Resources における画像(Drawable)についての話</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-03-09T02:13:00+09:00" pubdate data-updated="true">Mar 9<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Android で Resources から getDrawable() などして画像をとった場合、一体それはいつどんなタイミングでメモリに読み込まれているのか？
+キャッシュはされているのか？</p>
+
+<p>いい加減把握しておきたかったので、これも調べました。</p>
+
+<p>API 17(4.2.2_r1)で見た結果なので、他のバージョンのSDKでも同様かはわかりませんが、多分同じ感じだと思います。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/03/09/about-resources-and-drawables/">続きを読む &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -811,57 +857,6 @@ EmptyView として設定する View の Visibility は特に指定しなくて�
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/12/03/android-touch-event/">Android のタッチイベントを理解する(その1)</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-12-03T20:31:00+09:00" pubdate data-updated="true">Dec 3<span>rd</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>タッチイベントがうまく流れてこなくて困ったり、自力でイベントをルーティングしたりするときに困ったりと、ちょこちょことタッチイベントについて勉強したのでまとめておきます。<br/>
-主にタッチイベントがどう流れてどう止まるかなどについて調べています。</p>
-
-<p>イベントの流れを理解するには以下の資料がかなり参考になりました。</p>
-
-<ul>
-<li><a href="http://devsbuild.it/files/PRE_andevcon_mastering-the-android-touch-system.pdf">Mastering the Android Touch System (PDF)</a></li>
-</ul>
-
-
-<p>毎度のことながら、間違いがありましたらご指摘頂ければ幸いです。</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2013/12/03/android-touch-event/">続きを読む &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -877,6 +872,10 @@ EmptyView として設定する View の Visibility は特に指定しなくて�
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/03/09/about-resources-and-drawables/">Android の Resources における画像(Drawable)についての話</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/02/27/onfling-onscroll-getting-a-null-motionevent/">GestureDetector でリスナに渡ってくる MotionEvent が null になる</a>
       </li>
     
@@ -890,10 +889,6 @@ EmptyView として設定する View の Visibility は特に指定しなくて�
     
       <li class="post">
         <a href="/blog/2013/12/16/android-capture-view-image/">View のキャプチャを撮る</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/12/13/difference-between-jar-and-library-project/">Android Library Project と JAR の違いを理解する</a>
       </li>
     
   </ul>
