@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Xcode | Unmotivated]]></title>
+  <link href="http://blog.lciel.jp/blog/categories/xcode/atom.xml" rel="self"/>
+  <link href="http://blog.lciel.jp/"/>
+  <updated>2014-03-17T13:56:51+09:00</updated>
+  <id>http://blog.lciel.jp/</id>
+  <author>
+    <name><![CDATA[lciel]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[XVim を Xcode 5.1 にインストール]]></title>
+    <link href="http://blog.lciel.jp/blog/2014/03/17/installation-of-xvim/"/>
+    <updated>2014-03-17T13:48:43+09:00</updated>
+    <id>http://blog.lciel.jp/blog/2014/03/17/installation-of-xvim</id>
+    <content type="html"><![CDATA[<p>vim キーバインドじゃないとなにもやる気が起きないので、 Xcode 5.1 に <a href="https://github.com/Jugglershu/XVim">XVim</a> を導入します。</p>
+
+<h2>インストール</h2>
+
+<h4>1. リポジトリをクローン</h4>
+
+<ul>
+<li>clone</li>
+</ul>
+
+
+<p><code>bash
+$ git clone https://github.com/JugglerShu/XVim.git
+</code></p>
+
+<ul>
+<li>XCode 5.1 の場合は develop Branch を使うように指定があるので、 develop Branch を Checkout</li>
+</ul>
+
+
+<p><code>bash
+$ cd XVim
+$ git branch -a
+* master
+  remotes/origin/HEAD -&gt; origin/master
+  remotes/origin/bang
+  remotes/origin/dev/buffer-refactor
+  remotes/origin/develop
+  remotes/origin/features/hlcolor#458
+  remotes/origin/features/substitute
+  remotes/origin/features/unittest
+  remotes/origin/features/vs-sp#365
+  remotes/origin/gh-pages
+  remotes/origin/handlingMouseEvents
+  remotes/origin/master
+  remotes/origin/v2.0-dev/Logging#449
+  remotes/origin/windowing
+$ git checkout develop
+$ git branch
+* develop
+  master
+</code></p>
+
+<h4>2. ビルド〜インストール</h4>
+
+<ul>
+<li>Xcode を開いて <code>XVim.xcodeproj</code> をロード</li>
+<li>スキームを Xcode5 に変更
+<img src="/images/xvim_01.png" alt="xvim 01" /></li>
+<li>Edit Scheme を開いて
+<img src="/images/xvim_02.png" alt="xvim 02" /></li>
+<li>Build Configuration を Release に変更
+<img src="/images/xvim_03.png" alt="xvim 03" /></li>
+<li>ビルド&amp;実行すると自動的にプラグインに登録される</li>
+<li>Xcode を再起動</li>
+</ul>
+
+
+<h2><code>.xvimrc</code> を設置</h2>
+
+<ul>
+<li><code>~/.vimrc</code> の代わりに <code>~/.xvimrc</code> が適用される</li>
+<li>使用可能コマンドの一覧は<a href="https://github.com/JugglerShu/XVim/blob/master/Documents/Users/FeatureList.md">こちら</a>を参照</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>
