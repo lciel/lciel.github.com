@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Drawable | Unmotivated]]></title>
   <link href="http://blog.lciel.jp/blog/categories/drawable/atom.xml" rel="self"/>
   <link href="http://blog.lciel.jp/"/>
-  <updated>2014-04-09T20:45:01+09:00</updated>
+  <updated>2014-04-09T20:50:17+09:00</updated>
   <id>http://blog.lciel.jp/</id>
   <author>
     <name><![CDATA[lciel]]></name>
@@ -82,7 +82,7 @@ android:orientation="vertical" &gt;
 
 <p><img src="/images/ninepatch-expand-failure.png" alt="現実" /></p>
 
-<p>View.java が setBackgroundDrawable() のときにしか padding を設定してくれないために、このようになってしまう。</p>
+<p>もうちょっと気を利かせてくれても良さそうな気がするが、 View.java が setBackgroundDrawable() のときにしか padding を設定してくれないために、このようになってしまう。</p>
 
 <h2>コンテンツ領域を伸縮させる</h2>
 
