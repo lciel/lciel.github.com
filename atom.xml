@@ -4,7 +4,7 @@
   <title><![CDATA[Unmotivated]]></title>
   <link href="http://blog.lciel.jp/atom.xml" rel="self"/>
   <link href="http://blog.lciel.jp/"/>
-  <updated>2014-04-09T21:08:22+09:00</updated>
+  <updated>2014-04-09T21:09:55+09:00</updated>
   <id>http://blog.lciel.jp/</id>
   <author>
     <name><![CDATA[lciel]]></name>
@@ -124,7 +124,7 @@
 
 <p>View.java が setBackgroundDrawable() のときにしか padding を設定してくれないために、このようになってしまう。</p>
 
-<p>コンテンツ領域が伸縮しない場合もあるので当然といえば当然だけれど、今回のような 9-Patch 画像のように、 padding が伸縮して欲しい場合もある。</p>
+<p>コンテンツ領域が伸縮しない場合もあるので当然といえば当然だけれど、今回のような 9-Patch 画像のように、View のサイズについてきてほしい場合もある。</p>
 
 <h2>コンテンツ領域を伸縮させる</h2>
 
