@@ -1,0 +1,488 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>NinePatch のコンテンツ領域は伸縮しない - Unmotivated</title>
+  <meta name="author" content="lciel">
+
+  
+  <meta name="description" content="NinePatch でコンテンツ領域を指定することはよくあるけれど、実は NinePatchDrawable を Background とした View のサイズを変更しても、コンテンツ領域(というか Padding) は伸縮してくれない。 たとえば次のような NinePatch &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-site-verification" content="kxAq6CeZmGwjLHZkQGyfGUT77eII6KP6PjMiC6h3h7I" />
+
+  
+  <link rel="canonical" href="http://blog.lciel.jp/blog/2014/04/09/ninepatchs-content-bounds-is-not-flexible">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Unmotivated" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Fjalla+One' rel='stylesheet' type='text/css'>
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-45923521-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   class="collapse-sidebar sidebar-footer" >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Unmotivated</a></h1>
+  
+    <h2>やる気はない</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.lciel.jp" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">NinePatch のコンテンツ領域は伸縮しない</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-09T20:39:16+09:00" pubdate data-updated="true">Apr 9<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>NinePatch でコンテンツ領域を指定することはよくあるけれど、実は NinePatchDrawable を Background とした View のサイズを変更しても、コンテンツ領域(というか Padding) は伸縮してくれない。</p>
+
+<p>たとえば次のような NinePatch の画像を用意してコンパイル、NinePatchDrawable として読み込んだ場合を考える。</p>
+
+<p><img src="/images/star.9.png" alt="star" /></p>
+
+<!-- more -->
+
+
+<p>以下のようなレイアウトだった場合を考えてみる。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;LinearLayout</span> <span class="na">xmlns:android=</span><span class="s">&quot;http://schemas.android.com/apk/res/android&quot;</span>
+</span><span class='line'>    <span class="na">xmlns:tools=</span><span class="s">&quot;http://schemas.android.com/tools&quot;</span>
+</span><span class='line'>    <span class="na">android:id=</span><span class="s">&quot;@+id/rootView&quot;</span>
+</span><span class='line'>    <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+</span><span class='line'>    <span class="na">android:layout_height=</span><span class="s">&quot;match_parent&quot;</span>
+</span><span class='line'>    <span class="na">android:orientation=</span><span class="s">&quot;vertical&quot;</span> <span class="nt">&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;FrameLayout</span>
+</span><span class='line'>        <span class="na">android:layout_width=</span><span class="s">&quot;100dp&quot;</span>
+</span><span class='line'>        <span class="na">android:layout_height=</span><span class="s">&quot;100dp&quot;</span>
+</span><span class='line'>        <span class="na">android:background=</span><span class="s">&quot;@drawable/star&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;TextView</span>
+</span><span class='line'>            <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>            <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>            <span class="na">android:text=</span><span class="s">&quot;@string/aaa&quot;</span>
+</span><span class='line'>            <span class="na">android:background=</span><span class="s">&quot;#ff0000&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/FrameLayout&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;FrameLayout</span>
+</span><span class='line'>        <span class="na">android:layout_width=</span><span class="s">&quot;@dimen/original_drawable_width&quot;</span>
+</span><span class='line'>        <span class="na">android:layout_height=</span><span class="s">&quot;@dimen/original_drawable_height&quot;</span>
+</span><span class='line'>        <span class="na">android:background=</span><span class="s">&quot;@drawable/star&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;TextView</span>
+</span><span class='line'>            <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>            <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>            <span class="na">android:text=</span><span class="s">&quot;@string/aaa&quot;</span>
+</span><span class='line'>            <span class="na">android:background=</span><span class="s">&quot;#ff0000&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/FrameLayout&gt;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nt">&lt;FrameLayout</span>
+</span><span class='line'>        <span class="na">android:layout_width=</span><span class="s">&quot;200dp&quot;</span>
+</span><span class='line'>        <span class="na">android:layout_height=</span><span class="s">&quot;200dp&quot;</span>
+</span><span class='line'>        <span class="na">android:background=</span><span class="s">&quot;@drawable/star&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;TextView</span>
+</span><span class='line'>            <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>            <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+</span><span class='line'>            <span class="na">android:text=</span><span class="s">&quot;@string/aaa&quot;</span>
+</span><span class='line'>            <span class="na">android:background=</span><span class="s">&quot;#ff0000&quot;</span><span class="nt">/&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/FrameLayout&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;/LinearLayout&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>なんとなく次のように伸縮してくれそうな気がするが&hellip;</p>
+
+<p><img src="/images/ninepatch-expand-success.png" alt="理想" /></p>
+
+<p>実際に表示されるレイアウトは以下のようになる。</p>
+
+<p><img src="/images/ninepatch-expand-failure.png" alt="現実" /></p>
+
+<p>View.java が setBackgroundDrawable() のときにしか padding を設定してくれないために、このようになってしまう。</p>
+
+<h2>コンテンツ領域を伸縮させる</h2>
+
+<p>そこで、 NinePatchDrawable から元々の padding を取得して、現在の View のサイズに合うように更新させてみる。</p>
+
+<div><script src='https://gist.github.com/10258303.js'></script>
+<noscript><pre><code>package jp.lciel.example;
+
+import android.app.Activity;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.NinePatchDrawable;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+
+public class MainActivity extends Activity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        final ViewGroup rootView = (ViewGroup)findViewById(R.id.rootView);
+        // View のサイズが決まってから実行
+        rootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                int originalDrawableWidth  = getResources().getDimensionPixelSize(R.dimen.original_drawable_width);
+                int originalDrawableHeight = getResources().getDimensionPixelSize(R.dimen.original_drawable_height);
+                for (int i=0; i&lt;rootView.getChildCount(); i++) {
+                    View targetView = rootView.getChildAt(i);
+                    updatePadding(targetView, originalDrawableWidth, originalDrawableHeight);
+                }
+            }
+        });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    private void updatePadding(View targetView, int originalWidth, int originalHeight) {
+        Drawable background = targetView.getBackground();
+        if(background instanceof NinePatchDrawable) {
+            float scaleX = (float)targetView.getWidth() / (float)originalWidth;
+            float scaleY = (float)targetView.getHeight() / (float)originalHeight;
+
+            Rect padding = new Rect();
+            ((NinePatchDrawable) background).getPadding(padding);
+            int left   = (int)(padding.left * scaleX);
+            int right  = (int)(padding.right * scaleX);
+            int top    = (int)(padding.top * scaleY);
+            int bottom = (int)(padding.bottom * scaleY);
+            targetView.setPadding(left, top, right, bottom);
+        }
+    }
+
+}
+</code></pre></noscript></div>
+
+
+<p>これで以下のように伸縮してくれる(めんどう)。</p>
+
+<p><img src="/images/ninepatch-expand-success.png" alt="結果" /></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <a href="/about"><img src="/images/lciel.png" style="width:28px; height:28px; box-shadow:none; -webkit-box-shadow:none; margin:3px; padding:2px; border: #dedede 1px solid; vertical-align:middle;"/><span class="fn">lciel</span></a></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-09T20:39:16+09:00" pubdate data-updated="true">Apr 9<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/android/'>Android,</a>, <a class='category' href='/blog/categories/drawable/'>Drawable</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a data-pocket-label="pocket" data-pocket-count="horizontal" class="pocket-btn" data-lang="en"></a>
+  <script type="text/javascript">!function(d,i){if(!d.getElementById(i)){var j=d.createElement("script");j.id=i;j.src="https://widgets.getpocket.com/v1/j/btn.js?v=1";var w=d.getElementById(i);d.body.appendChild(j);}}(document,"pocket-btn-js");</script>
+  
+  
+  <a href="http://b.hatena.ne.jp/entry/http://blog.lciel.jp/blog/2014/04/09/ninepatchs-content-bounds-is-not-flexible/" class="hatena-bookmark-button" data-hatena-bookmark-layout="standard" title="$B$3$N%(%s%H%j!<$r$O$F$J%V%C%/%^!<%/$KDI2C(B"><img src="http://b.st-hatena.com/images/entry-button/button-only.gif" alt="$B$3$N%(%s%H%j!<$r$O$F$J%V%C%/%^!<%/$KDI2C(B" width="20" height="20" style="border: none;" /></a><script type="text/javascript" src="http://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+  
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://blog.lciel.jp/blog/2014/04/09/ninepatchs-content-bounds-is-not-flexible/" data-via="lciel" data-counturl="http://blog.lciel.jp/blog/2014/04/09/ninepatchs-content-bounds-is-not-flexible/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+  <br /><div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/03/17/installation-of-xvim/" title="Previous Post: XVim を Xcode 5.1 にインストール">&laquo; XVim を Xcode 5.1 にインストール</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/04/09/ninepatchs-content-bounds-is-not-flexible/">NinePatch のコンテンツ領域は伸縮しない</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/03/17/installation-of-xvim/">XVim を Xcode 5.1 にインストール</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/03/09/about-resources-and-drawables/">Android の Resources における画像(Drawable)についての話</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/27/onfling-onscroll-getting-a-null-motionevent/">GestureDetector でリスナに渡ってくる MotionEvent が null になる</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/12/android-framework-resources/">Android デフォルトのアニメーションなどを調べる</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/lciel">@lciel</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'lciel',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - lciel -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'unmotivated';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.lciel.jp/blog/2014/04/09/ninepatchs-content-bounds-is-not-flexible/';
+        var disqus_url = 'http://blog.lciel.jp/blog/2014/04/09/ninepatchs-content-bounds-is-not-flexible/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
