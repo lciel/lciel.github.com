@@ -4,7 +4,7 @@
   <title><![CDATA[Unmotivated]]></title>
   <link href="http://blog.lciel.jp/atom.xml" rel="self"/>
   <link href="http://blog.lciel.jp/"/>
-  <updated>2014-04-09T20:59:02+09:00</updated>
+  <updated>2014-04-09T21:08:22+09:00</updated>
   <id>http://blog.lciel.jp/</id>
   <author>
     <name><![CDATA[lciel]]></name>
@@ -14,13 +14,13 @@
 
   
   <entry>
-    <title type="html"><![CDATA[NinePatch のコンテンツ領域は伸縮しない]]></title>
+    <title type="html"><![CDATA[9-Patch のコンテンツ領域は伸縮しない]]></title>
     <link href="http://blog.lciel.jp/blog/2014/04/09/ninepatchs-content-bounds-is-not-flexible/"/>
     <updated>2014-04-09T20:39:16+09:00</updated>
     <id>http://blog.lciel.jp/blog/2014/04/09/ninepatchs-content-bounds-is-not-flexible</id>
-    <content type="html"><![CDATA[<p>NinePatch でコンテンツ領域を指定することはよくあるけれど、実は NinePatchDrawable を Background とした View のサイズを変更しても、コンテンツ領域(というか Padding) は伸縮してくれない。</p>
+    <content type="html"><![CDATA[<p>9-Patch でコンテンツ領域を指定することはよくあるけれど、実は NinePatchDrawable を Background とした View のサイズを変更しても、コンテンツ領域(というか Padding) はうまい感じに伸縮してくれない。</p>
 
-<p>たとえば次のような NinePatch の画像を用意してコンパイル、NinePatchDrawable として読み込んだ場合を考える。</p>
+<p>たとえば次のような 9-Patch の画像を用意してコンパイル、NinePatchDrawable として読み込んだ場合を考える。</p>
 
 <p><img src="http://blog.lciel.jp/images/star.9.png" alt="star" /></p>
 
@@ -122,11 +122,13 @@
 
 <p><img src="http://blog.lciel.jp/images/ninepatch-expand-failure.png" alt="現実" /></p>
 
-<p>もうちょっと気を利かせてくれても良さそうな気がするが、 View.java が setBackgroundDrawable() のときにしか padding を設定してくれないために、このようになってしまう。</p>
+<p>View.java が setBackgroundDrawable() のときにしか padding を設定してくれないために、このようになってしまう。</p>
+
+<p>コンテンツ領域が伸縮しない場合もあるので当然といえば当然だけれど、今回のような 9-Patch 画像のように、 padding が伸縮して欲しい場合もある。</p>
 
 <h2>コンテンツ領域を伸縮させる</h2>
 
-<p>そこで、 NinePatchDrawable から元々の padding を取得して、現在の View のサイズに合うように更新させてみる。</p>
+<p>そこで、 NinePatchDrawable から元々の padding を取得して、現在の View のサイズに合うように伸縮させてみる。</p>
 
 <div><script src='https://gist.github.com/10258303.js'></script>
 <noscript><pre><code>package jp.lciel.example;
@@ -190,7 +192,7 @@ public class MainActivity extends Activity {
 </code></pre></noscript></div>
 
 
-<p>これで以下のように伸縮してくれる(めんどう)。</p>
+<p>これで以下のように伸縮してくれる。</p>
 
 <p><img src="http://blog.lciel.jp/images/ninepatch-expand-success.png" alt="結果" /></p>
 ]]></content>
