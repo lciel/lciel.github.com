@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Android, | Unmotivated]]></title>
+  <title><![CDATA[Category: android | Unmotivated]]></title>
   <link href="http://blog.lciel.jp/blog/categories/android/atom.xml" rel="self"/>
   <link href="http://blog.lciel.jp/"/>
-  <updated>2014-04-09T20:50:17+09:00</updated>
+  <updated>2014-04-09T20:59:02+09:00</updated>
   <id>http://blog.lciel.jp/</id>
   <author>
     <name><![CDATA[lciel]]></name>
@@ -14,145 +14,252 @@
 
   
   <entry>
-    <title type="html"><![CDATA[NinePatch のコンテンツ領域は伸縮しない]]></title>
-    <link href="http://blog.lciel.jp/blog/2014/04/09/ninepatchs-content-bounds-is-not-flexible/"/>
-    <updated>2014-04-09T20:39:16+09:00</updated>
-    <id>http://blog.lciel.jp/blog/2014/04/09/ninepatchs-content-bounds-is-not-flexible</id>
-    <content type="html"><![CDATA[<p>NinePatch でコンテンツ領域を指定することはよくあるけれど、実は NinePatchDrawable を Background とした View のサイズを変更しても、コンテンツ領域(というか Padding) は伸縮してくれない。</p>
+    <title type="html"><![CDATA[Android デフォルトのアニメーションなどを調べる]]></title>
+    <link href="http://blog.lciel.jp/blog/2014/02/12/android-framework-resources/"/>
+    <updated>2014-02-12T12:21:00+09:00</updated>
+    <id>http://blog.lciel.jp/blog/2014/02/12/android-framework-resources</id>
+    <content type="html"><![CDATA[<p>フレームワークに組み込まれた標準のアニメーションなど、Android のデフォルトのリソースを調べるときは、この辺りを見ると便利。</p>
 
-<p>たとえば次のような NinePatch の画像を用意してコンパイル、NinePatchDrawable として読み込んだ場合を考える。</p>
+<ul>
+<li><a href="http://grepcode.com/file/repository.grepcode.com/java/ext/com.google.android/android/4.2.2_r1/frameworks/base/core/res/res/">GrepCode/com.google.android/android/4.2.2_r1/frameworks/base/core/res/res</a></li>
+</ul>
 
-<p><img src="/images/star.9.png" alt="star" /></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Android におけるストレージまとめ]]></title>
+    <link href="http://blog.lciel.jp/blog/2014/02/08/android-about-storage/"/>
+    <updated>2014-02-08T23:29:00+09:00</updated>
+    <id>http://blog.lciel.jp/blog/2014/02/08/android-about-storage</id>
+    <content type="html"><![CDATA[<p>Android で外部ファイルを保存する場合、どこに何を保存すれば良いのか？それぞれの違いは何なのか？<br/>
+内蔵メモリなのか？SDカードなのか？</p>
+
+<p>いい加減しっかり把握しておきたいと思ったので、まとめてみました。</p>
 
 <!-- more -->
 
 
-<p>以下のようなレイアウトだった場合を考えてみる。</p>
+<h2>ざっくりまとめ</h2>
 
-<p>``` xml
-&lt;LinearLayout xmlns:android=&ldquo;<a href="http://schemas.android.com/apk/res/android">http://schemas.android.com/apk/res/android</a>&rdquo;</p>
+<p>それぞれの領域の名前は、この記事の中で区別するためにつけたもので、アクセス権減は非 root ユーザから見た図です。</p>
 
-<pre><code>xmlns:tools="http://schemas.android.com/tools"
-android:id="@+id/rootView"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-android:orientation="vertical" &gt;
+<table>
+<thead>
+<tr>
+<th align="left"></th>
+<th align="left">ディレクトリ取得メソッド                   </th>
+<th align="left">アプリ専用？</th>
+<th align="left">ユーザがアクセス可能？</th>
+<th align="left">クリア方法      </th>
+<th align="left">アプリ削除時に</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">内部データ領域      </td>
+<td align="left">Context.getFilesDir()                      </td>
+<td align="left">yes         </td>
+<td align="left">no                    </td>
+<td align="left">データを消去    </td>
+<td align="left">消える        </td>
+</tr>
+<tr>
+<td align="left">内部キャッシュ領域  </td>
+<td align="left">Context.getCacheDir()                      </td>
+<td align="left">yes         </td>
+<td align="left">no                    </td>
+<td align="left">キャッシュを消去</td>
+<td align="left">消える        </td>
+</tr>
+<tr>
+<td align="left">外部データ領域      </td>
+<td align="left">Context.getExternalFilesDir()              </td>
+<td align="left">yes         </td>
+<td align="left">yes                   </td>
+<td align="left">データを消去    </td>
+<td align="left">消える        </td>
+</tr>
+<tr>
+<td align="left">外部キャッシュ領域  </td>
+<td align="left">Context.getExternalCacheDir()              </td>
+<td align="left">yes         </td>
+<td align="left">yes                   </td>
+<td align="left">キャッシュを消去</td>
+<td align="left">消える        </td>
+</tr>
+<tr>
+<td align="left">外部公開領域    </td>
+<td align="left">Environment.getExternalStorageDirectory()      </td>
+<td align="left">no          </td>
+<td align="left">yes                   </td>
+<td align="left">提供されず      </td>
+<td align="left">消えない      </td>
+</tr>
+<tr>
+<td align="left">外部公開共有領域</td>
+<td align="left">Environment.getExternalStoragePublicDirectory()</td>
+<td align="left">no          </td>
+<td align="left">yes                   </td>
+<td align="left">提供されず      </td>
+<td align="left">消えない      </td>
+</tr>
+</tbody>
+</table>
 
-&lt;FrameLayout
-    android:layout_width="100dp"
-    android:layout_height="100dp"
-    android:background="@drawable/star"&gt;
-    &lt;TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/aaa"
-        android:background="#ff0000"/&gt;
-&lt;/FrameLayout&gt;
 
-&lt;FrameLayout
-    android:layout_width="@dimen/original_drawable_width"
-    android:layout_height="@dimen/original_drawable_height"
-    android:background="@drawable/star"&gt;
-    &lt;TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/aaa"
-        android:background="#ff0000"/&gt;
-&lt;/FrameLayout&gt;
+<p>　</p>
 
-&lt;FrameLayout
-    android:layout_width="200dp"
-    android:layout_height="200dp"
-    android:background="@drawable/star"&gt;
-    &lt;TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/aaa"
-        android:background="#ff0000"/&gt;
-&lt;/FrameLayout&gt;
+<ul>
+<li>ユーザに見せたくないファイルは内部の領域を使う</li>
+<li>消えるとアプリが維持できなくなるようなファイルは、内部データ領域</li>
+<li>消えても全く問題ないような一時ファイルは、ユーザが消しやすいキャッシュ領域が良さそう</li>
+<li>アプリが消えても消したくないファイルは、外部公開領域にディレクトリ掘って作る</li>
+<li>端末全体に共有したいようなファイルは外部公開共有領域に入れる
+
+<ul>
+<li>カメラから取得した画像を保存するなら Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM) にディレクトリ掘るとか</li>
+<li>アプリで生成した画像を保存するなら Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURE) にディレクトリ掘るとか</li>
+</ul>
+</li>
+</ul>
+
+
+<h2>その他のまめ知識</h2>
+
+<ul>
+<li>キャッシュ領域にサイズ制限はないが、ストレージが圧迫されてくるとシステムによって消されることがあるらしい(未実験)
+
+<ul>
+<li><a href="http://stackoverflow.com/questions/2175843/limit-size-of-cache-directory">http://stackoverflow.com/questions/2175843/limit-size-of-cache-directory</a></li>
+<li>逆に言うと消えることが保証されているわけではないので、容量制限などを行う場合は自分で実装する</li>
+<li><a href="http://techbooster.org/android/application/16004/">こちら</a>によると 1MB 以下が推奨とあるが、現在もそうであるか不明。キャッシュ容量二桁MB越えのアプリは珍しくない気がする</li>
+</ul>
+</li>
+<li>マルチアカウント利用されている場合でも、 Context からディレクトリを取得していれば良きに計らってくれるみたい
+
+<ul>
+<li><a href="http://techbooster.org/android/application/16004/">http://techbooster.org/android/application/16004/</a></li>
+</ul>
+</li>
+<li>アプリをアンインストール時にも残しておきたいが、ユーザに見られたくない！消されたくない！は「できない」
+
+<ul>
+<li>このようなデータは公開領域に置くのが主流っぽいが、隠蔽することはできない</li>
+<li>せいぜい見つけづらいところに置くくらいしかできないので、補助的に使うしかない</li>
+</ul>
+</li>
+</ul>
+
+
+<h2>保存先はSDカード？内蔵ストレージ？</h2>
+
+<p>結論から言うと、 getExternal 系のメソッドでとれるディレクトリは、SDカードの場合もあれば内蔵ストレージの場合もあるようです。<br/>
+基本的にアプリ側からSDカードを指定して扱うようなことは <strong>できない</strong> というのが正しそうです。</p>
+
+<p>getExternal〜 でとれるディレクトリはシステムに決められたプライマリストレージであり、それがSDカードである保証はないということ。
+よく getExternalStorageDirectory() でSDカード内のディレクトリがとれるという記事を見ますが、正確にはSDカードである可能性が高いディレクトリがとれるというのが正しそうです。</p>
+
+<p>External という名前がついているので紛らわしいですが(というか完全に勘違いする)、これはSDカードのことをさしている訳ではなく、
+システム領域の外のストレージという意味で External とついているようです。(<a href="http://developer.android.com/reference/android/os/Environment.html#getExternalStorageDirectory%28%29">参考</a>)</p>
+
+<p>とはいえ getExternal〜 で取得したディレクトリを使う場合は、プライマリストレージがSDカードである可能性を考慮しなくてはいけないため、マウントされているかどうかなどを確かめる必要があります。</p>
+
+<p>``` java
+String state = Environment.getExternalStorageState()
+if(state.equals(Environment.MEDIA_MOUNTED)){</p>
+
+<pre><code>// マウントされていて read/write 可能
 </code></pre>
 
-<p></LinearLayout>
-```
-なんとなく次のように伸縮してくれそうな気がするが&hellip;</p>
+<p>}else if(state.equals(Environment.MEDIA_MOUNTED_READ_ONLY)){</p>
 
-<p><img src="/images/ninepatch-expand-success.png" alt="理想" /></p>
+<pre><code>// マウントされているが read 権限しかない
+</code></pre>
 
-<p>実際に表示されるレイアウトは以下のようになる。</p>
+<p>}else{</p>
 
-<p><img src="/images/ninepatch-expand-failure.png" alt="現実" /></p>
+<pre><code>// マウントされていない
+</code></pre>
 
-<p>もうちょっと気を利かせてくれても良さそうな気がするが、 View.java が setBackgroundDrawable() のときにしか padding を設定してくれないために、このようになってしまう。</p>
+<p>}
+```</p>
 
-<h2>コンテンツ領域を伸縮させる</h2>
+<p>今指定されているプライマリストレージが取り外し可能(普通はイコールSDカードになると思います)かどうかは以下を確認することで分かるので、取り外されるとまずい場合などは判別できそうです。</p>
 
-<p>そこで、 NinePatchDrawable から元々の padding を取得して、現在の View のサイズに合うように更新させてみる。</p>
+<p>``` java
+if(Environment.isExternalStorageRemovable()) {</p>
 
-<p><div><script src='https://gist.github.com/10258303.js'></script>
-<noscript><pre><code>package jp.lciel.example;
+<pre><code>// 取り外し可能
+</code></pre>
 
-import android.app.Activity;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.NinePatchDrawable;
-import android.os.Bundle;
-import android.view.Menu;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+<p>}
+```</p>
 
-public class MainActivity extends Activity {
+<p>ちなみに手持ちの 206SH / Android 4.2.2 で確認してみたところ、Environment のさしているプライマリストレージは内蔵メモリのようでした。<br/>
+ついでに 206SH でプライマリストレージを切り替えられるのかどうかを調べてみたけれど、結局切り替わる条件は不明でした。
+<code>java
+端末設定 &gt; ストレージ &gt; 優先インストール先
+</code>
+あたりで切り替えられそうだなーと睨んで色々と試行錯誤してみましたが、プライマリストレージは変わりませんでした。</p>
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+<h2>(おまけ)各ディレクトリのファイルパスなど</h2>
 
-        final ViewGroup rootView = (ViewGroup)findViewById(R.id.rootView);
-        // View のサイズが決まってから実行
-        rootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                int originalDrawableWidth  = getResources().getDimensionPixelSize(R.dimen.original_drawable_width);
-                int originalDrawableHeight = getResources().getDimensionPixelSize(R.dimen.original_drawable_height);
-                for (int i=0; i&lt;rootView.getChildCount(); i++) {
-                    View targetView = rootView.getChildAt(i);
-                    updatePadding(targetView, originalDrawableWidth, originalDrawableHeight);
-                }
-            }
-        });
-    }
+<p>Nexus7 のほうは getExternal〜 でとれるディレクトリがマルチアカウント対応の Emulated なものになってました。<br/>
+4.2 で追加されたマルチアカウントですが、 206SH では封じられているようです。</p>
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
+<p>``` text 206SH/Android4.2.2</p>
 
-    private void updatePadding(View targetView, int originalWidth, int originalHeight) {
-        Drawable background = targetView.getBackground();
-        if(background instanceof NinePatchDrawable) {
-            float scaleX = (float)targetView.getWidth() / (float)originalWidth;
-            float scaleY = (float)targetView.getHeight() / (float)originalHeight;
+<h1>各種ディレクトリ</h1>
 
-            Rect padding = new Rect();
-            ((NinePatchDrawable) background).getPadding(padding);
-            int left   = (int)(padding.left * scaleX);
-            int right  = (int)(padding.right * scaleX);
-            int top    = (int)(padding.top * scaleY);
-            int bottom = (int)(padding.bottom * scaleY);
-            targetView.setPadding(left, top, right, bottom);
-        }
-    }
+<p>Context.getFilesDir()                           :/data/data/com.example/files
+Context.getCacheDir()                           :/data/data/com.example/cache
+Context.getExternalCacheDir()                   :/storage/sdcard0/Android/data/com.example/cache
+Context.getExternalFilesDir()                   :/storage/sdcard0/Android/data/com.example/files
+Environment.getExternalStorageDirectory()       :/storage/sdcard0
+Environment.getExternalStoragePublicDirectory() :/storage/sdcard0/DCIM
+Environment.isExternalStorageEmulated()         :false
+Environment.isExternalStorageRemovable()        :false</p>
 
-}
-</code></pre></noscript></div>
-</p>
+<h1>マウント状況 &ndash; getFilesDir() などでとれるところ</h1>
 
-<p>これで以下のように伸縮してくれる(めんどう)。</p>
+<p>/dev/block/platform/msm_sdcc.1/by-name/userdata /data ext4 rw,nosuid,nodev,noatime,discard,noauto_da_alloc,data=ordered 0 0</p>
 
-<p><img src="/images/ninepatch-expand-success.png" alt="結果" /></p>
+<h1>マウント状況 &ndash; getExternalStorageDirectory() でとれるところ</h1>
+
+<p>/dev/fuse /storage/sdcard0 fuse rw,nosuid,nodev,relatime,user_id=1023,group_id=1023,default_permissions,allow_other 0 0</p>
+
+<h1>マウント状況 &ndash; 実際のSDカードがマウントされているところ</h1>
+
+<p>/dev/block/vold/179:33 /storage/sdcard0/external_sd vfat rw,dirsync,nosuid,nodev,noexec,relatime,uid=1000,gid=1015,fmask=0602,dmask=0602,allow_utime=0020,codepage=cp437,iocharset=iso8859-1,shortname=mixed,utf8,errors=remount-ro 0 0
+```</p>
+
+<p>``` text Nexus7(2013)/Android4.4.2</p>
+
+<h1>各種ディレクトリ</h1>
+
+<p>Context.getFilesDir()                           :/data/data/com.example/files
+Context.getCacheDir()                           :/data/data/com.example/cache
+Context.getExternalCacheDir()                   :/storage/emulated/0/Android/data/com.example/cache
+Context.getExternalFilesDir()                   :/storage/emulated/0/Android/data/com.example/files
+Environment.getExternalStorageDirectory()       :/storage/emulated/0
+Environment.getExternalStoragePublicDirectory() :/storage/emulated/0/DCIM
+Environment.isExternalStorageEmulated()         :true
+Environment.isExternalStorageRemovable()        :false</p>
+
+<h1>マウント状況 &ndash; getFilesDir() などでとれるところ</h1>
+
+<p>/dev/block/platform/msm_sdcc.1/by-name/userdata /data ext4 rw,seclabel,nosuid,nodev,noatime,nomblk_io_submit,errors=panic,data=ordered 0 0</p>
+
+<h1>マウント状況 &ndash; getExternalStorageDirectory() でとれるところの実体？</h1>
+
+<p>/dev/fuse /mnt/shell/emulated fuse rw,nosuid,nodev,relatime,user_id=1023,group_id=1023,default_permissions,allow_other 0 0</p>
+
+<h1>/storage/emulated に置いてあるシンボリックリンク</h1>
+
+<p>shell@flo:/ $ ls -la /storage/emulated/
+lrwxrwxrwx root     root              2014-01-30 19:47 legacy &ndash;> /mnt/shell/emulated/0
+```</p>
 ]]></content>
   </entry>
   
