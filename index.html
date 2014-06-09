@@ -9,7 +9,12 @@
   <meta name="author" content="lciel">
 
   
-  <meta name="description" content="9-Patch でコンテンツ領域を指定することはよくあるけれど、実は NinePatchDrawable を Background とした View のサイズを変更しても、コンテンツ領域(というか Padding) はうまい感じに伸縮してくれない。 たとえば次のような 9-Patch &hellip;">
+  <meta name="description" content="ついにねんがんの Google Glass をてにいれたぞ！(今更) ざっと触ってみたところで、使用感などのレビューをしてみます。 目次 Glass の見え方
+操作 音声入力
+タッチパネル
+その他の入力 デザイン
+スペックやバッテリなど
+まとめ ">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -79,6 +84,69 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/06/09/google-glass-review/">Google Glass レビュー</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-09T12:33:37+09:00" pubdate data-updated="true">Jun 9<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>ついにねんがんの Google Glass をてにいれたぞ！(今更)</p>
+
+<p><img src="/images/glass_review0.jpg" alt="Google Glass Box" /></p>
+
+<p>ざっと触ってみたところで、使用感などのレビューをしてみます。</p>
+
+<h2>目次</h2>
+
+<ul>
+<li>Glass の見え方</li>
+<li>操作
+
+<ul>
+<li>音声入力</li>
+<li>タッチパネル</li>
+<li>その他の入力</li>
+</ul>
+</li>
+<li>デザイン</li>
+<li>スペックやバッテリなど</li>
+<li>まとめ</li>
+</ul>
+
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/06/09/google-glass-review/">続きを読む &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -752,79 +820,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/12/11/android-custom-animation/">Android のアニメーションを自作する</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-12-11T20:15:00+09:00" pubdate data-updated="true">Dec 11<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Android で独自定義のカスタムアニメーションを作りたかったので試してみたところ、 Animation クラスを継承して割と簡単に作れたのでメモ。</p>
-
-<p>ここでは例として、 View を円周に沿って動かすようなアニメーションを作ってみました。<br/>
-アニメーションさせたい View に対して中心点を指定して、開始角度と終了角度を与えてアニメーションさせてみます。</p>
-
-<p><img src="/images/android-arc-translate-animation.png" alt="android-arc-translate-animation.png" /></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="cm">/**</span>
-</span><span class='line'><span class="cm"> * 円弧上に沿うように移動させるアニメーション</span>
-</span><span class='line'><span class="cm"> * @param startDegrees  開始角度</span>
-</span><span class='line'><span class="cm"> * @param endDegrees    終了角度</span>
-</span><span class='line'><span class="cm"> * @param centerXType   中心点のX座標のタイプ</span>
-</span><span class='line'><span class="cm"> * @param centerXValue  中心点のX座標を表す値</span>
-</span><span class='line'><span class="cm"> * @param centerYType   中心点のY座標のタイプ</span>
-</span><span class='line'><span class="cm"> * @param centerYValue  中心点のY座標を表す値</span>
-</span><span class='line'><span class="cm"> */</span>
-</span><span class='line'><span class="kd">public</span> <span class="nf">ArcTranslateAnimation</span><span class="o">(</span><span class="kt">int</span> <span class="n">startDegrees</span><span class="o">,</span> <span class="kt">int</span> <span class="n">endDegrees</span><span class="o">,</span>
-</span><span class='line'>        <span class="kt">int</span> <span class="n">centerXType</span><span class="o">,</span> <span class="kt">float</span> <span class="n">centerXValue</span><span class="o">,</span> <span class="kt">int</span> <span class="n">centerYType</span><span class="o">,</span> <span class="kt">float</span> <span class="n">centerYValue</span><span class="o">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2013/12/11/android-custom-animation/">続きを読む &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -840,6 +835,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/06/09/google-glass-review/">Google Glass レビュー</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/04/09/ninepatchs-content-bounds-is-not-flexible/">9-Patch のコンテンツ領域は伸縮しない</a>
       </li>
     
@@ -853,10 +852,6 @@
     
       <li class="post">
         <a href="/blog/2014/02/27/onfling-onscroll-getting-a-null-motionevent/">GestureDetector でリスナに渡ってくる MotionEvent が null になる</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/02/12/android-framework-resources/">Android デフォルトのアニメーションなどを調べる</a>
       </li>
     
   </ul>

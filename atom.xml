@@ -4,7 +4,7 @@
   <title><![CDATA[Unmotivated]]></title>
   <link href="http://blog.lciel.jp/atom.xml" rel="self"/>
   <link href="http://blog.lciel.jp/"/>
-  <updated>2014-04-09T21:09:55+09:00</updated>
+  <updated>2014-06-09T20:32:00+09:00</updated>
   <id>http://blog.lciel.jp/</id>
   <author>
     <name><![CDATA[lciel]]></name>
@@ -12,6 +12,157 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Google Glass レビュー]]></title>
+    <link href="http://blog.lciel.jp/blog/2014/06/09/google-glass-review/"/>
+    <updated>2014-06-09T12:33:37+09:00</updated>
+    <id>http://blog.lciel.jp/blog/2014/06/09/google-glass-review</id>
+    <content type="html"><![CDATA[<p>ついにねんがんの Google Glass をてにいれたぞ！(今更)</p>
+
+<p><img src="http://blog.lciel.jp/images/glass_review0.jpg" alt="Google Glass Box" /></p>
+
+<p>ざっと触ってみたところで、使用感などのレビューをしてみます。</p>
+
+<h2>目次</h2>
+
+<ul>
+<li>Glass の見え方</li>
+<li>操作
+
+<ul>
+<li>音声入力</li>
+<li>タッチパネル</li>
+<li>その他の入力</li>
+</ul>
+</li>
+<li>デザイン</li>
+<li>スペックやバッテリなど</li>
+<li>まとめ</li>
+</ul>
+
+
+<!-- more -->
+
+
+<h2>Glass の見え方</h2>
+
+<p>Glass に関して最も興味があったのが、どう見えるのか？という点でした。</p>
+
+<p>Glass は右目の視界に入るように設置されたプリズムに、映像が投射される仕組みになっています。<br/>
+この<a href="https://www.youtube.com/watch?v=4EvNxWhskf8">動画</a>だと視界の中央にディスプレイが表示されているように見えますが、実際は視界の右上に映像が浮かぶように表示され、右目の視界を占有するわけではありません。</p>
+
+<p><img src="http://blog.lciel.jp/images/glass_review1.jpg" alt="Glass Prism" /></p>
+
+<p>初見の感想としては、『未来感あるな』という感じです。<br/>
+ディスプレイが浮かんで見える様子は、同じウェアラブルでもスマートウォッチなどとは比べ物にならないわくわく感があります。</p>
+
+<p>一方で、映像は右目前に設置されたガラスのプリズムにむすばれるので、焦点をそこに合わせなければ Glass のディスプレイはほとんど認識できないのがかなり残念な点です。</p>
+
+<p><img src="http://blog.lciel.jp/images/glass_review2.jpg" alt="Glass Display" /></p>
+
+<p>ディスプレイを見つめると、瞳が右上方向に動き、若干あさっての方向を向いたような怪しい表情になります。
+また、焦点を目からとても近い位置に合わせることになるので、偉い疲れます。</p>
+
+<p>そして、見え方に関してなにより残念だったのが、実際に見ている風景とディスプレイを同時に見ることができないことです。</p>
+
+<p>ディスプレイと同時に風景が見えないとなると、 AR 的な展開への期待感はかなり薄れる感じがします。
+Word Lens のやり方のように、カメラからキャプチャした画像を置き換えるという方法が主流になるのでしょうか。
+AR を主眼に置いているらしい <a href="http://tele-pathy.org/">Telepathy One</a> はどういう見え方をするのか、とても気になるところです。(みてみたい)</p>
+
+<p>また、ディスプレイが小さいため、写真や動画などを見る際は『サムネイルくらい』の見え方になります。
+たとえば、レシピを Glass で撮影し、表示しながら料理を作るということにトライしてみたのですが、文字が小さすぎてとてもじゃないけど読めるレベルではありませんでした。</p>
+
+<p>割とネガティブな感想が続いてしまいましたが、一言で見え方をまとめると『疲れるし小さいが、確かなわくわく感がそこにある』という感じかなと思います。</p>
+
+<h2>操作</h2>
+
+<p>Glass への入力は、主に音声入力や、本体横のタッチパネルを通して行われます。<br/>
+インタフェースは無理なくうまく作られているなーと感じました。</p>
+
+<h3>音声入力</h3>
+
+<p>ホーム画面(？)で「OK, glass」と声をかけ、その後続けて各種 GlassWare(アプリケーション) の起動に割り当てられたコマンドを音声入力する事で、GlassWare を起動します。</p>
+
+<p>アプリケーション内でも「Share to」など、いくつかのコマンドを音声入力で拾ってくれます。
+音声入力を受け付けている場合、「OK, glass」の文字が小さく表示され、その後受付可能コマンドがディスプレイに表示されるため、仕組みを理解すれば迷う事無く音声入力できるようになります。</p>
+
+<p>音声入力は感度が高く、静かな所なら呟くような小声でも拾ってくれます。(ささやき声では無理でした)</p>
+
+<p>また、発音が悪すぎることで認識してくれないのではないか？とかなり危惧していたのですが、意外とすんなり入力可能でした。
+骨伝導マイクで音を拾っているのか、Glass を着けた状態でしか音声は認識されませんでした。</p>
+
+<h3>タッチパネル</h3>
+
+<p>Glass 右側、つるの部分についているタッチパネルを使う事で、音声入力無しでも Glass を操作する事が出来ます。</p>
+
+<p><img src="http://blog.lciel.jp/images/glass_review3.jpg" alt="Glass Touch Panel" /></p>
+
+<p>音声で操作するよりも、タッチパネルで操作する事のほうが実用的かと思います。<br/>
+Siri とかどのくらい使われてるんでしょうかね。</p>
+
+<p>タッチ操作はどのシーンにおいても、シングルタップ(決定)、下スワイプ(キャンセル・戻る)、左右スワイプ(選択)というシンプルなルールになっています。
+このルールのおかげで、タッチパネルの操作では迷う事がほぼありませんでした。</p>
+
+<h3>その他の入力</h3>
+
+<p>本体内側の近接センサー？(赤外線センサー？)でウィンクを判定しているようです。
+ウィンクを入力する事で写真が撮影できるのですが、反応しなかったり誤爆したりと、ウィンクよりも Glass の『つる』部分についている物理撮影ボタンを押す方に信頼感があります。ウィンク撮影機能を OFF にできるオプションが用意されていることからも、ウィンク判定には苦労していそうに感じます。</p>
+
+<p>頭を30度上に傾ける事で、Glass の sleep/wakeup を切り替えることができます。
+これはなかなか感度が良く、かなり実用的に思います。
+ディスプレイに表示される要素が多くてはみだす場合は、頭を傾ける事でスクロールが可能です。</p>
+
+<p>また、 Glass を外すと自動的に sleep し、着けると自動的に wakeup します。
+近接センサーと加速度センサーの組み合わせでしょうか、この機能の感度もいい感じです。</p>
+
+<h2>デザイン</h2>
+
+<p>思ったよりもデザインは洗練されていて、高級感もあり、ファッションとしてもなんとか受け入れられそうなレベルに感じました。
+着けた人に対して「あー、わりと似合う」というやり取りが発生したくらいです。
+デザイン的に日本には浸透できないんじゃないかと思っていましたが、全然そんなことは無さそうに思いました。</p>
+
+<p><img src="http://blog.lciel.jp/images/glass_review4.jpg" alt="Glass Design" /></p>
+
+<p>もちろん、ディスプレイが目立つため、街で着けていたらぎょっとすると思います。<br/>
+でも、それは昔 iPad を電車内で開いている人を見たときに感じたものと似た気持ちじゃないかなーと個人的には思います。</p>
+
+<h2>スペックやバッテリなど</h2>
+
+<p>Glass はヌルサクからはまだ程遠いです。</p>
+
+<p>タッチパネル入力の反応が悪かったり、動画の再生がコマ落ちしたり、固まったりする事が多々あります。
+初期の Android を思い出す動きです。</p>
+
+<p>パフォーマンスが極端に落ちる時は、同時にバッテリー(CPU？)が発熱している場合がほとんどなので、もしかしたら熱にやられているのかもしれません。
+色々なところで言われていますが、 Glass は連続して使用していると、がんがん発熱します。
+火傷しそうで着けていられない！という程ではないですが、夏場はちょっと辛そうに思います。</p>
+
+<p>バッテリの持ちに関しては、『通常使用で一日程度』と銘打たれているものの、実際は『ほとんど利用しないで一日程度』だと思った方が良さそうです。
+sleep させているときはそうでもないものの、 GlassWare を起動するとぐりぐりとバッテリが減っていきます。
+個人的には、むしろこの大きさでこの機能でこのくらい持つのが凄いなと思うのですが、一日着用して利用する場合を考えると、圧倒的に足りない気がします。</p>
+
+<h2>まとめ</h2>
+
+<p><strong>『とても未来を感じる面白いデバイスだが、すぐに必需品にはならなそう』</strong>というのが素直な感想です。</p>
+
+<p>現状のスペックと $1500 という値段を考えると、しばらくは高いおもちゃという位置づけになりそうです。</p>
+
+<p>そして何よりも、夢あふれるこのデバイスをどう使う？というのがやはり難しいです。
+Glass を実際に触ってみて、 Google が Explorer を集めていた理由をリアルに感じた気がします。<br/>
+かなり凄い機械なんですが、かなりやる事が無いのです。</p>
+
+<p>First Person の視点で写真や動画を撮ってシェアも面白かったですが、ほとんどの場合はスマホで十分であり、このために Glass を常用するものではなさそうです。
+ナビも感動しましたがこれもスマホで十分ですし、文字を認識して翻訳する Word Lens はおもしろかったですが、現状の認識速度だと実用には厳しそうです。
+(この辺りはハードウェアの向上で解決されるのかもしれませんが&hellip;)</p>
+
+<p>キラーコンテンツが生み出されるかどうかに、 Glass の今後がかかっていそうです。</p>
+
+<p>次は GlassWare を書いて遊んでみようと思います。</p>
+
+<p>※ Hangouts など、他にも面白そうだけれどまだ触っていないものもあるので、この辺りを触って印象が変わったらまた追記します</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[9-Patch のコンテンツ領域は伸縮しない]]></title>
@@ -2208,32 +2359,6 @@ Disqus にログインした状態で<a href="http://disqus.com/register">ここ
 </span><span class='line'><span class="cm">    */</span>
 </span><span class='line'>    <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>    <span class="c1">// これで onItemLongClick() のあとに onItemClick() が呼ばれなくなる</span>
 </span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[ViewFlipper の InAnimation を1つ目には適用しない]]></title>
-    <link href="http://blog.lciel.jp/blog/2013/11/21/disable-in-animation-of-viewflipper/"/>
-    <updated>2013-11-21T20:58:00+09:00</updated>
-    <id>http://blog.lciel.jp/blog/2013/11/21/disable-in-animation-of-viewflipper</id>
-    <content type="html"><![CDATA[<p>ViewFlipper に InAnimation を設定した状態で startFlipping() をコールした際に、1つ目の View にも InAnimation が適用されてしまうのを回避したい。</p>
-
-<p>AutoStart を指定せずに明示的に startFlipping() をコールした後に setInAnimation() してやれば OK</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">ViewFlipper</span> <span class="n">viewFlipper</span> <span class="o">=</span> <span class="o">(</span><span class="n">ViewFlipper</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">viewFlipper</span><span class="o">);</span>
-</span><span class='line'>
-</span><span class='line'><span class="c1">// viewFlipper.setAutoStart(true);</span>
-</span><span class='line'><span class="n">viewFlipper</span><span class="o">.</span><span class="na">startFlipping</span><span class="o">();</span>
-</span><span class='line'><span class="n">viewFlipper</span><span class="o">.</span><span class="na">setInAnimation</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">anim</span><span class="o">.</span><span class="na">fadein</span><span class="o">);</span>
-</span><span class='line'><span class="n">viewFlipper</span><span class="o">.</span><span class="na">setOutAnimation</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">R</span><span class="o">.</span><span class="na">anim</span><span class="o">.</span><span class="na">fadeout</span><span class="o">);</span>
 </span></code></pre></td></tr></table></div></figure>
 
 ]]></content>
