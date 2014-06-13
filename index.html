@@ -9,12 +9,14 @@
   <meta name="author" content="lciel">
 
   
-  <meta name="description" content="ついにねんがんの Google Glass をてにいれたぞ！(今更) ざっと触ってみたところで、使用感などのレビューをしてみます。 目次 Glass の見え方
-操作 音声入力
-タッチパネル
-その他の入力 デザイン
-スペックやバッテリなど
-まとめ ">
+  <meta name="description" content="Android において、静的にリソース名を指定せずに、動的にリソースIDを取得したいことが時々あります。 ある範囲のリソースが欲しいなど、一定の規則でリソース名が決まっている場合は以下の方法でリソースが取れます。 1
+2
+3
+4
+5
+6
+7
+// prefix0, prefix1, &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -84,6 +86,95 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/06/13/get-all-resource-ids/">Strings などのリソースを動的に取得する</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-06-13T11:58:51+09:00" pubdate data-updated="true">Jun 13<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Android において、静的にリソース名を指定せずに、動的にリソースIDを取得したいことが時々あります。</p>
+
+<p>ある範囲のリソースが欲しいなど、一定の規則でリソース名が決まっている場合は以下の方法でリソースが取れます。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// prefix0, prefix1, prefix2, ... と言う名前のリソースを取得する</span>
+</span><span class='line'><span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="o">;;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">resourceId</span> <span class="o">=</span> <span class="n">getResources</span><span class="o">().</span><span class="na">getIdentifire</span><span class="o">(</span><span class="s">&quot;prefix&quot;</span> <span class="o">+</span> <span class="n">String</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">i</span><span class="o">),</span> <span class="s">&quot;string&quot;</span><span class="o">,</span> <span class="n">getPackageName</span><span class="o">());</span>
+</span><span class='line'>    <span class="k">if</span><span class="o">(</span><span class="n">resourceId</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>    <span class="c1">// リソースを取得</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">str</span> <span class="o">=</span> <span class="n">getResources</span><span class="o">().</span><span class="na">getString</span><span class="o">(</span><span class="n">resourceId</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>全てのリソースが欲しい場合は Reflection でなんとかなります。<br/>
+例えば Strings に定義されたリソースを全て取得したい場合は、以下で取得可能です。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Field</span><span class="o">[]</span> <span class="n">fields</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="na">string</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getFields</span><span class="o">();</span>
+</span><span class='line'><span class="k">for</span><span class="o">(</span><span class="n">Field</span> <span class="nl">field:</span><span class="n">fields</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>        <span class="kt">int</span> <span class="n">resourceId</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="na">getInt</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">string</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">if</span><span class="o">(</span><span class="n">resourceId</span> <span class="o">!=</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="c1">// リソース名</span>
+</span><span class='line'>            <span class="n">String</span> <span class="n">resourceName</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="na">getName</span><span class="o">();</span>
+</span><span class='line'>            <span class="c1">// リソースを取得</span>
+</span><span class='line'>            <span class="n">String</span> <span class="n">str</span> <span class="o">=</span> <span class="n">getResources</span><span class="o">().</span><span class="na">getString</span><span class="o">(</span><span class="n">resourceId</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span><span class="k">catch</span><span class="o">(</span><span class="n">IllegalAccessException</span> <span class="n">e</span><span class="o">){</span>
+</span><span class='line'>        <span class="n">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="n">e</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -769,57 +860,6 @@
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2013/12/12/android-touch-event-2/">Android のタッチイベントを理解する(その2)</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2013-12-12T21:32:00+09:00" pubdate data-updated="true">Dec 12<span>th</span>, 2013</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><h2>Activity にタッチイベントが流れてくるまで</h2>
-
-<p><a href="/blog/2013/12/03/android-touch-event/">前回</a>は View のヒエラルキーのなかをどうやってタッチイベントが伝搬するかを追いました。<br/>
-参考にした資料には、 Activity#dispatchTouchEvent() からイベントが始まるとありますが、折角なのでそこまではどうなっているかも確認します。</p>
-
-<p>先に概要としてまとめてしまうとこんな雰囲気でした。</p>
-
-<p><img src="/images/android-touch-event-flow.png" alt="Activity に渡るまでのタッチイベント概要" /></p>
-
-<p>View システムの根っこの部分をきちんと理解できてないので、勘違いがあるかもしれません。
-(親子関係が特に怪しい)</p>
-
-</div>
-  
-  
-    <footer>
-      <a rel="full-article" href="/blog/2013/12/12/android-touch-event-2/">続きを読む &rarr;</a>
-    </footer>
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -835,6 +875,10 @@
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/06/13/get-all-resource-ids/">Strings などのリソースを動的に取得する</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/06/09/google-glass-review/">Google Glass レビュー</a>
       </li>
     
@@ -848,10 +892,6 @@
     
       <li class="post">
         <a href="/blog/2014/03/09/about-resources-and-drawables/">Android の Resources における画像(Drawable)についての話</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/02/27/onfling-onscroll-getting-a-null-motionevent/">GestureDetector でリスナに渡ってくる MotionEvent が null になる</a>
       </li>
     
   </ul>

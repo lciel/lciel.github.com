@@ -4,7 +4,7 @@
   <title><![CDATA[Unmotivated]]></title>
   <link href="http://blog.lciel.jp/atom.xml" rel="self"/>
   <link href="http://blog.lciel.jp/"/>
-  <updated>2014-06-09T21:49:01+09:00</updated>
+  <updated>2014-06-13T12:01:31+09:00</updated>
   <id>http://blog.lciel.jp/</id>
   <author>
     <name><![CDATA[lciel]]></name>
@@ -12,6 +12,68 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Strings などのリソースを動的に取得する]]></title>
+    <link href="http://blog.lciel.jp/blog/2014/06/13/get-all-resource-ids/"/>
+    <updated>2014-06-13T11:58:51+09:00</updated>
+    <id>http://blog.lciel.jp/blog/2014/06/13/get-all-resource-ids</id>
+    <content type="html"><![CDATA[<p>Android において、静的にリソース名を指定せずに、動的にリソースIDを取得したいことが時々あります。</p>
+
+<p>ある範囲のリソースが欲しいなど、一定の規則でリソース名が決まっている場合は以下の方法でリソースが取れます。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="c1">// prefix0, prefix1, prefix2, ... と言う名前のリソースを取得する</span>
+</span><span class='line'><span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="o">;;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">resourceId</span> <span class="o">=</span> <span class="n">getResources</span><span class="o">().</span><span class="na">getIdentifire</span><span class="o">(</span><span class="s">&quot;prefix&quot;</span> <span class="o">+</span> <span class="n">String</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">i</span><span class="o">),</span> <span class="s">&quot;string&quot;</span><span class="o">,</span> <span class="n">getPackageName</span><span class="o">());</span>
+</span><span class='line'>    <span class="k">if</span><span class="o">(</span><span class="n">resourceId</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="k">break</span><span class="o">;</span>
+</span><span class='line'>    <span class="c1">// リソースを取得</span>
+</span><span class='line'>    <span class="n">String</span> <span class="n">str</span> <span class="o">=</span> <span class="n">getResources</span><span class="o">().</span><span class="na">getString</span><span class="o">(</span><span class="n">resourceId</span><span class="o">);</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>全てのリソースが欲しい場合は Reflection でなんとかなります。<br/>
+例えば Strings に定義されたリソースを全て取得したい場合は、以下で取得可能です。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="n">Field</span><span class="o">[]</span> <span class="n">fields</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="na">string</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getFields</span><span class="o">();</span>
+</span><span class='line'><span class="k">for</span><span class="o">(</span><span class="n">Field</span> <span class="nl">field:</span><span class="n">fields</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>        <span class="kt">int</span> <span class="n">resourceId</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="na">getInt</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">string</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span><span class='line'>        <span class="k">if</span><span class="o">(</span><span class="n">resourceId</span> <span class="o">!=</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="c1">// リソース名</span>
+</span><span class='line'>            <span class="n">String</span> <span class="n">resourceName</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="na">getName</span><span class="o">();</span>
+</span><span class='line'>            <span class="c1">// リソースを取得</span>
+</span><span class='line'>            <span class="n">String</span> <span class="n">str</span> <span class="o">=</span> <span class="n">getResources</span><span class="o">().</span><span class="na">getString</span><span class="o">(</span><span class="n">resourceId</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span><span class="k">catch</span><span class="o">(</span><span class="n">IllegalAccessException</span> <span class="n">e</span><span class="o">){</span>
+</span><span class='line'>        <span class="n">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="n">e</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Google Glass レビュー]]></title>
@@ -2319,48 +2381,6 @@ Disqus にログインした状態で<a href="http://disqus.com/register">ここ
 
 
 <p>Android はマイナーバージョンアップでも、結構こういう細かい挙動変更が入ってくるので、以前動いていたものが突然動かなくなることが良くあるのだけれど、Android のコードを直接見に行けば答えが書いてあるので安心感がありますね。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[ListView で onItemClick() と onItemLongClick() を両立]]></title>
-    <link href="http://blog.lciel.jp/blog/2013/11/22/onitemclick-vs-onitemlongclick/"/>
-    <updated>2013-11-22T18:50:00+09:00</updated>
-    <id>http://blog.lciel.jp/blog/2013/11/22/onitemclick-vs-onitemlongclick</id>
-    <content type="html"><![CDATA[<p>ListView で onItemClick() と onItemLongClick() を同時に仕掛けた際に、指を離すタイミングによっては onItemLongClick() に続けて onItemClick() が呼ばれてしまう。</p>
-
-<p>一般的な Touch Event の例に漏れず、 onItemLongClick() で true を返しておけば、その後のイベントはキャンセルされる。</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Override</span>
-</span><span class='line'><span class="kd">public</span> <span class="kt">void</span> <span class="nf">onItemClick</span><span class="o">(</span><span class="n">AdapterView</span><span class="o">&lt;?&gt;</span> <span class="n">parent</span><span class="o">,</span> <span class="n">View</span> <span class="n">view</span><span class="o">,</span> <span class="kt">int</span> <span class="n">position</span><span class="o">,</span> <span class="kt">long</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="cm">/*</span>
-</span><span class='line'><span class="cm">        なんやかんや</span>
-</span><span class='line'><span class="cm">    */</span>
-</span><span class='line'><span class="o">}</span>
-</span><span class='line'>
-</span><span class='line'><span class="nd">@Override</span>
-</span><span class='line'><span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">onItemLongClick</span><span class="o">(</span><span class="n">AdapterView</span><span class="o">&lt;?&gt;</span> <span class="n">parent</span><span class="o">,</span> <span class="n">View</span> <span class="n">view</span><span class="o">,</span> <span class="kt">int</span> <span class="n">position</span><span class="o">,</span> <span class="kt">long</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
-</span><span class='line'>    <span class="cm">/*</span>
-</span><span class='line'><span class="cm">        なんやかんや</span>
-</span><span class='line'><span class="cm">    */</span>
-</span><span class='line'>    <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>    <span class="c1">// これで onItemLongClick() のあとに onItemClick() が呼ばれなくなる</span>
-</span><span class='line'><span class="o">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
 ]]></content>
   </entry>
   
